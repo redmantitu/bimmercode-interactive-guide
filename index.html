@@ -1,3 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Definitive Bimmercode Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: To accommodate a central, admin-managed database, the data is hardcoded into a JavaScript object within this file. The UI is dynamically rendered from this object. The previous "New Code" modal for users has been replaced with a "Request New Code" modal. This new modal integrates with GitHub by generating a pre-filled "New Issue" link, creating an effective admin workflow for a static site. -->
+    <!-- Visualization & Content Choices: Report Info: A large, centrally-managed list of coding mods -> Goal: Provide a comprehensive, read-only reference for users with a mechanism for feedback -> Presentation: Thematically grouped accordions rendered from the internal JS database. -> Interaction: Users click accordions to view details. A modal form captures feature requests and directs them to the project's GitHub Issues page. -> Justification: This read-only model is secure and robust for a public-facing static page. The GitHub Issue integration is the optimal solution for user feedback in this context, keeping all requests tracked and centralized for the admin. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #3D3D3D;
+        }
+        .accordion-header {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .accordion-header:hover {
+            background-color: #F0F0F0;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .accordion-item.open .accordion-content {
+            max-height: 1200px;
+        }
+        .accordion-item.open .accordion-arrow {
+            transform: rotate(180deg);
+        }
+        .modal {
+            background-color: rgba(0,0,0,0.5);
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="disclaimer-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg mx-auto">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold text-red-700 mb-4">Important Safety Disclaimer</h2>
+                <div class="prose prose-sm max-w-none text-gray-700">
+                    <p>Coding your vehicle comes with inherent risks. Please read and understand the following before proceeding:</p>
+                    <ul class="list-disc list-outside space-y-2 pl-4">
+                        <li><strong class="font-semibold">Warranty:</strong> Modifying your vehicle's software may void parts of your manufacturer's warranty.</li>
+                        <li><strong class="font-semibold">Backups:</strong> Bimmercode creates backups. Ensure you have one before making changes.</li>
+                        <li><strong class="font-semibold">Vehicle Health:</strong> Only code with a stable power supply (battery tender recommended).</li>
+                        <li><strong class="font-semibold">Responsibility:</strong> You are solely responsible for any changes made. Expert Mode requires extra caution. If unsure, do not change the setting.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-3 text-right rounded-b-lg">
+                <button id="close-disclaimer-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">I Understand and Accept</button>
+            </div>
+        </div>
+    </div>
+    
     <div id="request-code-modal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-auto">
         <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl mx-auto">
             <form id="request-code-form">
@@ -53,7 +119,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             
             // ADMIN CONFIGURATION
-            const GITHUB_REPO_URL = 'redmantitu/bimmercode-interactive-guide';
+            // The "database" is this 'appData' object. To add/edit/remove codes,
+            // modify this object directly and commit the file to your repository.
+            const GITHUB_REPO_URL = 'YOUR_USERNAME/YOUR_REPO'; // <-- IMPORTANT: REPLACE with your GitHub username/repo e.g., 'john-doe/bimmercode-guide'
             
             const appData = [
                 {
@@ -61,13 +129,52 @@
                     mods: [
                         { name: 'Remove iDrive & Camera Disclaimers', difficulty: 1, steps: [ {ecu: 'MGU', parameter: 'LEGAL_DISCLAIMER_TIME', value: 'kein_id'}, {ecu: 'MGU', parameter: 'MACRO_CAM_LEGALDISCLAIMER', value: 'kein_id'} ]},
                         { name: 'Digital Dash Theme', difficulty: 4, steps: [{ ecu: 'DKOMBI4', parameter: 'Display_Variante', value: 'm_sport, m_gmbh (M), alpina'}]},
-                        { name: 'M Startup Animation', difficulty: 2, steps: [{ecu: 'MGU', parameter: 'STARTUP_EMBLEM', value: 'bmw_m'}]},
-                        { name: 'Tire Pressure & Temperature Display', difficulty: 2, steps: [{ecu: 'MGU', parameter: 'RDC_DRUCK_TEMP', value: 'Druck_und_Temp'}]},
-                        { name: 'Video in Motion', difficulty: 5, steps: [{ecu: 'MGU', parameter: 'SPEEDLOCK_X_KMH_MAX / MIN', value: 'Set to FF (nicht_aktiv)'}]},
-                        { name: 'Rear Camera Zoom (Towbar)', difficulty: 2, steps: [{ecu: 'MGU', parameter: 'MACRO_TRAILER_COUPLING', value: 'aktiv'}]},
+                        { name: 'M Startup Animation', difficulty: 2, steps: [{ ecu: 'MGU', parameter: 'STARTUP_EMBLEM', value: 'bmw_m'}]},
+                        { name: 'Tire Pressure & Temperature Display', difficulty: 2, steps: [{ ecu: 'MGU', parameter: 'RDC_DRUCK_TEMP', value: 'Druck_und_Temp'}]},
+                        { name: 'Video in Motion', difficulty: 5, steps: [{ ecu: 'MGU', parameter: 'SPEEDLOCK_X_KMH_MAX / MIN', value: 'Set to FF (nicht_aktiv)'}]},
+                        { name: 'Rear Camera Zoom (Towbar)', difficulty: 2, steps: [{ ecu: 'MGU', parameter: 'MACRO_TRAILER_COUPLING', value: 'aktiv'}]},
                     ]
                 },
-                // ... other categories
+                {
+                    categoryName: 'Lighting',
+                    mods: [
+                        { name: '5-Blink Turn Signal', difficulty: 1, steps: [{ ecu: 'MGU', parameter: '5_FACH_TIPPBLINKEN', value: 'aktiv'}]},
+                        { name: 'Rear Lamps as Daytime Running Lights', difficulty: 2, steps: [{ ecu: 'BDC_BODY3', parameter: 'LIC_FEATURE_4', value: 'enable'}]},
+                    ]
+                },
+                {
+                    categoryName: 'Comfort & Convenience',
+                    mods: [
+                         { name: 'A/C System Memory', difficulty: 1, steps: [{ ecu: 'IHKA', parameter: 'MEMORY_OFF', value: 'aktiv'}]},
+                         { name: 'Window Roll-up on Door Open', difficulty: 2, steps: [{ ecu: 'BDC_BODY3', parameter: 'FH_TUERAUF_STOP_MAUT', value: 'nicht aktiv'}]},
+                         { name: 'Close Tailgate with Remote (Short Press)', difficulty: 2, steps: [{ ecu: 'HKFM', parameter: 'HECKKLAPPE_FUNKTION_TIPP', value: 'aktiv'}]},
+                    ]
+                },
+                {
+                    categoryName: 'Safety Systems & Warnings',
+                    mods: [
+                        { name: 'Remove Seatbelt Chimes', difficulty: 2, steps: [{ ecu: 'ACSM', parameter: 'Gurtwarnung_Fahrer / Gurtwarnung_Beifahrer', value: 'nicht aktiv'}]},
+                        { name: 'No Horn on Lock with Engine Running', difficulty: 2, steps: [{ ecu: 'BDC_BODY3', parameter: 'VAM_HORN_AT_SECURE', value: 'nicht aktiv'}]},
+                    ]
+                },
+                 {
+                    categoryName: 'Drivetrain & Driving Modes',
+                    mods: [
+                        { name: 'Auto Start-Stop Memory', difficulty: 1, steps: [{ ecu: 'BDC_BODY3', parameter: 'TCM_MSA_MEMORY', value: 'aktiv'}]},
+                        { name: 'Default Driving Mode on Startup', difficulty: 3, steps: [{ ecu: 'BDC_BODY3', parameter: 'FesPiaDefaultLastUserMode', value: 'Adaptive (0A), Sport (02), etc.'}]},
+                        { name: 'Enable Coasting in Comfort Mode', difficulty: 3, steps: [{ ecu: 'DKOMBI4', parameter: 'Segeln_In_Comfort_Modus', value: 'aktiv'}]},
+                    ]
+                },
+                {
+                    categoryName: 'Expert Mode & Advanced Coding',
+                    mods: [
+                        { name: 'Enable Sport+ & Comfort+ (Full)', difficulty: 7, steps: [{ecu: 'BDC_BODY3', path: '3221 PfFesMaster', parameter: 'FesSportWorldMode1', value: 'SportExpert'}, {ecu: 'BDC_BODY3', path: '3221 PfFesMaster', parameter: 'FesComfortWorldMode1', value: 'ComfortPlus'}, {ecu: 'MGU', path: '3008 FES', parameter: 'FES_SPORT_EXPERT', value: 'aktiv'}, {ecu: 'MGU', path: '3008 FES', parameter: 'FES_COMFORT_PLUS', value: 'aktiv'}]},
+                        { name: 'Bang & Olufsen Sound Profile', difficulty: 4, steps: [{ecu: 'MGU', path: '3002 Audio_Broadcast', parameter: 'Audio_System', value: 'alev4_ram (from alev3_ram)'}]},
+                        { name: 'M Performance Logo in Instrument Cluster', difficulty: 3, steps: [{ecu: 'DKOMBI4', path: '3000 Anzeige_Configuration', parameter: 'LOGO_SCHRIFTZUG', value: 'm_logo / m_performance'}]},
+                        { name: 'Lane Change Assistant', difficulty: 9, steps: [{ecu: 'BDC_BODY3', path: '', parameter: 'SpurWechsel_Assistent', value: 'aktiv'}, {ecu: 'HU_MGU', path: '', parameter: 'SpurWechselAssistent', value: 'Gen1'}, {ecu: 'SAS3', path: '', parameter: 'C_SWA_Vorhanden', value: 'Nr001_Vorhanden'}]},
+                        { name: 'Assisted Driving View', difficulty: 8, steps: [{ecu: 'DKOMBI4', path: '3000 Anzeige_Configuration', parameter: 'CB_FZG_UMGEBUNG_FAS', value: 'aktiv'}, {ecu: 'DKOMBI4', path: '3000 Anzeige_Configuration', parameter: 'CB_PRESELECT_NAVI_ANSICHT_FZG_UMGEBUNG', value: 'aktiv'}, {ecu: 'DKOMBI4', path: '3007 PIA_Einheiten', parameter: 'PIA_FZG_UMGEBUNG_FAS', value: 'aktiv'}]},
+                    ]
+                },
             ];
 
             function renderUI() {
@@ -131,26 +238,26 @@
                 stepCounter++;
                 const stepDiv = document.createElement('div');
                 stepDiv.className = 'p-4 border rounded-md bg-gray-50';
-                stepDiv.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="ecu-${stepCounter}" class="block text-sm font-medium text-gray-700">ECU</label>
-                            <input type="text" id="ecu-${stepCounter}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
-                        </div>
-                        <div>
-                            <label for="path-${stepCounter}" class="block text-sm font-medium text-gray-700">Path</label>
-                            <input type="text" id="path-${stepCounter}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
-                        </div>
-                        <div>
-                            <label for="parameter-${stepCounter}" class="block text-sm font-medium text-gray-700">Parameter</label>
-                            <input type="text" id="parameter-${stepCounter}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
-                        </div>
-                        <div>
-                            <label for="value-${stepCounter}" class="block text-sm font-medium text-gray-700">Value</label>
-                            <input type="text" id="value-${stepCounter}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
-                        </div>
-                    </div>
-                `;
+                stepDiv.innerHTML = "`" +
+                    "<div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\">" +
+                        "<div>" +
+                            "<label for=\"ecu-${stepCounter}\" class=\"block text-sm font-medium text-gray-700\">ECU</label>" +
+                            "<input type=\"text\" id=\"ecu-${stepCounter}\" required class=\"mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3\">"; +
+                        "</div>" +
+                        "<div>" +
+                            "<label for=\"path-${stepCounter}\" class=\"block text-sm font-medium text-gray-700\">Path</label>" +
+                            "<input type=\"text\" id=\"path-${stepCounter}\" class=\"mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3\">"; +
+                        "</div>" +
+                        "<div>" +
+                            "<label for=\"parameter-${stepCounter}\" class=\"block text-sm font-medium text-gray-700\">Parameter</label>" +
+                            "<input type=\"text\" id=\"parameter-${stepCounter}\" required class=\"mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3\">"; +
+                        "</div>" +
+                        "<div>" +
+                            "<label for=\"value-${stepCounter}\" class=\"block text-sm font-medium text-gray-700\">Value</label>" +
+                            "<input type=\"text\" id=\"value-${stepCounter}\" required class=\"mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3\">"; +
+                        "</div>" +
+                    "</div>
+                ";
                 stepsContainer.appendChild(stepDiv);
             }
 
@@ -200,9 +307,11 @@
                 };
 
                 const title = `[Code Request] ${modTitle}`;
-                const body = ````json
+                const body = `
+```json
 ${JSON.stringify(issueBody, null, 2)}
-````;
+```
+`;
                 
                 const url = `https://github.com/${GITHUB_REPO_URL}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
                 
@@ -223,3 +332,4 @@ ${JSON.stringify(issueBody, null, 2)}
     </script>
 </body>
 </html>
+
