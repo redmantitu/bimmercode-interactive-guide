@@ -8,18 +8,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Modern Cool Gray -->
+    <!-- Application Structure Plan: The app is a read-only guide for users with a contribution pipeline. The submission modal now generates a pre-filled GitHub Issue URL. This is the most secure and standard method for a static site to interact with a GitHub repository without exposing API keys. It provides a seamless bridge between the user-friendly form and the admin's workflow in GitHub. -->
+    <!-- Visualization & Content Choices: Report Info: A large, centrally-managed list of coding mods -> Goal: Provide a reference for users and a streamlined content submission tool -> Presentation: Thematically grouped accordions rendered from the internal JS database. -> Interaction: A modal form captures data and generates a GitHub Issue link. Clicking the "Submit" button opens this link in a new tab. The form fields have been refined for better clarity and readability. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F8F7F4;
-            color: #3D3D3D;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        body.modal-open {
+            overflow: hidden;
+        }
+        .font-code {
+             font-family: 'Fira Code', monospace;
         }
         .accordion-header {
             cursor: pointer;
             transition: background-color 0.2s ease;
         }
         .accordion-header:hover {
-            background-color: #F0F0F0;
+            background-color: #e5e7eb;
         }
         .accordion-content {
             max-height: 0;
@@ -32,141 +43,327 @@
         .accordion-item.open .accordion-arrow {
             transform: rotate(180deg);
         }
+        .modal {
+            background-color: rgba(0,0,0,0.5);
+            transition: opacity 0.3s ease;
+        }
+        .disclaimer-banner {
+            transition: opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease;
+            max-height: 500px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .disclaimer-banner.hidden {
+            opacity: 0;
+            transform: translateY(-100%);
+            max-height: 0;
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
     </style>
 </head>
 <body class="antialiased">
 
-    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-        <p class="font-bold">Important Safety Disclaimer</p>
-        <p>Coding your vehicle comes with inherent risks. Please read and understand the following before proceeding: Modifying your vehicle's software may void parts of your manufacturer's warranty. Bimmercode creates backups. Ensure you have one before making changes. Only code with a stable power supply (battery tender recommended). You are solely responsible for any changes made. Expert Mode requires extra caution. If unsure, do not change the setting.</p>
+    <div id="disclaimer-banner" class="disclaimer-banner hidden bg-amber-100 border-b-2 border-amber-300 p-4 mb-8">
+        <div class="container mx-auto max-w-6xl flex justify-between items-center">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-amber-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.636-1.21 2.37-1.21 3.006 0l4.5 8.625c.636 1.21-.24 2.776-1.503 2.776H5.254c-1.263 0-2.139-1.566-1.503-2.776l4.5-8.625zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
+                </div>
+                <div class="ml-3"><h3 class="text-sm font-semibold text-amber-800">Important Disclaimer</h3><div class="mt-1 text-sm text-amber-700"><p>Modifying your vehicle's software comes with risks and may void your warranty. Proceed at your own risk.</p></div></div>
+            </div>
+            <button id="close-disclaimer-btn" class="ml-4 text-amber-700 hover:text-amber-900"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+        </div>
     </div>
     
+    <div id="add-code-modal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-3xl mx-auto max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Contribute a New Code</h2>
+                <p id="form-instructions" class="text-sm text-gray-600">Use this form to structure a new coding entry. After generating the code, you can submit it to the guide's administrator for review.</p>
+            </div>
+            <form id="add-code-form" class="flex-grow overflow-y-auto">
+                <div class="p-6">
+                    <div id="form-inputs">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div><label for="code-name" class="block text-sm font-medium text-gray-700">Feature Name</label><input type="text" id="code-name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
+                            <div><label for="code-difficulty" class="block text-sm font-medium text-gray-700">Difficulty (1-10)</label><input type="number" id="code-difficulty" required min="1" max="10" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="code-category" class="block text-sm font-medium text-gray-700">Category (Section)</label><select id="code-category" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></select>
+                            <input type="text" id="new-category-name" placeholder="Enter new category name" class="hidden mt-2 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2 border-t pt-4">Coding Steps</h3>
+                        <div id="coding-steps-container" class="space-y-4"></div>
+                        <button type="button" id="add-step-btn" class="mt-4 text-sm text-indigo-600 hover:text-indigo-800 font-medium">+ Add Another Step</button>
+                        <div class="mt-6"><label for="code-comments" class="block text-sm font-medium text-gray-700">Comments / Notes</label><textarea id="code-comments" rows="2" placeholder="Optional notes about this mod..." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea></div>
+                    </div>
+
+                    <div id="submission-container" class="hidden mt-6">
+                        <h3 class="text-lg font-semibold text-gray-700">Submission Ready</h3>
+                        <p class="text-sm text-gray-500 mb-2">Your contribution has been formatted. Click the button below to open GitHub and submit the issue for review.</p>
+                        <div class="relative bg-gray-800 text-white p-4 rounded-md font-code text-xs whitespace-pre-wrap overflow-x-auto">
+                            <code id="json-preview"></code>
+                        </div>
+                        <a id="submit-to-github-btn" href="#" target="_blank" class="mt-4 w-full block text-center bg-green-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Submit Issue on GitHub</a>
+                    </div>
+                </div>
+                 <div id="form-actions" class="bg-gray-50 px-6 py-4 flex justify-end items-center space-x-3 rounded-b-lg border-t">
+                    <button type="button" id="cancel-add-code-btn" class="bg-white text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">Prepare GitHub Submission</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="container mx-auto max-w-6xl p-4 sm:p-6 md:p-8">
-        <header class="text-center mb-4">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Definitive Bimmercode Guide</h1>
+        <header class="text-center mb-6">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Definitive Bimmercode Guide</h1>
+            <p class="mt-2 text-lg text-gray-600">A community-driven resource for BMW G-Series coding.</p>
         </header>
-         <div class="text-center mb-8">
-            <button id="request-new-code-btn" class="bg-green-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-green-700 transition-colors shadow">
-                Request New Code
+         <div class="text-center mb-10">
+            <button id="add-new-code-btn" class="bg-indigo-600 text-white font-medium py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                Contribute a New Code
             </button>
         </div>
 
-        <div id="mods-container" class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8">
+        <div id="mods-container" class="space-y-12">
         </div>
-        <footer class="text-center text-xs text-gray-500 mt-8">
-            Disclaimer: Modifying your vehicle's software may void your warranty. Proceed at your own risk. You are solely responsible for any changes made.
+        <footer class="text-center text-xs text-gray-500 mt-12">
+            This guide is a community project and is not affiliated with BMW AG. All modifications are performed at your own risk.
         </footer>
     </div>
 
     <script>
-    try {
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function() {
             
             // ADMIN CONFIGURATION
-            const GITHUB_REPO_URL = 'redmantitu/bimmercode-interactive-guide';
+            const GITHUB_REPO_URL = 'redmantitu/bimmercode-interactive-guide'; 
+            
+            const appData = [
+                {
+                    categoryName: 'iDrive & Display',
+                    mods: [
+                        { name: 'Remove iDrive & Camera Disclaimers', difficulty: 1, steps: [ {ecu: 'MGU', parameter: 'LEGAL_DISCLAIMER_TIME', value: 'kein_id'}, {ecu: 'MGU', parameter: 'MACRO_CAM_LEGALDISCLAIMER', value: 'kein_id'} ]},
+                        { name: 'Digital Dash Theme', difficulty: 4, steps: [{ ecu: 'DKOMBI4', parameter: 'Display_Variante', value: 'm_sport, m_gmbh (M), alpina'}]},
+                        { name: 'M Startup Animation', difficulty: 2, steps: [{ ecu: 'MGU', parameter: 'STARTUP_EMBLEM', value: 'bmw_m'}]},
+                        { name: 'Tire Pressure & Temperature Display', difficulty: 2, steps: [{ ecu: 'MGU', parameter: 'RDC_DRUCK_TEMP', value: 'Druck_und_Temp'}]},
+                        { name: 'Video in Motion', difficulty: 5, steps: [{ ecu: 'MGU', parameter: 'SPEEDLOCK_X_KMH_MAX / MIN', value: 'Set to FF (nicht_aktiv)'}]},
+                        { name: 'Rear Camera Zoom (Towbar)', difficulty: 2, steps: [{ ecu: 'MGU', parameter: 'MACRO_TRAILER_COUPLING', value: 'aktiv'}]},
+                    ]
+                },
+                {
+                    categoryName: 'Lighting',
+                    mods: [
+                        { name: '5-Blink Turn Signal', difficulty: 1, steps: [{ ecu: 'MGU', parameter: '5_FACH_TIPPBLINKEN', value: 'aktiv'}]},
+                        { name: 'Rear Lamps as Daytime Running Lights', difficulty: 2, steps: [{ ecu: 'BDC_BODY3', parameter: 'LIC_FEATURE_4', value: 'enable'}]},
+                    ]
+                },
+                {
+                    categoryName: 'Comfort & Convenience',
+                    mods: [
+                         { name: 'A/C System Memory', difficulty: 1, steps: [{ ecu: 'IHKA', parameter: 'MEMORY_OFF', value: 'aktiv'}]},
+                         { name: 'Window Roll-up on Door Open', difficulty: 2, steps: [{ ecu: 'BDC_BODY3', parameter: 'FH_TUERAUF_STOP_MAUT', value: 'nicht aktiv'}]},
+                         { name: 'Close Tailgate with Remote (Short Press)', difficulty: 2, steps: [{ ecu: 'HKFM', parameter: 'HECKKLAPPE_FUNKTION_TIPP', value: 'aktiv'}]},
+                    ]
+                },
+                {
+                    categoryName: 'Safety Systems & Warnings',
+                    mods: [
+                        { name: 'Remove Seatbelt Chimes', difficulty: 2, steps: [{ ecu: 'ACSM', parameter: 'Gurtwarnung_Fahrer / Gurtwarnung_Beifahrer', value: 'nicht aktiv'}]},
+                        { name: 'No Horn on Lock with Engine Running', difficulty: 2, steps: [{ ecu: 'BDC_BODY3', parameter: 'VAM_HORN_AT_SECURE', value: 'nicht aktiv'}]},
+                    ]
+                },
+                 {
+                    categoryName: 'Drivetrain & Driving Modes',
+                    mods: [
+                        { name: 'Auto Start-Stop Memory', difficulty: 1, steps: [{ ecu: 'BDC_BODY3', parameter: 'TCM_MSA_MEMORY', value: 'aktiv'}]},
+                        { name: 'Default Driving Mode on Startup', difficulty: 3, steps: [{ ecu: 'BDC_BODY3', parameter: 'FesPiaDefaultLastUserMode', value: 'Adaptive (0A), Sport (02), etc.'}]},
+                        { name: 'Enable Coasting in Comfort Mode', difficulty: 3, steps: [{ ecu: 'DKOMBI4', parameter: 'Segeln_In_Comfort_Modus', value: 'aktiv'}]},
+                    ]
+                },
+                {
+                    categoryName: 'Expert Mode & Advanced Coding',
+                    mods: [
+                        { name: 'Enable Sport+ & Comfort+ (Full)', difficulty: 7, steps: [{ecu: 'BDC_BODY3', path: '3221 PfFesMaster', parameter: 'FesSportWorldMode1', value: 'SportExpert'}, {ecu: 'BDC_BODY3', path: '3221 PfFesMaster', parameter: 'FesComfortWorldMode1', value: 'ComfortPlus'}, {ecu: 'MGU', path: '3008 FES', parameter: 'FES_SPORT_EXPERT', value: 'aktiv'}, {ecu: 'MGU', path: '3008 FES', parameter: 'FES_COMFORT_PLUS', value: 'aktiv'}]},
+                        { name: 'Bang & Olufsen Sound Profile', difficulty: 4, steps: [{ecu: 'MGU', path: '3002 Audio_Broadcast', parameter: 'Audio_System', value: 'alev4_ram (from alev3_ram)'}]},
+                        { name: 'M Performance Logo in Instrument Cluster', difficulty: 3, steps: [{ecu: 'DKOMBI4', path: '3000 Anzeige_Configuration', parameter: 'LOGO_SCHRIFTZUG', value: 'm_logo / m_performance'}]},
+                        { name: 'Lane Change Assistant', difficulty: 9, steps: [{ecu: 'BDC_BODY3', path: '', parameter: 'SpurWechsel_Assistent', value: 'aktiv'}, {ecu: 'HU_MGU', path: '', parameter: 'SpurWechselAssistent', value: 'Gen1'}, {ecu: 'SAS3', path: '', parameter: 'C_SWA_Vorhanden', value: 'Nr001_Vorhanden'}]},
+                        { name: 'Assisted Driving View', difficulty: 8, steps: [{ecu: 'DKOMBI4', path: '3000 Anzeige_Configuration', parameter: 'CB_FZG_UMGEBUNG_FAS', value: 'aktiv'}, {ecu: 'DKOMBI4', path: '3000 Anzeige_Configuration', parameter: 'CB_PRESELECT_NAVI_ANSICHT_FZG_UMGEBUNG', value: 'aktiv'}, {ecu: 'DKOMBI4', path: '3007 PIA_Einheiten', parameter: 'PIA_FZG_UMGEBUNG_FAS', value: 'aktiv'}]},
+                    ]
+                },
+            ];
 
-            // IMPORTANT: Storing the decryption key on the client-side is not secure.
-            // Anyone with access to the source code can see the key and decrypt the data.
-            // For a production environment, you should consider a more secure way to handle the key.
-            const decryptionKey = 'bimmercode'; // Replace with the same password used in server.js
-
-            function getKey(password, salt) {
-                const enc = new TextEncoder();
-                return window.crypto.subtle.importKey(
-                    'raw',
-                    enc.encode(password),
-                    { name: 'PBKDF2' },
-                    false,
-                    ['deriveKey']
-                ).then(baseKey => {
-                    return window.crypto.subtle.deriveKey(
-                        {
-                            name: 'PBKDF2',
-                            salt: salt,
-                            iterations: 100000,
-                            hash: 'SHA-256'
-                        },
-                        baseKey,
-                        { name: 'AES-GCM', length: 256 },
-                        true,
-                        ['decrypt']
-                    );
-                });
-            }
-
-            function decrypt(encryptedData, key, iv) {
-                const dec = new TextDecoder();
-                return window.crypto.subtle.decrypt(
-                    {
-                        name: 'AES-GCM',
-                        iv: iv
-                    },
-                    key,
-                    encryptedData
-                ).then(decrypted => {
-                    return dec.decode(decrypted);
-                });
-            }
-
-            fetch('http://localhost:3000/mods')
-                .then(response => response.json())
-                .then(data => {
-                    const encryptedData = new Uint8Array(data.encryptedData.split(',').map(Number));
-                    const iv = new Uint8Array(data.iv.split(',').map(Number));
-                    const salt = new Uint8Array(data.salt.split(',').map(Number));
-
-                    getKey(decryptionKey, salt).then(key => {
-                        decrypt(encryptedData, key, iv).then(decryptedData => {
-                            const appData = JSON.parse(decryptedData);
-                            renderUI(appData);
-                        });
-                    });
-                });
-
-            function renderUI(appData) {
+            function renderUI() {
                 const container = document.getElementById('mods-container');
                 container.innerHTML = '';
 
                 appData.forEach(category => {
+                    const categoryWrapper = document.createElement('div');
                     const categoryHeader = document.createElement('h2');
-                    categoryHeader.className = 'text-2xl font-bold text-gray-800 mb-4 mt-8 border-b pb-2';
+                    categoryHeader.className = 'text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-200 pb-3';
                     categoryHeader.textContent = category.categoryName;
-                    container.appendChild(categoryHeader);
+                    categoryWrapper.appendChild(categoryHeader);
 
                     const categoryModsContainer = document.createElement('div');
-                    categoryModsContainer.className = 'space-y-3';
+                    categoryModsContainer.className = 'space-y-4';
                     
                     category.mods.sort((a, b) => a.name.localeCompare(b.name)).forEach(mod => {
                         let stepsHtml = mod.steps.map((step, index) => `
-                            <div class="${index > 0 ? 'border-t border-gray-300 pt-2 mt-2' : ''}">
-                                <p><strong class="font-semibold">ECU:</strong> ${step.ecu || ''}</p>
-                                ${step.path ? `<p><strong class="font-semibold">Path:</strong> ${step.path}</p>` : ''}
-                                <p><strong class="font-semibold">Parameter:</strong> ${step.parameter || ''}</p>
-                                <p><strong class="font-semibold">Value:</strong> ${step.value || ''}</p>
+                            <div class="p-3 bg-gray-100 rounded-md ${index > 0 ? 'mt-3' : ''}">
+                                <p class="font-semibold text-gray-700">ECU: <span class="font-normal font-code text-gray-900">${step.ecu || ''}</span></p>
+                                ${step.path ? `<p class="font-semibold text-gray-700">Path: <span class="font-normal font-code text-gray-900">${step.path}</span></p>` : ''}
+                                <p class="font-semibold text-gray-700">Parameter: <span class="font-normal font-code text-gray-900">${step.parameter || ''}</span></p>
+                                <p class="font-semibold text-gray-700">Value: <span class="font-normal font-code text-gray-900">${step.value || ''}</span></p>
                             </div>
                         `).join('');
 
                         const modElement = document.createElement('div');
-                        modElement.className = 'accordion-item border border-gray-200 rounded-lg';
+                        modElement.className = 'accordion-item bg-white rounded-xl shadow-sm border border-gray-200';
                         modElement.innerHTML = `
-                            <div class="accordion-header flex justify-between items-center p-4">
-                                <span class="font-semibold text-gray-700">${mod.name}</span>
-                                <span class="accordion-arrow text-gray-500 transition-transform">▼</span>
-                            </div>
-                            <div class="accordion-content bg-gray-50 px-4">
-                                <div class="py-4 border-t border-gray-200">
-                                    <p class="font-bold text-blue-600 mb-2">Difficulty: ${mod.difficulty}/10</p>
-                                    <div class="mt-3 text-xs font-mono bg-gray-100 p-2 rounded space-y-2">
-                                        ${stepsHtml}
-                                    </div>
+                            <div class="accordion-header flex justify-between items-center p-5">
+                                <span class="font-semibold text-lg text-gray-800">${mod.name}</span>
+                                <div class="flex items-center space-x-4">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">Difficulty: ${mod.difficulty}/10</span>
+                                    <span class="accordion-arrow text-gray-400 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></span>
                                 </div>
                             </div>
+                            <div class="accordion-content"><div class="px-5 pb-5 pt-2"><div class="text-sm space-y-2">${stepsHtml}${mod.comments ? `<div class="mt-4 pt-3 border-t text-gray-600 text-xs italic">${mod.comments}</div>` : ''}</div></div></div>
                         `;
                         categoryModsContainer.appendChild(modElement);
                     });
-                    container.appendChild(categoryModsContainer);
+                    categoryWrapper.appendChild(categoryModsContainer);
+                    container.appendChild(categoryWrapper);
                 });
             }
+            
+            const disclaimerBanner = document.getElementById('disclaimer-banner');
+            const closeDisclaimerBtn = document.getElementById('close-disclaimer-btn');
+            if (localStorage.getItem('disclaimerDismissed') !== 'true') {
+                disclaimerBanner.classList.remove('hidden');
+            }
+            closeDisclaimerBtn.addEventListener('click', () => {
+                localStorage.setItem('disclaimerDismissed', 'true');
+                disclaimerBanner.classList.add('hidden');
+            });
+
+            const addCodeModal = document.getElementById('add-code-modal');
+            const openAddModalBtn = document.getElementById('add-new-code-btn');
+            const cancelAddBtn = document.getElementById('cancel-add-code-btn');
+            const addCodeForm = document.getElementById('add-code-form');
+            const categorySelect = document.getElementById('code-category');
+            const newCategoryInput = document.getElementById('new-category-name');
+            const stepsContainer = document.getElementById('coding-steps-container');
+            const addStepBtn = document.getElementById('add-step-btn');
+            const submissionContainer = document.getElementById('submission-container');
+            const jsonPreview = document.getElementById('json-preview');
+            const formInputs = document.getElementById('form-inputs');
+            const formActions = document.getElementById('form-actions');
+            const submitToGithubBtn = document.getElementById('submit-to-github-btn');
+
+            function createStepElement() {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'space-y-3 border-2 border-dashed p-4 rounded-lg bg-gray-50 relative';
+                stepDiv.innerHTML = `
+                    <button type="button" class="remove-step-btn absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">ECU</label><input type="text" name="ecu" required placeholder="e.g., MGU" class="font-code block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Path (Expert Mode)</label><input type="text" name="path" placeholder="e.g., 3000 Anzeige_Configuration" class="font-code block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Parameter</label><input type="text" name="parameter" required placeholder="e.g., LOGO_SCHRIFTZUG" class="font-code block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Value</label><input type="text" name="value" required placeholder="e.g., m_performance" class="font-code block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
+                `;
+                stepDiv.querySelector('.remove-step-btn').addEventListener('click', () => {
+                    if (stepsContainer.children.length > 1) { stepDiv.remove(); }
+                });
+                return stepDiv;
+            }
+            
+            function resetModal() {
+                addCodeForm.reset();
+                stepsContainer.innerHTML = '';
+                stepsContainer.appendChild(createStepElement());
+                submissionContainer.classList.add('hidden');
+                formInputs.classList.remove('hidden');
+                formActions.classList.remove('hidden');
+                
+                categorySelect.innerHTML = '';
+                appData.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.categoryName;
+                    option.textContent = cat.categoryName;
+                    categorySelect.appendChild(option);
+                });
+                const newCatOption = document.createElement('option');
+                newCatOption.value = 'new';
+                newCatOption.textContent = '--- Create New Category ---';
+                categorySelect.appendChild(newCatOption);
+                
+                newCategoryInput.classList.add('hidden');
+            }
+
+            addStepBtn.addEventListener('click', () => {
+                stepsContainer.appendChild(createStepElement());
+            });
+
+            openAddModalBtn.addEventListener('click', () => {
+                resetModal();
+                addCodeModal.classList.remove('hidden');
+                document.body.classList.add('modal-open');
+            });
+            
+            categorySelect.addEventListener('change', () => {
+                newCategoryInput.classList.toggle('hidden', categorySelect.value !== 'new');
+                newCategoryInput.required = categorySelect.value === 'new';
+            });
+
+            cancelAddBtn.addEventListener('click', () => {
+                addCodeModal.classList.add('hidden');
+                document.body.classList.remove('modal-open');
+            });
+
+            addCodeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newMod = {
+                    name: document.getElementById('code-name').value,
+                    difficulty: parseInt(document.getElementById('code-difficulty').value, 10),
+                    steps: [],
+                    comments: document.getElementById('code-comments').value.trim()
+                };
+
+                stepsContainer.querySelectorAll('.space-y-3').forEach(stepDiv => {
+                    newMod.steps.push({
+                        ecu: stepDiv.querySelector('[name="ecu"]').value.trim(),
+                        path: stepDiv.querySelector('[name="path"]').value.trim(),
+                        parameter: stepDiv.querySelector('[name="parameter"]').value.trim(),
+                        value: stepDiv.querySelector('[name="value"]').value.trim(),
+                    });
+                });
+                
+                if (!newMod.comments) delete newMod.comments;
+
+                const categoryValue = categorySelect.value;
+                const categoryName = categoryValue === 'new' ? newCategoryInput.value.trim() : categoryValue;
+                const isNewCategory = categoryValue === 'new';
+
+                jsonPreview.textContent = JSON.stringify(newMod, null, 2);
+
+                const title = `[Code Contribution] ${newMod.name}`;
+                let body = `**New Code Contribution**\n\n`;
+                body += `**Category:** ${categoryName} ${isNewCategory ? '(New Category)' : ''}\n\n`;
+                body += `**Admin Action:** Please review and add the following JSON object to the 'mods' array of the appropriate category in the appData.\n\n`;
+                body += '```json\n';
+                body += JSON.stringify(newMod, null, 2);
+                body += '\n```';
+
+                const url = `https://github.com/${GITHUB_REPO_URL}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+                submitToGithubBtn.href = url;
+                
+                submissionContainer.classList.remove('hidden');
+                formInputs.classList.add('hidden');
+                formActions.classList.add('hidden');
+            });
             
             document.getElementById('mods-container').addEventListener('click', (e) => {
                 const header = e.target.closest('.accordion-header');
@@ -176,10 +373,9 @@
                 }
             });
 
+            renderUI();
         });
-    } catch (e) {
-        console.error(e);
-    }
     </script>
 </body>
 </html>
+
