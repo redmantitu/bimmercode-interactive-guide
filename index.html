@@ -79,9 +79,16 @@
     
     <div id="add-code-modal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-lg shadow-2xl w-full max-w-3xl mx-auto max-h-[90vh] flex flex-col">
-            <div class="p-6 border-b">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">Contribute a New Code</h2>
-                <p id="form-instructions" class="text-sm text-gray-600">Use this form to structure a new coding entry. After generating the code, you can submit it to the guide's administrator for review.</p>
+            <div class="p-6 border-b flex justify-between items-start">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Contribute a New Code</h2>
+                    <p id="form-instructions" class="text-sm text-gray-600">Use this form to structure a new coding entry. After generating the code, you can submit it to the guide's administrator for review.</p>
+                </div>
+                <button type="button" id="close-modal-x-btn" class="ml-4 text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
             <form id="add-code-form" class="flex-grow overflow-y-auto">
                 <div class="p-6">
@@ -261,6 +268,7 @@
             const formInputs = document.getElementById('form-inputs');
             const formActions = document.getElementById('form-actions');
             const submitToGithubBtn = document.getElementById('submit-to-github-btn');
+            const closeModalXBtn = document.getElementById('close-modal-x-btn');
 
             function createStepElement() {
                 const stepDiv = document.createElement('div');
@@ -317,11 +325,14 @@
                 newCategoryInput.classList.toggle('hidden', categorySelect.value !== 'new');
                 newCategoryInput.required = categorySelect.value === 'new';
             });
-
-            cancelAddBtn.addEventListener('click', () => {
+            
+            const closeModal = () => {
                 addCodeModal.classList.add('hidden');
                 document.body.classList.remove('modal-open');
-            });
+            };
+
+            cancelAddBtn.addEventListener('click', closeModal);
+            closeModalXBtn.addEventListener('click', closeModal);
 
             addCodeForm.addEventListener('submit', (e) => {
                 e.preventDefault();
