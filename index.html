@@ -7,11 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: To accommodate a central, admin-managed database, the data is hardcoded into a JavaScript object within this file. The UI is dynamically rendered from this object. The previous "New Code" modal for users has been replaced with a "Request New Code" modal. This new modal integrates with GitHub by generating a pre-filled "New Issue" link, creating an effective admin workflow for a static site. -->
-    <!-- Visualization & Content Choices: Report Info: A large, centrally-managed list of coding mods -> Goal: Provide a comprehensive, read-only reference for users with a mechanism for feedback -> Presentation: Thematically grouped accordions rendered from the internal JS database. -> Interaction: Users click accordions to view details. A modal form captures feature requests and directs them to the project's GitHub Issues page. -> Justification: This read-only model is secure and robust for a public-facing static page. The GitHub Issue integration is the optimal solution for user feedback in this context, keeping all requests tracked and centralized for the admin. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -116,23 +112,20 @@
     </div>
 
     <script>
+    try {
         document.addEventListener('DOMContentLoaded', function() {
             
             // ADMIN CONFIGURATION
-            // The "database" is this 'appData' object. To add/edit/remove codes,
-            // modify this object directly and commit the file to your repository.
-            const GITHUB_REPO_URL = 'redmantitu/bimmercode-interactive-guide'; // &lt;-- IMPORTANT: REPLACE with your GitHub username/repo e.g., 'john-doe/bimmercode-guide'
+            const GITHUB_REPO_URL = 'redmantitu/bimmercode-interactive-guide';
             
             const appData = [
                 {
-                    categoryName: 'iDrive &amp; Display',
+                    categoryName: 'iDrive & Display',
                     mods: [
-                        { name: 'Remove iDrive &amp; Camera Disclaimers', difficulty: 1, steps: [ {ecu: 'MGU', parameter: 'LEGAL_DISCLAIMER_TIME', value: 'kein_id'}, {ecu: 'MGU', parameter: 'MACRO_CAM_LEGALDISCLAIMER', value: 'kein_id'} ]},
-                        { name: 'Digital Dash Theme', difficulty: 4, steps: [{ecu: 'DKOMBI4', parameter: 'Display_Variante', value: 'm_sport, m_gmbh (M), alpina'}]}
-                        ,
-                        { name: 'M Startup Animation', difficulty: 2, steps: [{ecu: 'MGU', parameter: 'STARTUP_EMBLEM', value: 'bmw_m'}]}
-                        ,
-                        { name: 'Tire Pressure &amp; Temperature Display', difficulty: 2, steps: [{ecu: 'MGU', parameter: 'RDC_DRUCK_TEMP', value: 'Druck_und_Temp'}]}
+                        { name: 'Remove iDrive & Camera Disclaimers', difficulty: 1, steps: [ {ecu: 'MGU', parameter: 'LEGAL_DISCLAIMER_TIME', value: 'kein_id'}, {ecu: 'MGU', parameter: 'MACRO_CAM_LEGALDISCLAIMER', value: 'kein_id'} ]},
+                        { name: 'Digital Dash Theme', difficulty: 4, steps: [{ ecu: 'DKOMBI4', parameter: 'Display_Variante', value: 'm_sport, m_gmbh (M), alpina'}]},
+                        { name: 'M Startup Animation', difficulty: 2, steps: [{ ecu: 'MGU', parameter: 'STARTUP_EMBLEM', value: 'bmw_m'}]},
+                        { name: 'Tire Pressure & Temperature Display', difficulty: 2, steps: [{ecu: 'MGU', parameter: 'RDC_DRUCK_TEMP', value: 'Druck_und_Temp'}]}
                         ,
                         { name: 'Video in Motion', difficulty: 5, steps: [{ecu: 'MGU', parameter: 'SPEEDLOCK_X_KMH_MAX / MIN', value: 'Set to FF (nicht_aktiv)'}]}
                         ,
@@ -148,7 +141,7 @@
                     ]
                 },
                 {
-                    categoryName: 'Comfort &amp; Convenience',
+                    categoryName: 'Comfort & Convenience',
                     mods: [
                          { name: 'A/C System Memory', difficulty: 1, steps: [{ecu: 'IHKA', parameter: 'MEMORY_OFF', value: 'aktiv'}]}
                          ,
@@ -158,7 +151,7 @@
                     ]
                 },
                 {
-                    categoryName: 'Safety Systems &amp; Warnings',
+                    categoryName: 'Safety Systems & Warnings',
                     mods: [
                         { name: 'Remove Seatbelt Chimes', difficulty: 2, steps: [{ecu: 'ACSM', parameter: 'Gurtwarnung_Fahrer / Gurtwarnung_Beifahrer', value: 'nicht aktiv'}]}
                         ,
@@ -166,7 +159,7 @@
                     ]
                 },
                  {
-                    categoryName: 'Drivetrain &amp; Driving Modes',
+                    categoryName: 'Drivetrain & Driving Modes',
                     mods: [
                         { name: 'Auto Start-Stop Memory', difficulty: 1, steps: [{ecu: 'BDC_BODY3', parameter: 'TCM_MSA_MEMORY', value: 'aktiv'}]}
                         ,
@@ -176,11 +169,11 @@
                     ]
                 },
                 {
-                    categoryName: 'Expert Mode &amp; Advanced Coding',
+                    categoryName: 'Expert Mode & Advanced Coding',
                     mods: [
-                        { name: 'Enable Sport+ &amp; Comfort+ (Full)', difficulty: 7, steps: [{ecu: 'BDC_BODY3', path: '3221 PfFesMaster', parameter: 'FesSportWorldMode1', value: 'SportExpert'}, {ecu: 'BDC_BODY3', path: '3221 PfFesMaster', parameter: 'FesComfortWorldMode1', value: 'ComfortPlus'}, {ecu: 'MGU', path: '3008 FES', parameter: 'FES_SPORT_EXPERT', value: 'aktiv'}, {ecu: 'MGU', path: '3008 FES', parameter: 'FES_COMFORT_PLUS', value: 'aktiv'}]}
+                        { name: 'Enable Sport+ & Comfort+ (Full)', difficulty: 7, steps: [{ecu: 'BDC_BODY3', path: '3221 PfFesMaster', parameter: 'FesSportWorldMode1', value: 'SportExpert'}, {ecu: 'BDC_BODY3', path: '3221 PfFesMaster', parameter: 'FesComfortWorldMode1', value: 'ComfortPlus'}, {ecu: 'MGU', path: '3008 FES', parameter: 'FES_SPORT_EXPERT', value: 'aktiv'}, {ecu: 'MGU', path: '3008 FES', parameter: 'FES_COMFORT_PLUS', value: 'aktiv'}]}
                         ,
-                        { name: 'Bang &amp; Olufsen Sound Profile', difficulty: 4, steps: [{ecu: 'MGU', path: '3002 Audio_Broadcast', parameter: 'Audio_System', value: 'alev4_ram (from alev3_ram)'}]}
+                        { name: 'Bang & Olufsen Sound Profile', difficulty: 4, steps: [{ecu: 'MGU', path: '3002 Audio_Broadcast', parameter: 'Audio_System', value: 'alev4_ram (from alev3_ram)'}]}
                         ,
                         { name: 'M Performance Logo in Instrument Cluster', difficulty: 3, steps: [{ecu: 'DKOMBI4', path: '3000 Anzeige_Configuration', parameter: 'LOGO_SCHRIFTZUG', value: 'm_logo / m_performance'}]}
                         ,
@@ -343,6 +336,9 @@ ${JSON.stringify(issueBody, null, 2)}
 
             renderUI();
         });
+    } catch (e) {
+        console.error(e);
+    }
     </script>
 </body>
 </html>
