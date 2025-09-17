@@ -10,9 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Modern Cool Gray -->
-    <!-- Application Structure Plan: The app is a read-only guide for users with a contribution pipeline. The submission modal now generates a pre-filled GitHub Issue URL. This is the most secure and standard method for a static site to interact with a GitHub repository without exposing API keys. It provides a seamless bridge between the user-friendly form and the admin's workflow in GitHub. -->
-    <!-- Visualization & Content Choices: Report Info: A large, centrally-managed list of coding mods -> Goal: Provide a reference for users and a streamlined content submission tool -> Presentation: Thematically grouped accordions rendered from the internal JS database. -> Interaction: A modal form captures data and generates a GitHub Issue link. Clicking the "Submit" button opens this link in a new tab. The form fields have been refined for better clarity and readability. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -82,7 +79,7 @@
             <div class="p-6 border-b flex justify-between items-start">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-800 mb-2">Contribute a New Code</h2>
-                    <p id="form-instructions" class="text-sm text-gray-600">Use this form to structure a new coding entry. After generating the code, you can submit it to the guide's administrator for review.</p>
+                    <p id="form-instructions" class="text-sm text-gray-600">Use this form to structure a new coding entry. After preparing the submission, a GitHub issue will be opened for the administrator to review.</p>
                 </div>
                  <button type="button" id="close-modal-x-btn" class="ml-4 text-gray-400 hover:text-gray-600 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -152,52 +149,70 @@
                 {
                     "categoryName": "iDrive & Display",
                     "mods": [
-                        { "name": "Remove iDrive & Camera Disclaimers", "difficulty": 1, "steps": [ {"ecu": "MGU", "parameter": "LEGAL_DISCLAIMER_TIME", "value": "kein_id"}, {"ecu": "MGU", "parameter": "MACRO_CAM_LEGALDISCLAIMER", "value": "kein_id"} ]},
-                        { "name": "Digital Dash Theme", "difficulty": 4, "steps": [{"ecu": "DKOMBI4", "parameter": "Display_Variante", "value": "m_sport, m_gmbh (M), alpina"}]},
-                        { "name": "M Startup Animation", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "STARTUP_EMBLEM", "value": "bmw_m"}]},
-                        { "name": "Tire Pressure & Temperature Display", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "RDC_DRUCK_TEMP", "value": "Druck_und_Temp"}]},
-                        { "name": "Video in Motion", "difficulty": 5, "steps": [{"ecu": "MGU", "parameter": "SPEEDLOCK_X_KMH_MAX / MIN", "value": "Set to FF (nicht_aktiv)"}]},
-                        { "name": "Rear Camera Zoom (Towbar)", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "MACRO_TRAILER_COUPLING", "value": "aktiv"}]}
+                        { "name": "Remove iDrive & Camera Disclaimers", "description": "Disables the legal warnings that appear on startup and when using cameras.", "difficulty": 1, "steps": [ {"ecu": "MGU", "parameter": "LEGAL_DISCLAIMER_TIME", "value": "kein_id"}, {"ecu": "MGU", "parameter": "MACRO_CAM_LEGALDISCLAIMER", "value": "kein_id"} ]},
+                        { "name": "Digital Dash Theme", "description": "Changes the visual style of the digital instrument cluster to various themes like M Sport or Alpina.", "difficulty": 4, "steps": [{"ecu": "DKOMBI4", "parameter": "Display_Variante", "value": "m_sport, m_gmbh (M), alpina"}]},
+                        { "name": "M Startup Animation", "description": "Replaces the standard BMW startup graphic on the iDrive screen with the M animation.", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "STARTUP_EMBLEM", "value": "bmw_m"}]},
+                        { "name": "Tire Pressure & Temperature Display", "description": "Adds individual tire temperature readings to the existing tire pressure monitor screen in iDrive.", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "RDC_DRUCK_TEMP", "value": "Druck_und_Temp"}]},
+                        { "name": "Video in Motion", "description": "Allows video playback from USB sources while the car is moving, intended for passenger use only.", "difficulty": 5, "steps": [{"ecu": "MGU", "parameter": "SPEEDLOCK_X_KMH_MAX / MIN", "value": "Set to FF (nicht_aktiv)"}]},
+                        { "name": "Rear Camera Zoom (Towbar)", "description": "Enables a zoomed-in rear camera view, useful for aligning a tow hitch.", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "MACRO_TRAILER_COUPLING", "value": "aktiv"}]}
                     ]
                 },
                 {
                     "categoryName": "Lighting",
                     "mods": [
-                        { "name": "5-Blink Turn Signal", "difficulty": 1, "steps": [{"ecu": "MGU", "parameter": "5_FACH_TIPPBLINKEN", "value": "aktiv"}]},
-                        { "name": "Rear Lamps as Daytime Running Lights", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "LIC_FEATURE_4", "value": "enable"}]}
+                        { "name": "5-Blink Turn Signal", "description": "Increases the one-touch turn signal indicator flash count from the default of three to five.", "difficulty": 1, "steps": [{"ecu": "MGU", "parameter": "5_FACH_TIPPBLINKEN", "value": "aktiv"}]},
+                        { "name": "Rear Lamps as Daytime Running Lights", "description": "Activates the rear tail lights to illuminate along with the front DRLs for increased visibility.", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "LIC_FEATURE_4", "value": "enable"}]}
                     ]
                 },
                 {
                     "categoryName": "Comfort & Convenience",
                     "mods": [
-                         { "name": "A/C System Memory", "difficulty": 1, "steps": [{"ecu": "IHKA", "parameter": "MEMORY_OFF", "value": "aktiv"}]},
-                         { "name": "Window Roll-up on Door Open", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "FH_TUERAUF_STOP_MAUT", "value": "nicht aktiv"}]},
-                         { "name": "Close Tailgate with Remote (Short Press)", "difficulty": 2, "steps": [{"ecu": "HKFM", "parameter": "HECKKLAPPE_FUNKTION_TIPP", "value": "aktiv"}]}
+                         { "name": "A/C System Memory", "description": "The car will remember if the air conditioning was on or off when you last turned it off.", "difficulty": 1, "steps": [{"ecu": "IHKA", "parameter": "MEMORY_OFF", "value": "aktiv"}]},
+                         { "name": "Window Roll-up on Door Open", "description": "Prevents the automatic window roll-up process from being interrupted when a door is opened.", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "FH_TUERAUF_STOP_MAUT", "value": "nicht aktiv"}]},
+                         { "name": "Close Tailgate with Remote (Short Press)", "description": "Allows the powered tailgate to be closed with a single, short press of the key fob button instead of a long press.", "difficulty": 2, "steps": [{"ecu": "HKFM", "parameter": "HECKKLAPPE_FUNKTION_TIPP", "value": "aktiv"}]}
                     ]
                 },
                 {
                     "categoryName": "Safety Systems & Warnings",
                     "mods": [
-                        { "name": "Remove Seatbelt Chimes", "difficulty": 2, "steps": [{"ecu": "ACSM", "parameter": "Gurtwarnung_Fahrer / Gurtwarnung_Beifahrer", "value": "nicht aktiv"}]},
-                        { "name": "No Horn on Lock with Engine Running", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "VAM_HORN_AT_SECURE", "value": "nicht aktiv"}]}
+                        { "name": "Remove Seatbelt Chimes", "description": "Disables the audible seatbelt reminders for both the driver and passenger seats.", "difficulty": 2, "steps": [{"ecu": "ACSM", "parameter": "Gurtwarnung_Fahrer / Gurtwarnung_Beifahrer", "value": "nicht aktiv"}]},
+                        { "name": "No Horn on Lock with Engine Running", "description": "Prevents the horn from beeping when you lock the car while the engine is still running.", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "VAM_HORN_AT_SECURE", "value": "nicht aktiv"}]}
                     ]
                 },
                  {
                     "categoryName": "Drivetrain & Driving Modes",
                     "mods": [
-                        { "name": "Auto Start-Stop Memory", "difficulty": 1, "steps": [{"ecu": "BDC_BODY3", "parameter": "TCM_MSA_MEMORY", "value": "aktiv"}]},
-                        { "name": "Default Driving Mode on Startup", "difficulty": 3, "steps": [{"ecu": "BDC_BODY3", "parameter": "FesPiaDefaultLastUserMode", "value": "Adaptive (0A), Sport (02), etc."}]},
-                        { "name": "Enable Coasting in Comfort Mode", "difficulty": 3, "steps": [{"ecu": "DKOMBI4", "parameter": "Segeln_In_Comfort_Modus", "value": "aktiv"}]}
+                        { "name": "Auto Start-Stop Memory", "description": "The car will remember your last selected setting for the Auto Start-Stop function across ignition cycles.", "difficulty": 1, "steps": [{"ecu": "BDC_BODY3", "parameter": "TCM_MSA_MEMORY", "value": "aktiv"}]},
+                        { "name": "Default Driving Mode on Startup", "description": "Sets a preferred driving mode (e.g., Adaptive, Sport) as the default every time the car starts.", "difficulty": 3, "steps": [{"ecu": "BDC_BODY3", "parameter": "FesPiaDefaultLastUserMode", "value": "Adaptive (0A), Sport (02), etc."}]},
+                        { "name": "Enable Coasting in Comfort Mode", "description": "Allows the drivetrain to decouple when coasting in Comfort mode to save fuel.", "difficulty": 3, "steps": [{"ecu": "DKOMBI4", "parameter": "Segeln_In_Comfort_Modus", "value": "aktiv"}]}
                     ]
                 },
                 {
                     "categoryName": "Expert Mode & Advanced Coding",
                     "mods": [
-                        { "name": "Enable Sport+ & Comfort+ (Full)", "difficulty": 7, "steps": [{"ecu": "BDC_BODY3", "path": "3221 PfFesMaster", "parameter": "FesSportWorldMode1", "value": "SportExpert"}, {"ecu": "BDC_BODY3", "path": "3221 PfFesMaster", "parameter": "FesComfortWorldMode1", "value": "ComfortPlus"}, {"ecu": "MGU", "path": "3008 FES", "parameter": "FES_SPORT_EXPERT", "value": "aktiv"}, {"ecu": "MGU", "path": "3008 FES", "parameter": "FES_COMFORT_PLUS", "value": "aktiv"}]},
-                        { "name": "Bang & Olufsen Sound Profile", "difficulty": 4, "steps": [{"ecu": "MGU", "path": "3002 Audio_Broadcast", "parameter": "Audio_System", "value": "alev4_ram (from alev3_ram)"}]},
-                        { "name": "M Performance Logo in Instrument Cluster", "difficulty": 3, "steps": [{"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "LOGO_SCHRIFTZUG", "value": "m_logo / m_performance"}]},
-                        { "name": "Lane Change Assistant", "difficulty": 9, "steps": [{"ecu": "BDC_BODY3", "path": "", "parameter": "SpurWechsel_Assistent", "value": "aktiv"}, {"ecu": "HU_MGU", "path": "", "parameter": "SpurWechselAssistent", "value": "Gen1"}, {"ecu": "SAS3", "path": "", "parameter": "C_SWA_Vorhanden", "value": "Nr001_Vorhanden"}]},
-                        { "name": "Assisted Driving View", "difficulty": 8, "steps": [{"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "CB_FZG_UMGEBUNG_FAS", "value": "aktiv"}, {"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "CB_PRESELECT_NAVI_ANSICHT_FZG_UMGEBUNG", "value": "aktiv"}, {"ecu": "DKOMBI4", "path": "3007 PIA_Einheiten", "parameter": "PIA_FZG_UMGEBUNG_FAS", "value": "aktiv"}]}
+                        { 
+                            "name": "Enable Anti-Dazzle High-Beam Assistant (Full)", 
+                            "description": "Activates the advanced high-beam feature that creates a 'light tunnel' around other vehicles.",
+                            "difficulty": 9,
+                            "comments": "Requires KAFAS camera and Adaptive LED headlights. This enables the 'light tunnel' effect.",
+                            "steps": [
+                                {"ecu": "BDC", "path": "LaMaster1", "parameter": "FLA_VERBAUT", "value": "aktiv"},
+                                {"ecu": "BDC", "path": "LaMaster1", "parameter": "FLA_AUTO_AKTIV", "value": "aktiv"},
+                                {"ecu": "BDC", "path": "LaMaster1", "parameter": "LUT_FLC_FORWARDLIGHTING_Y", "value": "aktiv"},
+                                {"ecu": "BDC", "path": "LaMaster1", "parameter": "C_HBA_ADAPT_SHUT_ENA", "value": "aktiv"},
+                                {"ecu": "BDC", "path": "LaMaster1", "parameter": "C_HBA_GRHB_ENA", "value": "aktiv"},
+                                {"ecu": "KAFAS", "path": "", "parameter": "C_FLA_BS_FN_ENABLE", "value": "FN_BS_ENABLE"},
+                                {"ecu": "KAFAS", "path": "", "parameter": "C_FLA_CC_MESSAGE_3", "value": "GLAREFREE_HIGHBEAM_ZEITWEISE_AUS"},
+                                {"ecu": "KAFAS", "path": "", "parameter": "C_FLA_COUNTRY_VARIANT", "value": "ECE/ROW"},
+                                {"ecu": "KAFAS", "path": "", "parameter": "C_FLA_HA_PRESENT", "value": "YES"},
+                                {"ecu": "KAFAS", "path": "", "parameter": "C_FLA_HBA_STAT_NAVI", "value": "AKTIV"}
+                            ]
+                        },
+                        { "name": "Enable Sport+ & Comfort+ (Full)", "description": "Unlocks the Sport+ and Comfort+ driving modes, making them selectable in iDrive.", "difficulty": 7, "steps": [{"ecu": "BDC_BODY3", "path": "3221 PfFesMaster", "parameter": "FesSportWorldMode1", "value": "SportExpert"}, {"ecu": "BDC_BODY3", "path": "3221 PfFesMaster", "parameter": "FesComfortWorldMode1", "value": "ComfortPlus"}, {"ecu": "MGU", "path": "3008 FES", "parameter": "FES_SPORT_EXPERT", "value": "aktiv"}, {"ecu": "MGU", "path": "3008 FES", "parameter": "FES_COMFORT_PLUS", "value": "aktiv"}]},
+                        { "name": "Bang & Olufsen Sound Profile", "description": "Changes the audio equalizer to the premium Bang & Olufsen sound signature.", "difficulty": 4, "steps": [{"ecu": "MGU", "path": "3002 Audio_Broadcast", "parameter": "Audio_System", "value": "alev4_ram (from alev3_ram)"}]},
+                        { "name": "M Performance Logo in Instrument Cluster", "description": "Adds the M Performance logo to the digital instrument cluster display.", "difficulty": 3, "steps": [{"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "LOGO_SCHRIFTZUG", "value": "m_logo / m_performance"}]},
+                        { "name": "Lane Change Assistant", "description": "Enables the vehicle to perform automated lane changes when using driving assistance systems.", "difficulty": 9, "steps": [{"ecu": "BDC_BODY3", "path": "", "parameter": "SpurWechsel_Assistent", "value": "aktiv"}, {"ecu": "HU_MGU", "path": "", "parameter": "SpurWechselAssistent", "value": "Gen1"}, {"ecu": "SAS3", "path": "", "parameter": "C_SWA_Vorhanden", "value": "Nr001_Vorhanden"}]},
+                        { "name": "Assisted Driving View", "description": "Activates the 3D visualization of surrounding vehicles and lane markings in the instrument cluster.", "difficulty": 8, "steps": [{"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "CB_FZG_UMGEBUNG_FAS", "value": "aktiv"}, {"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "CB_PRESELECT_NAVI_ANSICHT_FZG_UMGEBUNG", "value": "aktiv"}, {"ecu": "DKOMBI4", "path": "3007 PIA_Einheiten", "parameter": "PIA_FZG_UMGEBUNG_FAS", "value": "aktiv"}]}
                     ]
                 }
             ];
@@ -230,13 +245,16 @@
                         modElement.className = 'accordion-item bg-white rounded-xl shadow-sm border border-gray-200';
                         modElement.innerHTML = `
                             <div class="accordion-header flex justify-between items-center p-5">
-                                <span class="font-semibold text-lg text-gray-800">${mod.name}</span>
+                                <div class="flex-1 pr-4">
+                                    <span class="font-semibold text-lg text-gray-800">${mod.name}</span>
+                                    <p class="text-sm text-gray-500 mt-1">${mod.description || ''}</p>
+                                </div>
                                 <div class="flex items-center space-x-4">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">Difficulty: ${mod.difficulty}/10</span>
                                     <span class="accordion-arrow text-gray-400 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></span>
                                 </div>
                             </div>
-                            <div class="accordion-content"><div class="px-5 pb-5 pt-2"><div class="text-sm space-y-2">${stepsHtml}${mod.comments ? `<div class="mt-4 pt-3 border-t text-gray-600 text-xs italic">${mod.comments}</div>` : ''}</div></div></div>
+                            <div class="accordion-content"><div class="px-5 pb-5 pt-2"><div class="text-sm space-y-2">${mod.comments ? `<p class="text-xs italic text-gray-500 mb-3">${mod.comments}</p>` : ''}${stepsHtml}</div></div></div>
                         `;
                         categoryModsContainer.appendChild(modElement);
                     });
