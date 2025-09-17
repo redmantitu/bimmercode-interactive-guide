@@ -106,10 +106,9 @@
 
                     <div id="submission-container" class="hidden mt-6">
                         <h3 class="text-lg font-semibold text-gray-700">Submission Ready</h3>
-                        <p class="text-sm text-gray-500 mb-2">Your contribution has been formatted. Click the button below to open GitHub and submit the issue for review.</p>
-                        <div class="relative bg-gray-800 text-white p-4 rounded-md font-code text-xs whitespace-pre-wrap overflow-x-auto">
-                            <code id="json-preview"></code>
-                        </div>
+                        <p class="text-sm text-gray-500 mb-2">Your contribution has been formatted as HTML. Copy the code below or click the button to submit it for review.</p>
+                        <!-- CHANGE: Using a textarea for easier copying -->
+                        <textarea id="html-preview" readonly rows="10" class="w-full bg-gray-800 text-white p-4 rounded-md font-code text-xs whitespace-pre overflow-x-auto focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                         <a id="submit-to-github-btn" href="#" target="_blank" class="mt-4 w-full block text-center bg-green-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Submit Issue on GitHub</a>
                     </div>
                 </div>
@@ -217,6 +216,35 @@
                 }
             ];
 
+            // CHANGE: New function to generate HTML for a single mod
+            function generateModHtml(mod) {
+                let stepsHtml = mod.steps.map((step, index) => `
+                    <div class="p-3 bg-gray-100 rounded-md ${index > 0 ? 'mt-3' : ''}">
+                        <p class="font-semibold text-gray-700">ECU: <span class="font-normal font-code text-gray-900">${step.ecu || ''}</span></p>
+                        ${step.path ? `<p class="font-semibold text-gray-700">Path: <span class="font-normal font-code text-gray-900">${step.path}</span></p>` : ''}
+                        <p class="font-semibold text-gray-700">Parameter: <span class="font-normal font-code text-gray-900">${step.parameter || ''}</span></p>
+                        <p class="font-semibold text-gray-700">Value: <span class="font-normal font-code text-gray-900">${step.value || ''}</span></p>
+                    </div>
+                `).join('');
+
+                const modHtml = `
+                    <div class="accordion-item bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div class="accordion-header flex justify-between items-center p-5">
+                            <div class="flex-1 pr-4">
+                                <span class="font-semibold text-lg text-gray-800">${mod.name}</span>
+                                <p class="text-sm text-gray-500 mt-1">${mod.description || ''}</p>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">Difficulty: ${mod.difficulty}/10</span>
+                                <span class="accordion-arrow text-gray-400 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></span>
+                            </div>
+                        </div>
+                        <div class="accordion-content"><div class="px-5 pb-5 pt-2"><div class="text-sm space-y-2">${mod.comments ? `<p class="text-xs italic text-gray-500 mb-3">${mod.comments}</p>` : ''}${stepsHtml}</div></div></div>
+                    </div>
+                `;
+                return modHtml;
+            }
+
             function renderUI() {
                 const container = document.getElementById('mods-container');
                 container.innerHTML = '';
@@ -232,31 +260,11 @@
                     categoryModsContainer.className = 'space-y-4';
                     
                     category.mods.sort((a, b) => a.name.localeCompare(b.name)).forEach(mod => {
-                        let stepsHtml = mod.steps.map((step, index) => `
-                            <div class="p-3 bg-gray-100 rounded-md ${index > 0 ? 'mt-3' : ''}">
-                                <p class="font-semibold text-gray-700">ECU: <span class="font-normal font-code text-gray-900">${step.ecu || ''}</span></p>
-                                ${step.path ? `<p class="font-semibold text-gray-700">Path: <span class="font-normal font-code text-gray-900">${step.path}</span></p>` : ''}
-                                <p class="font-semibold text-gray-700">Parameter: <span class="font-normal font-code text-gray-900">${step.parameter || ''}</span></p>
-                                <p class="font-semibold text-gray-700">Value: <span class="font-normal font-code text-gray-900">${step.value || ''}</span></p>
-                            </div>
-                        `).join('');
-
                         const modElement = document.createElement('div');
-                        modElement.className = 'accordion-item bg-white rounded-xl shadow-sm border border-gray-200';
-                        modElement.innerHTML = `
-                            <div class="accordion-header flex justify-between items-center p-5">
-                                <div class="flex-1 pr-4">
-                                    <span class="font-semibold text-lg text-gray-800">${mod.name}</span>
-                                    <p class="text-sm text-gray-500 mt-1">${mod.description || ''}</p>
-                                </div>
-                                <div class="flex items-center space-x-4">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">Difficulty: ${mod.difficulty}/10</span>
-                                    <span class="accordion-arrow text-gray-400 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></span>
-                                </div>
-                            </div>
-                            <div class="accordion-content"><div class="px-5 pb-5 pt-2"><div class="text-sm space-y-2">${mod.comments ? `<p class="text-xs italic text-gray-500 mb-3">${mod.comments}</p>` : ''}${stepsHtml}</div></div></div>
-                        `;
-                        categoryModsContainer.appendChild(modElement);
+                        // CHANGE: Use the new generator function
+                        modElement.innerHTML = generateModHtml(mod).trim();
+                        // Append the first child of the div to avoid extra wrappers
+                        categoryModsContainer.appendChild(modElement.firstChild);
                     });
                     categoryWrapper.appendChild(categoryModsContainer);
                     container.appendChild(categoryWrapper);
@@ -277,12 +285,11 @@
             const openAddModalBtn = document.getElementById('add-new-code-btn');
             const cancelAddBtn = document.getElementById('cancel-add-code-btn');
             const addCodeForm = document.getElementById('add-code-form');
-            // const categorySelect = document.getElementById('code-category'); // <-- FIX: REMOVED THIS LINE
             const newCategoryInput = document.getElementById('new-category-name');
             const stepsContainer = document.getElementById('coding-steps-container');
             const addStepBtn = document.getElementById('add-step-btn');
             const submissionContainer = document.getElementById('submission-container');
-            const jsonPreview = document.getElementById('json-preview');
+            const htmlPreview = document.getElementById('html-preview');
             const formInputs = document.getElementById('form-inputs');
             const formActions = document.getElementById('form-actions');
             const submitToGithubBtn = document.getElementById('submit-to-github-btn');
@@ -307,7 +314,7 @@
             }
             
             function resetModal() {
-                const categorySelect = document.getElementById('code-category'); // <-- FIX: Get element here
+                const categorySelect = document.getElementById('code-category');
                 addCodeForm.reset();
                 stepsContainer.innerHTML = '';
                 stepsContainer.appendChild(createStepElement());
@@ -340,7 +347,6 @@
                 document.body.classList.add('modal-open');
             });
             
-            // FIX: Use event delegation on the form for the change event
             addCodeForm.addEventListener('change', (e) => {
                 if (e.target.id === 'code-category') {
                     const categorySelect = e.target;
@@ -359,9 +365,10 @@
 
             addCodeForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const categorySelect = document.getElementById('code-category'); // <-- FIX: Get element here
+                const categorySelect = document.getElementById('code-category');
                 const newMod = {
                     name: document.getElementById('code-name').value,
+                    description: ``, // Add a description field if you want, or leave it blank
                     difficulty: parseInt(document.getElementById('code-difficulty').value, 10),
                     steps: [],
                     comments: document.getElementById('code-comments').value.trim()
@@ -370,7 +377,7 @@
                 stepsContainer.querySelectorAll('.space-y-3').forEach(stepDiv => {
                     newMod.steps.push({
                         ecu: stepDiv.querySelector('[name="ecu"]').value.trim(),
-                        path: stepDiv.querySelector('[name="path"]').value.trim(),
+                        path: stepDiv.querySelector('[name="path"]').value.trim() || undefined,
                         parameter: stepDiv.querySelector('[name="parameter"]').value.trim(),
                         value: stepDiv.querySelector('[name="value"]').value.trim(),
                     });
@@ -378,18 +385,20 @@
                 
                 if (!newMod.comments) delete newMod.comments;
 
+                // CHANGE: Generate HTML instead of JSON
+                const modHtml = generateModHtml(newMod);
+                htmlPreview.value = modHtml.trim();
+
                 const categoryValue = categorySelect.value;
                 const categoryName = categoryValue === 'new' ? newCategoryInput.value.trim() : categoryValue;
                 const isNewCategory = categoryValue === 'new';
 
-                jsonPreview.textContent = JSON.stringify(newMod, null, 2);
-
                 const title = `[Code Contribution] ${newMod.name}`;
                 let body = `**New Code Contribution**\n\n`;
                 body += `**Category:** ${categoryName} ${isNewCategory ? '(New Category)' : ''}\n\n`;
-                body += `**Admin Action:** Please review and add the following JSON object to the 'mods' array of the appropriate category in the appData.\n\n`;
-                body += '```json\n';
-                body += JSON.stringify(newMod, null, 2);
+                body += `**Admin Action:** Please review and add the following HTML snippet to the appropriate category container in the main file.\n\n`;
+                body += '```html\n';
+                body += modHtml.trim();
                 body += '\n```';
 
                 const url = `https://github.com/${GITHUB_REPO_URL}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
