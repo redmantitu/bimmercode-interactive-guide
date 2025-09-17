@@ -124,7 +124,7 @@
     <div class="container mx-auto max-w-6xl p-4 sm:p-6 md:p-8">
         <header class="text-center mb-6">
             <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Definitive Bimmercode Guide</h1>
-            <p class="mt-2 text-lg text-gray-600">A community-driven resource for BMW.</p>
+            <p class="mt-2 text-lg text-gray-600">A community-driven resource for BMW G-Series coding.</p>
         </header>
          <div class="text-center mb-10">
             <button id="add-new-code-btn" class="bg-indigo-600 text-white font-medium py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
@@ -277,7 +277,7 @@
             const openAddModalBtn = document.getElementById('add-new-code-btn');
             const cancelAddBtn = document.getElementById('cancel-add-code-btn');
             const addCodeForm = document.getElementById('add-code-form');
-            const categorySelect = document.getElementById('code-category');
+            // const categorySelect = document.getElementById('code-category'); // <-- FIX: REMOVED THIS LINE
             const newCategoryInput = document.getElementById('new-category-name');
             const stepsContainer = document.getElementById('coding-steps-container');
             const addStepBtn = document.getElementById('add-step-btn');
@@ -307,6 +307,7 @@
             }
             
             function resetModal() {
+                const categorySelect = document.getElementById('code-category'); // <-- FIX: Get element here
                 addCodeForm.reset();
                 stepsContainer.innerHTML = '';
                 stepsContainer.appendChild(createStepElement());
@@ -339,9 +340,13 @@
                 document.body.classList.add('modal-open');
             });
             
-            categorySelect.addEventListener('change', () => {
-                newCategoryInput.classList.toggle('hidden', categorySelect.value !== 'new');
-                newCategoryInput.required = categorySelect.value === 'new';
+            // FIX: Use event delegation on the form for the change event
+            addCodeForm.addEventListener('change', (e) => {
+                if (e.target.id === 'code-category') {
+                    const categorySelect = e.target;
+                    newCategoryInput.classList.toggle('hidden', categorySelect.value !== 'new');
+                    newCategoryInput.required = categorySelect.value === 'new';
+                }
             });
 
             const closeModal = () => {
@@ -354,6 +359,7 @@
 
             addCodeForm.addEventListener('submit', (e) => {
                 e.preventDefault();
+                const categorySelect = document.getElementById('code-category'); // <-- FIX: Get element here
                 const newMod = {
                     name: document.getElementById('code-name').value,
                     difficulty: parseInt(document.getElementById('code-difficulty').value, 10),
