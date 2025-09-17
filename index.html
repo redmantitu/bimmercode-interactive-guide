@@ -149,333 +149,57 @@
             const GITHUB_REPO_URL = 'redmantitu/bimmercode-interactive-guide'; 
             
             const appData = [
-
                 {
                     "categoryName": "iDrive & Display",
                     "mods": [
-                        {
-                            "name": "Remove iDrive & Camera Disclaimers",
-                            "difficulty": 1,
-                            "steps": [
-                                {
-                                    "ecu": "MGU",
-                                    "parameter": "LEGAL_DISCLAIMER_TIME",
-                                    "value": "kein_id"
-                                },
-                                {
-                                    "ecu": "MGU",
-                                    "parameter": "MACRO_CAM_LEGALDISCLAIMER",
-                                    "value": "kein_id"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Digital Dash Theme",
-                            "difficulty": 4,
-                            "steps": [
-                                {
-                                    "ecu": "DKOMBI4",
-                                    "parameter": "Display_Variante",
-                                    "value": "m_sport, m_gmbh (M), alpina"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "M Startup Animation",
-                            "difficulty": 2,
-                            "steps": [
-                                {
-                                    "ecu": "MGU",
-                                    "parameter": "STARTUP_EMBLEM",
-                                    "value": "bmw_m"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Tire Pressure & Temperature Display",
-                            "difficulty": 2,
-                            "steps": [
-                                {
-                                    "ecu": "MGU",
-                                    "parameter": "RDC_DRUCK_TEMP",
-                                    "value": "Druck_und_Temp"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Video in Motion",
-                            "difficulty": 5,
-                            "steps": [
-                                {
-                                    "ecu": "MGU",
-                                    "parameter": "SPEEDLOCK_X_KMH_MAX / MIN",
-                                    "value": "Set to FF (nicht_aktiv)"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Rear Camera Zoom (Towbar)",
-                            "difficulty": 2,
-                            "steps": [
-                                {
-                                    "ecu": "MGU",
-                                    "parameter": "MACRO_TRAILER_COUPLING",
-                                    "value": "aktiv"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "demo_test",
-                            "difficulty": 1,
-                            "steps": [
-                                {
-                                    "ecu": "demo",
-                                    "path": "demo_unit",
-                                    "parameter": "test",
-                                    "value": "enable"
-                                }
-                            ]
-                        }
+                        { "name": "Remove iDrive & Camera Disclaimers", "difficulty": 1, "steps": [ {"ecu": "MGU", "parameter": "LEGAL_DISCLAIMER_TIME", "value": "kein_id"}, {"ecu": "MGU", "parameter": "MACRO_CAM_LEGALDISCLAIMER", "value": "kein_id"} ]},
+                        { "name": "Digital Dash Theme", "difficulty": 4, "steps": [{"ecu": "DKOMBI4", "parameter": "Display_Variante", "value": "m_sport, m_gmbh (M), alpina"}]},
+                        { "name": "M Startup Animation", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "STARTUP_EMBLEM", "value": "bmw_m"}]},
+                        { "name": "Tire Pressure & Temperature Display", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "RDC_DRUCK_TEMP", "value": "Druck_und_Temp"}]},
+                        { "name": "Video in Motion", "difficulty": 5, "steps": [{"ecu": "MGU", "parameter": "SPEEDLOCK_X_KMH_MAX / MIN", "value": "Set to FF (nicht_aktiv)"}]},
+                        { "name": "Rear Camera Zoom (Towbar)", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "MACRO_TRAILER_COUPLING", "value": "aktiv"}]}
                     ]
                 },
                 {
                     "categoryName": "Lighting",
                     "mods": [
-                        {
-                            "name": "5-Blink Turn Signal",
-                            "difficulty": 1,
-                            "steps": [
-                                {
-                                    "ecu": "MGU",
-                                    "parameter": "5_FACH_TIPPBLINKEN",
-                                    "value": "aktiv"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Rear Lamps as Daytime Running Lights",
-                            "difficulty": 2,
-                            "steps": [
-                                {
-                                    "ecu": "BDC_BODY3",
-                                    "parameter": "LIC_FEATURE_4",
-                                    "value": "enable"
-                                }
-                            ]
-                        }
+                        { "name": "5-Blink Turn Signal", "difficulty": 1, "steps": [{"ecu": "MGU", "parameter": "5_FACH_TIPPBLINKEN", "value": "aktiv"}]},
+                        { "name": "Rear Lamps as Daytime Running Lights", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "LIC_FEATURE_4", "value": "enable"}]}
                     ]
                 },
                 {
                     "categoryName": "Comfort & Convenience",
                     "mods": [
-                        {
-                            "name": "A/C System Memory",
-                            "difficulty": 1,
-                            "steps": [
-                                {
-                                    "ecu": "IHKA",
-                                    "parameter": "MEMORY_OFF",
-                                    "value": "aktiv"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Window Roll-up on Door Open",
-                            "difficulty": 2,
-                            "steps": [
-                                {
-                                    "ecu": "BDC_BODY3",
-                                    "parameter": "FH_TUERAUF_STOP_MAUT",
-                                    "value": "nicht aktiv"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Close Tailgate with Remote (Short Press)",
-                            "difficulty": 2,
-                            "steps": [
-                                {
-                                    "ecu": "HKFM",
-                                    "parameter": "HECKKLAPPE_FUNKTION_TIPP",
-                                    "value": "aktiv"
-                                }
-                            ]
-                        }
+                         { "name": "A/C System Memory", "difficulty": 1, "steps": [{"ecu": "IHKA", "parameter": "MEMORY_OFF", "value": "aktiv"}]},
+                         { "name": "Window Roll-up on Door Open", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "FH_TUERAUF_STOP_MAUT", "value": "nicht aktiv"}]},
+                         { "name": "Close Tailgate with Remote (Short Press)", "difficulty": 2, "steps": [{"ecu": "HKFM", "parameter": "HECKKLAPPE_FUNKTION_TIPP", "value": "aktiv"}]}
                     ]
                 },
                 {
                     "categoryName": "Safety Systems & Warnings",
                     "mods": [
-                        {
-                            "name": "Remove Seatbelt Chimes",
-                            "difficulty": 2,
-                            "steps": [
-                                {
-                                    "ecu": "ACSM",
-                                    "parameter": "Gurtwarnung_Fahrer / Gurtwarnung_Beifahrer",
-                                    "value": "nicht aktiv"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "No Horn on Lock with Engine Running",
-                            "difficulty": 2,
-                            "steps": [
-                                {
-                                    "ecu": "BDC_BODY3",
-                                    "parameter": "VAM_HORN_AT_SECURE",
-                                    "value": "nicht aktiv"
-                                }
-                            ]
-                        }
+                        { "name": "Remove Seatbelt Chimes", "difficulty": 2, "steps": [{"ecu": "ACSM", "parameter": "Gurtwarnung_Fahrer / Gurtwarnung_Beifahrer", "value": "nicht aktiv"}]},
+                        { "name": "No Horn on Lock with Engine Running", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "VAM_HORN_AT_SECURE", "value": "nicht aktiv"}]}
                     ]
                 },
-                {
+                 {
                     "categoryName": "Drivetrain & Driving Modes",
                     "mods": [
-                        {
-                            "name": "Auto Start-Stop Memory",
-                            "difficulty": 1,
-                            "steps": [
-                                {
-                                    "ecu": "BDC_BODY3",
-                                    "parameter": "TCM_MSA_MEMORY",
-                                    "value": "aktiv"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Default Driving Mode on Startup",
-                            "difficulty": 3,
-                            "steps": [
-                                {
-                                    "ecu": "BDC_BODY3",
-                                    "parameter": "FesPiaDefaultLastUserMode",
-                                    "value": "Adaptive (0A), Sport (02), etc."
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Enable Coasting in Comfort Mode",
-                            "difficulty": 3,
-                            "steps": [
-                                {
-                                    "ecu": "DKOMBI4",
-                                    "parameter": "Segeln_In_Comfort_Modus",
-                                    "value": "aktiv"
-                                }
-                            ]
-                        }
+                        { "name": "Auto Start-Stop Memory", "difficulty": 1, "steps": [{"ecu": "BDC_BODY3", "parameter": "TCM_MSA_MEMORY", "value": "aktiv"}]},
+                        { "name": "Default Driving Mode on Startup", "difficulty": 3, "steps": [{"ecu": "BDC_BODY3", "parameter": "FesPiaDefaultLastUserMode", "value": "Adaptive (0A), Sport (02), etc."}]},
+                        { "name": "Enable Coasting in Comfort Mode", "difficulty": 3, "steps": [{"ecu": "DKOMBI4", "parameter": "Segeln_In_Comfort_Modus", "value": "aktiv"}]}
                     ]
                 },
                 {
                     "categoryName": "Expert Mode & Advanced Coding",
                     "mods": [
-                        {
-                            "name": "Enable Sport+ & Comfort+ (Full)",
-                            "difficulty": 7,
-                            "steps": [
-                                {
-                                    "ecu": "BDC_BODY3",
-                                    "path": "3221 PfFesMaster",
-                                    "parameter": "FesSportWorldMode1",
-                                    "value": "SportExpert"
-                                },
-                                {
-                                    "ecu": "BDC_BODY3",
-                                    "path": "3221 PfFesMaster",
-                                    "parameter": "FesComfortWorldMode1",
-                                    "value": "ComfortPlus"
-                                },
-                                {
-                                    "ecu": "MGU",
-                                    "path": "3008 FES",
-                                    "parameter": "FES_SPORT_EXPERT",
-                                    "value": "aktiv"
-                                },
-                                {
-                                    "ecu": "MGU",
-                                    "path": "3008 FES",
-                                    "parameter": "FES_COMFORT_PLUS",
-                                    "value": "aktiv"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Bang & Olufsen Sound Profile",
-                            "difficulty": 4,
-                            "steps": [
-                                {
-                                    "ecu": "MGU",
-                                    "path": "3002 Audio_Broadcast",
-                                    "parameter": "Audio_System",
-                                    "value": "alev4_ram (from alev3_ram)"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "M Performance Logo in Instrument Cluster",
-                            "difficulty": 3,
-                            "steps": [
-                                {
-                                    "ecu": "DKOMBI4",
-                                    "path": "3000 Anzeige_Configuration",
-                                    "parameter": "LOGO_SCHRIFTZUG",
-                                    "value": "m_logo / m_performance"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Lane Change Assistant",
-                            "difficulty": 9,
-                            "steps": [
-                                {
-                                    "ecu": "BDC_BODY3",
-                                    "path": "",
-                                    "parameter": "SpurWechsel_Assistent",
-                                    "value": "aktiv"
-                                },
-                                {
-                                    "ecu": "HU_MGU",
-                                    "path": "",
-                                    "parameter": "SpurWechselAssistent",
-                                    "value": "Gen1"
-                                },
-                                {
-                                    "ecu": "SAS3",
-                                    "path": "",
-                                    "parameter": "C_SWA_Vorhanden",
-                                    "value": "Nr001_Vorhanden"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Assisted Driving View",
-                            "difficulty": 8,
-                            "steps": [
-                                {
-                                    "ecu": "DKOMBI4",
-                                    "path": "3000 Anzeige_Configuration",
-                                    "parameter": "CB_FZG_UMGEBUNG_FAS",
-                                    "value": "aktiv"
-                                },
-                                {
-                                    "ecu": "DKOMBI4",
-                                    "path": "3000 Anzeige_Configuration",
-                                    "parameter": "CB_PRESELECT_NAVI_ANSICHT_FZG_UMGEBUNG",
-                                    "value": "aktiv"
-                                },
-                                {
-                                    "ecu": "DKOMBI4",
-                                    "path": "3007 PIA_Einheiten",
-                                    "parameter": "PIA_FZG_UMGEBUNG_FAS",
-                                    "value": "aktiv"
-                                }
-                            ]
-                        }
+                        { "name": "Enable Sport+ & Comfort+ (Full)", "difficulty": 7, "steps": [{"ecu": "BDC_BODY3", "path": "3221 PfFesMaster", "parameter": "FesSportWorldMode1", "value": "SportExpert"}, {"ecu": "BDC_BODY3", "path": "3221 PfFesMaster", "parameter": "FesComfortWorldMode1", "value": "ComfortPlus"}, {"ecu": "MGU", "path": "3008 FES", "parameter": "FES_SPORT_EXPERT", "value": "aktiv"}, {"ecu": "MGU", "path": "3008 FES", "parameter": "FES_COMFORT_PLUS", "value": "aktiv"}]},
+                        { "name": "Bang & Olufsen Sound Profile", "difficulty": 4, "steps": [{"ecu": "MGU", "path": "3002 Audio_Broadcast", "parameter": "Audio_System", "value": "alev4_ram (from alev3_ram)"}]},
+                        { "name": "M Performance Logo in Instrument Cluster", "difficulty": 3, "steps": [{"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "LOGO_SCHRIFTZUG", "value": "m_logo / m_performance"}]},
+                        { "name": "Lane Change Assistant", "difficulty": 9, "steps": [{"ecu": "BDC_BODY3", "path": "", "parameter": "SpurWechsel_Assistent", "value": "aktiv"}, {"ecu": "HU_MGU", "path": "", "parameter": "SpurWechselAssistent", "value": "Gen1"}, {"ecu": "SAS3", "path": "", "parameter": "C_SWA_Vorhanden", "value": "Nr001_Vorhanden"}]},
+                        { "name": "Assisted Driving View", "difficulty": 8, "steps": [{"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "CB_FZG_UMGEBUNG_FAS", "value": "aktiv"}, {"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "CB_PRESELECT_NAVI_ANSICHT_FZG_UMGEBUNG", "value": "aktiv"}, {"ecu": "DKOMBI4", "path": "3007 PIA_Einheiten", "parameter": "PIA_FZG_UMGEBUNG_FAS", "value": "aktiv"}]}
                     ]
                 }
-            ]
             ];
 
             function renderUI() {
