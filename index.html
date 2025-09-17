@@ -94,6 +94,11 @@
                             <div><label for="code-name" class="block text-sm font-medium text-gray-700">Feature Name</label><input type="text" id="code-name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
                             <div><label for="code-difficulty" class="block text-sm font-medium text-gray-700">Difficulty (1-10)</label><input type="number" id="code-difficulty" required min="1" max="10" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
                         </div>
+                        <!-- CHANGE: Added mandatory description field -->
+                        <div class="mb-4">
+                            <label for="code-description" class="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea id="code-description" required rows="2" placeholder="e.g., Disables the legal warnings that appear on startup..." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                        </div>
                         <div class="mb-4">
                             <label for="code-category" class="block text-sm font-medium text-gray-700">Category (Section)</label><select id="code-category" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></select>
                             <input type="text" id="new-category-name" placeholder="Enter new category name" class="hidden mt-2 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
@@ -107,7 +112,6 @@
                     <div id="submission-container" class="hidden mt-6">
                         <h3 class="text-lg font-semibold text-gray-700">Submission Ready</h3>
                         <p class="text-sm text-gray-500 mb-2">Your contribution has been formatted as HTML. Copy the code below or click the button to submit it for review.</p>
-                        <!-- CHANGE: Using a textarea for easier copying -->
                         <textarea id="html-preview" readonly rows="10" class="w-full bg-gray-800 text-white p-4 rounded-md font-code text-xs whitespace-pre overflow-x-auto focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                         <a id="submit-to-github-btn" href="#" target="_blank" class="mt-4 w-full block text-center bg-green-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Submit Issue on GitHub</a>
                     </div>
@@ -216,7 +220,6 @@
                 }
             ];
 
-            // CHANGE: New function to generate HTML for a single mod
             function generateModHtml(mod) {
                 let stepsHtml = mod.steps.map((step, index) => `
                     <div class="p-3 bg-gray-100 rounded-md ${index > 0 ? 'mt-3' : ''}">
@@ -261,9 +264,7 @@
                     
                     category.mods.sort((a, b) => a.name.localeCompare(b.name)).forEach(mod => {
                         const modElement = document.createElement('div');
-                        // CHANGE: Use the new generator function
                         modElement.innerHTML = generateModHtml(mod).trim();
-                        // Append the first child of the div to avoid extra wrappers
                         categoryModsContainer.appendChild(modElement.firstChild);
                     });
                     categoryWrapper.appendChild(categoryModsContainer);
@@ -366,9 +367,11 @@
             addCodeForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const categorySelect = document.getElementById('code-category');
+                
+                // CHANGE: Capture the description value
                 const newMod = {
                     name: document.getElementById('code-name').value,
-                    description: ``, // Add a description field if you want, or leave it blank
+                    description: document.getElementById('code-description').value,
                     difficulty: parseInt(document.getElementById('code-difficulty').value, 10),
                     steps: [],
                     comments: document.getElementById('code-comments').value.trim()
@@ -385,7 +388,6 @@
                 
                 if (!newMod.comments) delete newMod.comments;
 
-                // CHANGE: Generate HTML instead of JSON
                 const modHtml = generateModHtml(newMod);
                 htmlPreview.value = modHtml.trim();
 
