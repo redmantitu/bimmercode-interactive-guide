@@ -35,7 +35,7 @@
             transition: max-height 0.3s ease-in-out;
         }
         .accordion-item.open .accordion-content {
-            max-height: 1200px;
+            max-height: 1500px; /* Increased to accommodate longer content */
         }
         .accordion-item.open .accordion-arrow {
             transform: rotate(180deg);
@@ -94,7 +94,6 @@
                             <div><label for="code-name" class="block text-sm font-medium text-gray-700">Feature Name</label><input type="text" id="code-name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
                             <div><label for="code-difficulty" class="block text-sm font-medium text-gray-700">Difficulty (1-10)</label><input type="number" id="code-difficulty" required min="1" max="10" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
                         </div>
-                        <!-- CHANGE: Added mandatory description field -->
                         <div class="mb-4">
                             <label for="code-description" class="block text-sm font-medium text-gray-700">Description</label>
                             <textarea id="code-description" required rows="2" placeholder="e.g., Disables the legal warnings that appear on startup..." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
@@ -193,6 +192,30 @@
                 {
                     "categoryName": "Expert Mode & Advanced Coding",
                     "mods": [
+                         { 
+                            "name": "Full Tire Pressure & Temperature Walkthrough", 
+                            "description": "A detailed, step-by-step guide to enabling tire data in both the iDrive screen and the Instrument Cluster widget.", 
+                            "difficulty": 7,
+                            "steps": [
+                                { "description": "<h4 class='font-bold text-base mb-2'>Phase 1: iDrive Display (Standard Mode)</h4><p class='text-xs'>This is the core modification to show temperature in the main iDrive screen.</p>" },
+                                { "description": "<strong>1. Connect & Select ECU:</strong> In Bimmercode, connect to the vehicle and select the <strong>Headunit</strong> ECU (usually <strong>HU_MGU</strong>)." },
+                                {
+                                    "ecu": "HU_MGU",
+                                    "parameter": "Tire Pressure Control (RDC_DRUCK_TEMP)",
+                                    "value": "Display pressure and temperature (Druck_und_Temp)"
+                                },
+                                { "description": "<strong>2. Code:</strong> Tap 'Code' to apply the changes. The iDrive screen will reboot." },
+                                { "description": "<h4 class='font-bold text-base mt-4 mb-2 text-amber-700'>Phase 2: Instrument Cluster Widget (Expert Mode)</h4><p class='text-xs text-red-700'><strong>WARNING:</strong> Expert mode can be risky. Proceed with caution and use a stable connection.</p>" },
+                                { "description": "<strong>1. Select ECU:</strong> Select the <strong>Instrument Cluster</strong> ECU (usually <strong>DKOMBI4</strong>)." },
+                                { "description": "<strong>2. Enter Expert Mode:</strong> Tap 'Expert Mode' at the bottom of the screen and acknowledge the warning." },
+                                {
+                                    "ecu": "DKOMBI4",
+                                    "parameter": "Look for Board Computer (BC) widget parameters. Community suggests trying 'M_VEHICLE_SP2018_RUEKO'.",
+                                    "value": "aktiv"
+                                },
+                                { "description": "<strong>3. Code:</strong> Tap 'Code' to apply. The instrument cluster may reboot. This step may require research as parameters can vary between software versions." }
+                            ]
+                        },
                         { 
                             "name": "Enable Anti-Dazzle High-Beam Assistant (Full)", 
                             "description": "Activates the advanced high-beam feature that creates a 'light tunnel' around other vehicles.",
@@ -221,14 +244,21 @@
             ];
 
             function generateModHtml(mod) {
-                let stepsHtml = mod.steps.map((step, index) => `
-                    <div class="p-3 bg-gray-100 rounded-md ${index > 0 ? 'mt-3' : ''}">
-                        <p class="font-semibold text-gray-700">ECU: <span class="font-normal font-code text-gray-900">${step.ecu || ''}</span></p>
-                        ${step.path ? `<p class="font-semibold text-gray-700">Path: <span class="font-normal font-code text-gray-900">${step.path}</span></p>` : ''}
-                        <p class="font-semibold text-gray-700">Parameter: <span class="font-normal font-code text-gray-900">${step.parameter || ''}</span></p>
-                        <p class="font-semibold text-gray-700">Value: <span class="font-normal font-code text-gray-900">${step.value || ''}</span></p>
-                    </div>
-                `).join('');
+                let stepsHtml = mod.steps.map((step, index) => {
+                    // Check if it's a descriptive step or a standard coding step
+                    if (step.description) {
+                         return `<div class="p-3 bg-gray-50 rounded-md ${index > 0 ? 'mt-3' : ''}">${step.description}</div>`;
+                    } else {
+                        return `
+                        <div class="p-3 bg-gray-100 rounded-md ${index > 0 ? 'mt-3' : ''}">
+                            <p class="font-semibold text-gray-700">ECU: <span class="font-normal font-code text-gray-900">${step.ecu || ''}</span></p>
+                            ${step.path ? `<p class="font-semibold text-gray-700">Path: <span class="font-normal font-code text-gray-900">${step.path}</span></p>` : ''}
+                            <p class="font-semibold text-gray-700">Parameter: <span class="font-normal font-code text-gray-900">${step.parameter || ''}</span></p>
+                            <p class="font-semibold text-gray-700">Value: <span class="font-normal font-code text-gray-900">${step.value || ''}</span></p>
+                        </div>
+                    `;
+                    }
+                }).join('');
 
                 const modHtml = `
                     <div class="accordion-item bg-white rounded-xl shadow-sm border border-gray-200">
@@ -368,7 +398,6 @@
                 e.preventDefault();
                 const categorySelect = document.getElementById('code-category');
                 
-                // CHANGE: Capture the description value
                 const newMod = {
                     name: document.getElementById('code-name').value,
                     description: document.getElementById('code-description').value,
