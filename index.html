@@ -5,288 +5,306 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BMW G20 Dynamic Guide</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9; /* slate-100 */
-            overflow-x: hidden;
-        }
-        .sidebar {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(-100%);
-            width: 280px;
-        }
-        .sidebar.is-open {
-            transform: translateX(0);
-        }
-        .main-content {
-            transition: margin-left 0.3s ease-in-out;
-        }
-        @media (min-width: 1024px) {
-            .sidebar {
-                transform: translateX(0);
-            }
-            .sidebar.is-collapsed {
-                transform: translateX(-224px); /* width - collapsed width */
-            }
-            .main-content.sidebar-open {
-                margin-left: 280px;
-            }
-            .main-content.sidebar-collapsed {
-                margin-left: 56px; /* collapsed width */
-            }
-        }
-        .nav-link.active {
-            background-color: #eef2ff; /* indigo-100 */
-            color: #4338ca; /* indigo-700 */
-            font-weight: 600;
-        }
-        .content-section {
-            display: none;
-        }
-        .content-section.active {
-            display: block;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .loader {
-            border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%;
-            width: 24px; height: 24px; animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .tool-tag { font-size: 0.65rem; font-weight: 600; padding: 2px 6px; border-radius: 9999px; margin-left: 8px; vertical-align: middle; }
-        .tool-tag-blue { background-color: #dbeafe; color: #2563eb; }
-        .tool-tag-purple { background-color: #ede9fe; color: #7c3aed; }
-        .tool-tag-green { background-color: #dcfce7; color: #16a34a; }
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar { transition: transform 0.3s ease-in-out; }
+        .content-item h3 { font-size: 1.125rem; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #dbeafe; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        .content-item ul { list-style-type: none; padding-left: 0; }
+        .content-item li { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
+        .content-item li strong { color: #1e3a8a; }
+        .content-item li code { background-color: #e2e8f0; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: monospace; }
+        .sidebar-item { transition: background-color 0.2s ease, color 0.2s ease; }
+        .sidebar-item.active { background-color: #1d4ed8; color: white; }
+        .sidebar-header { font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
     </style>
 </head>
-<body class="bg-slate-100">
+<body class="bg-gray-100 text-gray-800">
 
-    <div class="relative min-h-screen">
+    <div class="flex h-screen">
         <!-- Sidebar -->
-        <nav id="sidebar" class="sidebar is-open bg-white fixed top-0 left-0 h-full z-40 border-r border-gray-200 flex flex-col">
-            <div class="p-4 flex items-center justify-between border-b">
-                <h1 class="text-xl font-bold text-gray-800 sidebar-text">G20 Guide</h1>
-                <button id="sidebar-toggle-desktop" class="hidden lg:block p-1 rounded-full hover:bg-gray-200">
-                    <svg data-lucide="chevrons-left" class="h-5 w-5 text-gray-600"></svg>
-                </button>
-                 <button id="sidebar-close-mobile" class="lg:hidden p-1 rounded-full hover:bg-gray-200">
-                    <svg data-lucide="x" class="h-5 w-5 text-gray-600"></svg>
-                </button>
+        <aside id="sidebar" class="bg-gray-800 text-white w-64 md:w-72 flex-shrink-0 absolute md:relative inset-y-0 left-0 transform -translate-x-full md:translate-x-0 z-30 sidebar">
+            <div class="p-4">
+                <h2 class="text-2xl font-bold">BMW G20 Guide</h2>
             </div>
-            <ul class="flex-1 overflow-y-auto p-2">
-                <li><a href="#welcome" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="home" class="h-5 w-5"></svg><span class="sidebar-text">Welcome</span></a></li>
-                
-                <li class="px-3 mt-4 mb-2 text-xs font-semibold uppercase text-gray-400 sidebar-text">Tools</li>
+            <nav class="flex-grow p-4 space-y-4 overflow-y-auto">
+                <div>
+                    <h3 class="sidebar-header text-sm px-2 mb-2">Tools</h3>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="welcome">Welcome</a>
+                </div>
+                <div>
+                    <h3 class="sidebar-header text-sm px-2 mb-2 flex items-center">
+                        <span class="bg-green-500 w-2.5 h-2.5 rounded-full mr-2"></span>
+                        BimmerLink
+                    </h3>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="bimmerlink-exhaust">Exhaust Flap Control</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="bimmerlink-battery">Battery Registration</a>
+                </div>
 
-                <li><a href="#bimmerlink" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="activity" class="h-5 w-5"></svg><span class="sidebar-text">BimmerLink</span></a></li>
-                <li><a href="#bimmercode" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="code" class="h-5 w-5"></svg><span class="sidebar-text">BimmerCode</span></a></li>
-                <li><a href="#bimmerutility" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="sliders-horizontal" class="h-5 w-5"></svg><span class="sidebar-text">BimmerUtility</span></a></li>
-                
-                <li class="px-3 mt-4 mb-2 text-xs font-semibold uppercase text-gray-400 sidebar-text">ECU Details</li>
-
-                <li><a href="#hu" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="tv" class="h-5 w-5"></svg><span class="sidebar-text">Headunit</span></a></li>
-                <li><a href="#ic" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="gauge-circle" class="h-5 w-5"></svg><span class="sidebar-text">Instrument Cluster</span></a></li>
-                <li><a href="#bdc" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="car" class="h-5 w-5"></svg><span class="sidebar-text">Body Domain Controller</span></a></li>
-                <li><a href="#dme" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="cpu" class="h-5 w-5"></svg><span class="sidebar-text">Engine (DME)</span></a></li>
-                <li><a href="#egs" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="git-merge" class="h-5 w-5"></svg><span class="sidebar-text">Transmission (EGS)</span></a></li>
-                <li><a href="#other" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="boxes" class="h-5 w-5"></svg><span class="sidebar-text">Other ECUs</span></a></li>
-            </ul>
-        </nav>
+                <div>
+                    <h3 class="sidebar-header text-sm px-2 mb-2 flex items-center">
+                         <span class="bg-blue-500 w-2.5 h-2.5 rounded-full mr-2"></span>
+                        BimmerCode
+                    </h3>
+                     <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="asd">Active Sound Design (ASD)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="acsm">Advanced Crash Safety Module (ACSM)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="fem">Front Electronic Module (FEM)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="hu_nbt">Headunit (HU_NBT)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="ic">Instrument Cluster (IC)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="rem">Rear Electronic Module (REM)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="rfc">Roof Function Center (RFC)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="tfm">Tailgate Function Module (TFM)</a>
+                </div>
+                <div>
+                     <h3 class="sidebar-header text-sm px-2 mb-2 flex items-center">
+                         <span class="bg-red-500 w-2.5 h-2.5 rounded-full mr-2"></span>
+                        BimmerUtility
+                    </h3>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="ecu-engine">Engine ECU (DME/DDE)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="ecu-trans">Transmission ECU (EGS)</a>
+                </div>
+            </nav>
+        </aside>
 
         <!-- Main Content -->
-        <main id="main-content" class="main-content sidebar-open p-4 sm:p-6 lg:p-8">
-            <button id="sidebar-open-mobile" class="lg:hidden fixed top-4 left-4 h-12 w-12 bg-white rounded-full shadow-lg flex items-center justify-center z-30">
-                <svg data-lucide="menu" class="h-6 w-6"></svg>
-            </button>
-            
-            <div id="content-container">
-                <!-- Welcome Section -->
-                <section id="welcome" class="content-section">
-                    <h2 class="text-4xl font-bold mb-4">Welcome to the G20 Advanced Guide</h2>
-                    <p class="text-lg text-gray-600 mb-8">This page is a comprehensive resource for diagnosing, coding, and enhancing your BMW G20 series vehicle using popular mobile applications.</p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                        <div class="bg-white p-6 rounded-lg shadow">
-                            <h3 class="text-2xl font-bold mb-3">What This Page Offers</h3>
-                            <ul class="space-y-2 list-disc list-inside text-gray-700">
-                                <li><b>Detailed Guides:</b> Step-by-step instructions for popular features across three major tools.</li>
-                                <li><b>Expert Mode Parameters:</b> A clear list of expert coding parameters and their functions.</li>
-                                <li><b>Tool-Specific Info:</b> Understand the difference between diagnostics (BimmerLink) and coding (BimmerCode/Utility).</li>
-                                <li><b>AI-Powered Assistance:</b> Generate custom coding steps for your desired features instantly.</li>
-                            </ul>
-                        </div>
-                         <div class="bg-white p-6 rounded-lg shadow">
-                            <h3 class="text-2xl font-bold mb-3">The Tools Explained</h3>
-                            <ul class="space-y-2 text-gray-700">
-                                <li><strong class="text-green-600">BimmerLink:</strong> For diagnostics. Read/clear errors, view live sensor data, and control functions like exhaust flaps. It does not make permanent changes.</li>
-                                <li><strong class="text-blue-600">BimmerCode:</strong> For standard coding. Easily activate or deactivate common features in modules like the Headunit and Body Controller.</li>
-                                <li><strong class="text-purple-600">BimmerUtility:</strong> For advanced coding. Access critical ECUs like the Engine and Transmission to perform performance-oriented modifications. Use with caution.</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <!-- AI Assistant -->
-                    <div id="ai-assistant" class="bg-white rounded-xl shadow p-6 border border-gray-200">
-                        <div class="flex items-center mb-4"><div class="p-2 bg-indigo-100 rounded-full mr-4"><svg data-lucide="sparkles" class="w-6 h-6 text-indigo-600"></svg></div><h2 class="text-2xl font-bold text-gray-900">AI Coding Assistant</h2></div>
-                        <p class="text-gray-600 mb-4">Describe the feature you want to code (e.g., "Enable GTS startup roar"). The AI will generate steps for BimmerCode or BimmerUtility.</p>
-                        <div class="space-y-4"><textarea id="ai-prompt" class="w-full h-24 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Enter your desired coding feature here..."></textarea><button id="generate-btn" class="w-full sm:w-auto bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 flex items-center justify-center"><svg data-lucide="wand-2" class="w-5 h-5 mr-2"></svg><span>Generate Coding Steps</span></button></div>
-                        <div id="ai-result-container" class="mt-6 hidden"><h3 class="text-xl font-semibold mb-3">Generated Steps:</h3><div id="ai-result" class="bg-gray-50 p-4 rounded-lg border"></div><div id="ai-loader" class="flex justify-center p-4"><div class="loader"></div></div></div>
-                    </div>
-                </section>
-
-                <!-- Tool Content Sections -->
-                <section id="bimmerlink" class="content-section">
-                    <h2 class="text-3xl font-bold border-b pb-2 mb-6">BimmerLink <span class="tool-tag tool-tag-green">Diagnostics</span></h2>
-                    <div class="space-y-6">
-                        <div><h3 class="text-xl font-semibold">Read & Clear Error Codes</h3><p class="text-gray-600 mt-1">Scan all ECUs for Diagnostic Trouble Codes (DTCs) and clear them after repairs.</p></div>
-                        <div><h3 class="text-xl font-semibold">Real-Time Sensor Values</h3><p class="text-gray-600 mt-1">Monitor hundreds of live sensor values like oil temperature, boost pressure, and battery voltage.</p></div>
-                        <div><h3 class="text-xl font-semibold">Exhaust Flap Control</h3><p class="text-gray-600 mt-1">Temporarily open or close the exhaust flaps on demand, overriding the car's automatic control.</p></div>
-                    </div>
-                </section>
-                
-                <section id="bimmercode" class="content-section">
-                     <h2 class="text-3xl font-bold border-b pb-2 mb-6">BimmerCode <span class="tool-tag tool-tag-blue">Standard Coding</span></h2>
-                     <p class="text-gray-600">Use BimmerCode for safe, common modifications in non-critical ECUs. Below are Expert Mode parameters for popular features.</p>
-                </section>
-                
-                <section id="bimmerutility" class="content-section">
-                    <h2 class="text-3xl font-bold border-b pb-2 mb-6">BimmerUtility <span class="tool-tag tool-tag-purple">Advanced Coding</span></h2>
-                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-6">
-                        <div class="flex"><div class="py-1"><svg class="w-6 h-6 text-yellow-500 mr-4" data-lucide="alert-triangle"></svg></div><div><p class="font-bold text-yellow-800">Warning</p><p class="text-sm text-yellow-700">This tool modifies critical ECUs. Incorrect coding can lead to vehicle malfunction. Proceed with caution.</p></div></div>
-                    </div>
-                    <p class="text-gray-600">BimmerUtility provides access to ECUs like the Engine and Transmission for performance-oriented coding.</p>
-                </section>
-                
-                <!-- ECU Content Sections -->
-                <section id="hu" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Headunit (HU_MGU)</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">Video in Motion</h3><p class="text-gray-600 mt-1">Allows video playback while the vehicle is moving.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">SPEEDLOCK_X_KMH_MAX: FFFF</pre></div><div><h3 class="text-xl font-semibold">Disable Startup Warning</h3><p class="text-gray-600 mt-1">Removes the legal disclaimer on iDrive startup.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">MACRO_LEGALDISCLAIMER_SPEED: nicht_aktiv</pre></div></div></section>
-                <section id="ic" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Instrument Cluster (DKOMBI)</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">Alpina Display Layout</h3><p class="text-gray-600 mt-1">Changes the cluster theme to the Alpina design.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">Layout: layout_alpina</pre></div><div><h3 class="text-xl font-semibold">M Performance Logo</h3><p class="text-gray-600 mt-1">Adds the "M Performance" logo to the cluster.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">LOGO_SCHRIFTZUG: m_performance</pre></div></div></section>
-                <section id="bdc" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Body Domain Controller (BDC)</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">Fold Mirrors on Lock</h3><p class="text-gray-600 mt-1">Automatically folds mirrors when locking the car.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">KOMFORTSCHLIESSUNG_FB: aktiv</pre></div><div><h3 class="text-xl font-semibold">Turn Signal Blink Count</h3><p class="text-gray-600 mt-1">Changes the number of blinks for one-touch turn signal.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">BLINKZYKLEN_ANZAHL_TIPP: Werte=5</pre></div></div></section>
-                <section id="dme" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Engine (DME)</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">GTS Startup Roar</h3><p class="text-gray-600 mt-1">Enables a louder engine sound on startup.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">Tool: BimmerUtility\nFunction: F8x_GTS_Start_up\nValue: Aktiv</pre></div><div><h3 class="text-xl font-semibold">Disable Auto Start/Stop</h3><p class="text-gray-600 mt-1">Permanently disables the Auto Start/Stop function.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">Tool: BimmerUtility\nFunction: MSA_ deaktivieren\nValue: Aktiv</pre></div></div></section>
-                <section id="egs" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Transmission (EGS)</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">Alpina/M Transmission Flash</h3><p class="text-gray-600 mt-1">Flashes transmission software for faster shifts. This is a complex procedure, not a simple parameter change.</p></div></div></section>
-                <section id="other" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Other ECUs</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">Disable Active Sound (ASD)</h3><p class="text-gray-600 mt-1">Disables artificial engine noise played through speakers.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">Model: nicht_aktiv</pre></div><div><h3 class="text-xl font-semibold">Disable Seatbelt Reminders (ACSM)</h3><p class="text-gray-600 mt-1">Turns off the seatbelt warning chime.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">Gurtwarnung_Fahrer: nicht_aktiv</pre></div><div><h3 class="text-xl font-semibold">Remember A/C Setting (IHKA)</h3><p class="text-gray-600 mt-1">The car will remember if the A/C was off at shutdown.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">OFF_MEMORY: aktiv</pre></div><div><h3 class="text-xl font-semibold">Close Tailgate from Keyfob (HKFM)</h3><p class="text-gray-600 mt-1">Allows closing the power tailgate with the keyfob button.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">SCH_FBD: aktiv</pre></div></div></section>
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                <h1 id="content-title" class="text-2xl font-semibold text-gray-700">Welcome</h1>
+                <button id="menu-toggle" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </header>
+            <div id="content-area" class="flex-1 overflow-y-auto p-6 md:p-8">
+                <!-- Dynamic Content Loads Here -->
             </div>
         </main>
-        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
     </div>
 
+    <!-- Content Templates -->
+    <template id="template-welcome">
+        <div class="bg-white p-8 rounded-lg shadow-lg">
+            <h2 class="text-3xl font-bold text-blue-800 mb-4">Welcome to the BMW G20 Advanced Guide</h2>
+            <p class="text-lg text-gray-600 mb-6">This guide provides detailed explanations for Expert Mode coding and diagnostic functions available through BimmerCode, BimmerLink, and BimmerUtility for the BMW G20 series.</p>
+            
+            <div class="space-y-4 mb-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700 flex items-center"><span class="bg-blue-500 w-3 h-3 rounded-full mr-3"></span>BimmerCode</h3>
+                    <p class="ml-6 text-gray-600">Permanently code new features and customize existing ones in various Electronic Control Units (ECUs).</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700 flex items-center"><span class="bg-red-500 w-3 h-3 rounded-full mr-3"></span>BimmerUtility</h3>
+                    <p class="ml-6 text-gray-600">Access advanced ECUs like the engine and transmission for performance-related adjustments. Use with caution.</p>
+                </div>
+                 <div>
+                    <h3 class="text-xl font-semibold text-gray-700 flex items-center"><span class="bg-green-500 w-3 h-3 rounded-full mr-3"></span>BimmerLink</h3>
+                    <p class="ml-6 text-gray-600">Perform diagnostics, read real-time sensor values, and control specific functions like the exhaust flap. Does not perform permanent coding.</p>
+                </div>
+            </div>
+
+            <div id="ai-assistant" class="bg-blue-50 border-2 border-blue-200 p-6 rounded-lg">
+                <h3 class="text-2xl font-bold text-blue-700 mb-3">AI Coding Assistant</h3>
+                <p class="text-gray-600 mb-4">Describe the feature you want to code (e.g., "Enable Sport+ mode" or "Disable auto start/stop"), and the AI will generate the required steps for BimmerCode and/or BimmerUtility.</p>
+                <div class="mb-4">
+                    <textarea id="ai-prompt" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" rows="3" placeholder="e.g., Enable Bowers & Wilkins sound settings..."></textarea>
+                </div>
+                <button id="ai-submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center w-full sm:w-auto">
+                    <span id="ai-submit-text">Generate Steps</span>
+                    <div id="ai-spinner" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2 hidden"></div>
+                </button>
+                 <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+                    <strong>Disclaimer:</strong> Expert mode and BimmerUtility modifications can be complex and carry risks. Always back up your vehicle's data before making changes. The generated steps are for informational purposes. Proceed at your own risk.
+                </div>
+                <div id="ai-response" class="mt-6 prose max-w-none"></div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="template-bimmerlink-exhaust">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Exhaust Flap Control</h3><p class="mb-4">BimmerLink allows you to manually open or close the exhaust flap(s) for sound control. This is not a permanent coding change; the flap will revert to its default behavior after a driving cycle.</p><ul><li><strong>Step 1:</strong> Connect BimmerLink to your vehicle via a compatible OBD adapter.</li><li><strong>Step 2:</strong> From the main dashboard, select "Exhaust Flap".</li><li><strong>Step 3:</strong> Tap the button to toggle the flap between "Open", "Closed", and "Automatic" (default).</li></ul></div>
+    </template>
+
+    <template id="template-bimmerlink-battery">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>New Battery Registration</h3><p class="mb-4">When replacing your vehicle's battery, you must register the new one with the car's electrical system. This ensures the charging system works correctly for the new battery's capacity and type, prolonging its life.</p><ul><li><strong>Step 1:</strong> After installing the new battery, connect BimmerLink.</li><li><strong>Step 2:</strong> Navigate to the "Battery" section.</li><li><strong>Step 3:</strong> Tap "Register new battery".</li><li><strong>Step 4:</strong> Select the capacity (e.g., 90Ah, 105Ah) and type (e.g., AGM) that matches the newly installed battery. Confirm the registration.</li></ul></div>
+    </template>
+
+    <template id="template-asd">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Active Sound Design (ASD)</h3><p class="mb-4">Controls the synthesized engine sound played through the vehicle's speakers.</p><ul><li><strong>Deactivate ASD:</strong> Find <code>ASD_SOUND_OFF</code> and set it to <code>aktiv</code> (active). This will disable the feature.</li><li><strong>Change Sound Profile:</strong> Look for parameters like <code>AUDIO_SYSTEM</code> or <code>SOUND_MODE</code>. Changing these values can sometimes load different sound profiles (e.g., from a different model like M3/M4), but compatibility varies.</li></ul></div>
+    </template>
+    
+    <template id="template-acsm">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Advanced Crash Safety Module (ACSM)</h3><p class="mb-4">Manages seatbelt reminders and other safety features.</p><ul><li><strong>Disable Seatbelt Reminder (Driver):</strong> Set <code>SBR_FAHRER_SBR_DISABLE</code> to <code>aktiv</code>.</li><li><strong>Disable Seatbelt Reminder (Passenger):</strong> Set <code>SBR_BEIFAHRER_SBR_DISABLE</code> to <code>aktiv</code>.</li><li><strong>Initial Gong Warning:</strong> To disable the initial chime when starting the car, find <code>Initialwarnung_GWF_SBR</code> and set it to <code>nicht_aktiv</code>.</li></ul></div>
+    </template>
+
+    <template id="template-fem">
+         <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Front Electronic Module (FEM)</h3><p class="mb-4">Controls lighting, windows, and mirror functions.</p><ul><li><strong>Mirror Folding Delay:</strong> Change <code>KOMFORT_SCHLIESSEN</code> value in ms (e.g., <code>00</code> for instant folding with lock).</li><li><strong>Window Lifter Behavior:</strong> Allow windows to continue rolling up/down even when the door is opened by setting <code>FH_TUERAUF_STOP_MAUT</code> to <code>nicht_aktiv</code>.</li></ul></div>
+    </template>
+
+    <template id="template-hu_nbt">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Headunit (HU_NBT)</h3><p class="mb-4">Governs the iDrive system, display, and media functions.</p><ul><li><strong>Enable Video in Motion:</strong> Set <code>SPEEDLOCK_X_KMH_MAX</code> and <code>SPEEDLOCK_X_KMH_MIN</code> to <code>FF</code> (255 km/h). Also set <code>VIDEO_HANDBRAKE</code> to <code>nicht_aktiv</code>.</li><li><strong>Startup Animation:</strong> Change <code>STARTUP_EMBLEM</code> to different variants (e.g., <code>bmw_m</code>, <code>alpina</code>) to alter the boot screen.</li><li><strong>Legal Disclaimers:</strong> Disable the startup and camera disclaimers by setting <code>LEGAL_DISCLAIMER_TIME</code> and <code>MACRO_CAM_LEGALDISCLAIMER</code> to <code>kein_ld</code> / <code>nicht_aktiv</code>.</li><li><strong>Tire Pressure & Temperature:</strong> Enable the display of individual tire pressures and temperatures by setting <code>RDC_DRUCK_TEMP</code> to <code>druck_und_temperatur</code>.</li></ul></div>
+    </template>
+
+    <template id="template-ic">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Instrument Cluster (IC)</h3><p class="mb-4">Manages what is displayed on the main instrument panel.</p><ul><li><strong>Digital Speedometer:</strong> Set <code>BC_DIGITAL_V</code> to <code>aktiv</code>.</li><li><strong>M Performance Logo:</strong> Enable the M Performance logo in the cluster by setting <code>BMW_LOGO</code> to <code>mpa</code>.</li><li><strong>Enable Sport+ Mode:</strong> For cars with Sport mode but not Sport+, set <code>Fahrwerk_Sport_Plus</code> to <code>aktiv</code> (may require additional coding in other ECUs).</li></ul></div>
+    </template>
+    
+    <template id="template-rem">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Rear Electronic Module (REM)</h3><p class="mb-4">Controls rear lighting and other functions.</p><ul><li><strong>Brighter Angel Eyes:</strong> Search for parameters related to daytime running light brightness, often named with "PWM" (Pulse Width Modulation), and increase their values cautiously.</li><li><strong>Welcome Light Carpets:</strong> If the hardware is present, activate the welcome light carpets by setting <code>MAPPING_STANDL_V_L_PWM_LEVEL_1</code> and its right-side equivalent to a higher value.</li></ul></div>
+    </template>
+
+    <template id="template-rfc">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Roof Function Center (RFC)</h3><p class="mb-4">Controls the sunroof and interior lighting.</p><ul><li><strong>Close Sunroof When Raining:</strong> If your car has a rain sensor, set <code>SCHIEBEHEBEDACH_REGEN_SCHLIESSEN</code> to <code>aktiv</code> to automatically close the sunroof when rain is detected.</li></ul></div>
+    </template>
+
+    <template id="template-tfm">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Tailgate Function Module (TFM)</h3><p class="mb-4">Controls the powered tailgate.</p><ul><li><strong>Close Tailgate with Key Fob:</strong> Set <code>SCH_FBD</code> and <code>TASTER_FBD</code> to <code>aktiv</code> to allow closing the trunk with a single press of the key fob button (no long-press needed).</li></ul></div>
+    </template>
+    
+    <template id="template-ecu-engine">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Engine ECU (DME/DDE) - BimmerUtility</h3><p class="mb-4"><strong>WARNING:</strong> Modifying the engine ECU is for advanced users and can affect performance and warranty. Proceed with extreme caution.</p><ul><li><strong>Disable Auto Start/Stop (Default Off):</strong> Find the parameter for Auto Start/Stop memory (e.g., <code>TC_MSA_MEMORY</code>) and set it to <code>aktiv</code>. This will make the car remember the last setting (off) across restarts.</li><li><strong>Exhaust Flap Behavior (Default Open):</strong> Modify parameters like <code>KLAPPENSTEUERUNG</code> to change the default position of the exhaust flap in certain driving modes.</li></ul></div>
+    </template>
+
+    <template id="template-ecu-trans">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Transmission ECU (EGS) - BimmerUtility</h3><p class="mb-4"><strong>WARNING:</strong> Changes to the transmission ECU can alter shift behavior significantly.</p><ul><li><strong>Alpina Transmission Flash:</strong> Advanced users can flash the Alpina B3/D3 software for faster, smoother shifts. This involves finding the correct software flash file (not just FDL coding) and is a complex procedure outside the scope of simple parameter changes.</li></ul></div>
+    </template>
+    
+
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        lucide.createIcons();
-
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('main-content');
-        const toggleDesktopBtn = document.getElementById('sidebar-toggle-desktop');
-        const openMobileBtn = document.getElementById('sidebar-open-mobile');
-        const closeMobileBtn = document.getElementById('sidebar-close-mobile');
-        const overlay = document.getElementById('overlay');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const contentSections = document.querySelectorAll('.content-section');
-
-        // --- Sidebar Logic ---
-        function toggleSidebarDesktop() {
-            sidebar.classList.toggle('is-collapsed');
-            mainContent.classList.toggle('sidebar-open');
-            mainContent.classList.toggle('sidebar-collapsed');
-            const icon = sidebar.classList.contains('is-collapsed') ? 'chevrons-right' : 'chevrons-left';
-            toggleDesktopBtn.innerHTML = `<svg data-lucide="${icon}" class="h-5 w-5 text-gray-600"></svg>`;
-            lucide.createIcons();
-        }
-
-        function toggleSidebarMobile() {
-            sidebar.classList.toggle('is-open');
-            overlay.classList.toggle('hidden');
-        }
-
-        toggleDesktopBtn.addEventListener('click', toggleSidebarDesktop);
-        openMobileBtn.addEventListener('click', toggleSidebarMobile);
-        closeMobileBtn.addEventListener('click', toggleSidebarMobile);
-        overlay.addEventListener('click', toggleSidebarMobile);
-
-        // --- Content Switching Logic ---
-        function showContent(hash) {
-            const targetHash = hash || '#welcome';
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menu-toggle');
+            const contentArea = document.getElementById('content-area');
+            const contentTitle = document.getElementById('content-title');
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
             
-            navLinks.forEach(link => {
-                link.classList.toggle('active', link.getAttribute('href') === targetHash);
+            // --- Sidebar Toggle ---
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
             });
-
-            contentSections.forEach(section => {
-                section.classList.toggle('active', `#${section.id}` === targetHash);
-            });
-        }
-
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetHash = link.getAttribute('href');
-                window.location.hash = targetHash;
-                if (window.innerWidth < 1024) {
-                    toggleSidebarMobile();
+            
+            // --- Content Loading ---
+            function loadContent(id) {
+                const template = document.getElementById(`template-${id}`);
+                if (template) {
+                    contentArea.innerHTML = template.innerHTML;
+                    const selectedItem = document.querySelector(`.sidebar-item[data-content="${id}"]`);
+                    contentTitle.textContent = selectedItem ? selectedItem.textContent : 'Guide';
+                    
+                    if (id === 'welcome') {
+                        document.getElementById('ai-submit').addEventListener('click', handleAISubmit);
+                        document.getElementById('ai-prompt').addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleAISubmit();
+                            }
+                        });
+                    }
                 }
-            });
-        });
-        
-        window.addEventListener('hashchange', () => showContent(window.location.hash));
-        // Initial load
-        showContent(window.location.hash);
+            }
 
-        // --- AI Assistant Logic ---
-        const generateBtn = document.getElementById('generate-btn');
-        const aiPrompt = document.getElementById('ai-prompt');
-        const resultContainer = document.getElementById('ai-result-container');
-        const aiResult = document.getElementById('ai-result');
-        const aiLoader = document.getElementById('ai-loader');
-        
-        // --- MODIFIED: Use Cloudflare Worker for Gemini API calls ---
-        async function callGeminiAPI(prompt) {
-            resultContainer.style.display = 'block';
-            aiResult.style.display = 'none';
-            aiLoader.style.display = 'flex';
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const contentId = e.currentTarget.dataset.content;
+                    
+                    sidebarItems.forEach(i => i.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
 
-            // IMPORTANT: Replace this with your actual Cloudflare Worker URL
-            const CLOUDFLARE_WORKER_URL = "https://healthfoodworker.rosucostine.workers.dev"; 
-            
-            // The system prompt needs to be combined with the user prompt
-            // because the worker only accepts a single 'prompt' field.
-            const systemPrompt = `You are an expert on BMW G20 coding using BimmerCode and BimmerUtility. A user will describe a feature. Provide clear, step-by-step instructions. For each step, you MUST specify the tool ("BimmerCode" or "BimmerUtility"), the ECU, the parameter, and the new value. If a feature requires both tools, clearly separate the steps. Format the response cleanly. Do not provide instructions for BimmerLink. User's request is: `;
+                    loadContent(contentId);
 
-            const combinedPrompt = systemPrompt + prompt;
-
-            try {
-                const response = await fetch(CLOUDFLARE_WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: combinedPrompt })
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
                 });
+            });
 
-                if (!response.ok) {
-                    throw new Error(`Cloudflare Worker error: ${response.status} ${response.statusText}`);
-                }
+            // --- AI Assistant Logic ---
+            async function callGeminiAPI(prompt) {
+                const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2iJG2TF-ZQC6llieCC8JJHdVNKEQ3SpsjlbyA9gpgWQmdNInS6_hewUDsi0ilSW4F/exec';
+
+                 const systemPrompt = `You are an expert on BMW G20 coding. Your task is to provide clear, step-by-step instructions for coding features using BimmerCode or BimmerUtility Expert Mode.
+                **Rules:**
+                1.  For each step, specify the **ECU**, the **parameter name** (e.g., \`TCM_MSA_MEMORY\`), and the **value to set** (e.g., \`aktiv\`).
+                2.  If a feature requires coding in multiple ECUs, list them clearly.
+                3.  Clearly distinguish between steps for **BimmerCode** and the more advanced **BimmerUtility**.
+                4.  If a feature cannot be coded, state that clearly.
+                5.  Format the response using Markdown for readability (e.g., headings, bold text, lists).
+                6.  Do not include any warnings or disclaimers; focus only on the technical steps.`;
                 
-                const text = await response.text();
-                aiResult.textContent = text || 'Sorry, I could not generate the steps.';
+                const fullPrompt = `${systemPrompt}\n\nUser request: ${prompt}`;
 
-            } catch (error) {
-                console.error('Error calling Cloudflare Worker:', error);
-                aiResult.textContent = 'An error occurred while fetching coding steps. Please ensure your worker URL is correct and the service is running.';
-            } finally {
-                aiLoader.style.display = 'none';
-                aiResult.style.display = 'block';
-            }
-        }
+                try {
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        // Using text/plain as Apps Script can have issues with CORS preflight for application/json
+                        headers: { 'Content-Type': 'text/plain' }, 
+                        body: JSON.stringify({ prompt: fullPrompt }),
+                    });
 
-        generateBtn.addEventListener('click', () => { 
-            if (aiPrompt.value.trim()) {
-                callGeminiAPI(aiPrompt.value);
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                    }
+
+                    const text = await response.text();
+                     // Check if the response from Apps Script is an error object
+                    try {
+                        const parsed = JSON.parse(text);
+                        if (parsed.error) {
+                            throw new Error(`Apps Script Error: ${parsed.error}`);
+                        }
+                    } catch(e) {
+                        // Not an error object, so it's the valid text response
+                    }
+
+                    return text;
+                } catch (error) {
+                    console.error('Error calling Google Apps Script:', error);
+                    throw error;
+                }
             }
+            
+            async function handleAISubmit() {
+                const promptText = document.getElementById('ai-prompt').value;
+                const responseContainer = document.getElementById('ai-response');
+                const submitBtn = document.getElementById('ai-submit');
+                const btnText = document.getElementById('ai-submit-text');
+                const spinner = document.getElementById('ai-spinner');
+                const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbw2iJG2TF-ZQC6llieCC8JJHdVNKEQ3SpsjlbyA9gpgWQmdNInS6_hewUDsi0ilSW4F/exec';
+
+                if (!promptText.trim()) return;
+                
+                if (appsScriptUrl.includes('PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE')) {
+                    responseContainer.innerHTML = `<p class="text-red-600 font-semibold">Error: The Google Apps Script URL has not been configured in the HTML file.</p>`;
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                btnText.textContent = 'Generating...';
+                spinner.classList.remove('hidden');
+                responseContainer.innerHTML = '';
+
+                try {
+                    const result = await callGeminiAPI(promptText);
+                    responseContainer.innerHTML = marked.parse(result);
+                } catch (error) {
+                    responseContainer.innerHTML = `<p class="text-red-600 font-semibold">An error occurred. Please try again later. Check the browser console for details.</p>`;
+                } finally {
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Generate Steps';
+                    spinner.classList.add('hidden');
+                }
+            }
+
+            // --- Initial Load ---
+            const welcomeItem = document.querySelector('.sidebar-item[data-content="welcome"]');
+            welcomeItem.classList.add('active');
+            loadContent('welcome');
         });
-    });
     </script>
 </body>
 </html>
+
