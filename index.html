@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         .sidebar { transition: transform 0.3s ease-in-out; }
@@ -87,6 +89,34 @@
             <div id="content-area" class="flex-1 overflow-y-auto p-6 md:p-8">
                 <!-- Dynamic Content Loads Here -->
             </div>
+             <div id="ai-assistant-container" class="p-6 md:p-8 bg-gray-100">
+                <div id="ai-assistant" class="bg-blue-50 border-2 border-blue-200 p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-3">AI Coding Assistant</h3>
+                    <p class="text-gray-600 mb-4">Describe the feature you want to code (e.g., "Enable Sport+ mode" or "Disable auto start/stop"), and the AI will generate the required steps for BimmerCode and/or BimmerUtility.</p>
+                    <div class="mb-4">
+                        <textarea id="ai-prompt" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" rows="3" placeholder="e.g., Enable Bowers & Wilkins sound settings..."></textarea>
+                    </div>
+                    <button id="ai-submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center w-full sm:w-auto">
+                        <span id="ai-submit-text">Generate Steps</span>
+                        <div id="ai-spinner" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2 hidden"></div>
+                    </button>
+                    <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+                        <strong>Disclaimer:</strong> Expert mode modifications can be complex. Always back up your vehicle's data before making changes. The generated steps are for informational purposes. Proceed at your own risk.
+                    </div>
+                    <div id="ai-response" class="mt-6 prose max-w-none"></div>
+                    <div id="export-controls" class="relative hidden mt-4 text-right">
+                        <button id="export-button" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center ml-auto">
+                            Export As
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div id="export-dropdown" class="absolute right-0 bottom-10 w-48 bg-white rounded-md shadow-lg z-10 hidden">
+                            <a href="#" id="export-png" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as PNG</a>
+                            <a href="#" id="export-pdf" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as PDF</a>
+                            <a href="#" id="export-html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as HTML</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -95,22 +125,6 @@
         <div class="bg-white p-8 rounded-lg shadow-lg">
             <h2 class="text-3xl font-bold text-blue-800 mb-4">Welcome to the BMW G20 Advanced Guide</h2>
             <p class="text-lg text-gray-600 mb-6">This guide provides detailed explanations for Expert Mode coding and diagnostic functions available through BimmerCode, BimmerLink, and BimmerUtility for the BMW G20 series.</p>
-            
-            <div id="ai-assistant" class="bg-blue-50 border-2 border-blue-200 p-6 rounded-lg">
-                <h3 class="text-2xl font-bold text-blue-700 mb-3">AI Coding Assistant</h3>
-                <p class="text-gray-600 mb-4">Describe the feature you want to code (e.g., "Enable Sport+ mode" or "Disable auto start/stop"), and the AI will generate the required steps for BimmerCode and/or BimmerUtility.</p>
-                <div class="mb-4">
-                    <textarea id="ai-prompt" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" rows="3" placeholder="e.g., Enable Bowers & Wilkins sound settings..."></textarea>
-                </div>
-                <button id="ai-submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center w-full sm:w-auto">
-                    <span id="ai-submit-text">Generate Steps</span>
-                    <div id="ai-spinner" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2 hidden"></div>
-                </button>
-                 <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-                    <strong>Disclaimer:</strong> Expert mode modifications can be complex. Always back up your vehicle's data before making changes. The generated steps are for informational purposes. Proceed at your own risk.
-                </div>
-                <div id="ai-response" class="mt-6 prose max-w-none"></div>
-            </div>
         </div>
     </template>
     
@@ -196,16 +210,6 @@
                     contentArea.innerHTML = template.innerHTML;
                     const selectedItem = document.querySelector(`.sidebar-item[data-content="${id}"]`);
                     contentTitle.textContent = selectedItem ? selectedItem.textContent : 'Guide';
-                    
-                    if (id === 'welcome') {
-                        document.getElementById('ai-submit').addEventListener('click', handleAISubmit);
-                        document.getElementById('ai-prompt').addEventListener('keydown', (e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                handleAISubmit();
-                            }
-                        });
-                    }
                 }
             }
 
@@ -287,6 +291,7 @@
                 const submitBtn = document.getElementById('ai-submit');
                 const btnText = document.getElementById('ai-submit-text');
                 const spinner = document.getElementById('ai-spinner');
+                const exportControls = document.getElementById('export-controls');
 
                 if (!promptText.trim()) return;
 
@@ -294,11 +299,14 @@
                 btnText.textContent = 'Generating...';
                 spinner.classList.remove('hidden');
                 responseContainer.innerHTML = '';
+                exportControls.classList.add('hidden');
 
                 try {
                     const result = await callGeminiAPI(promptText);
-                    // The result is now expected to be raw HTML, so no need for marked.parse
                     responseContainer.innerHTML = result;
+                    if (result && !result.startsWith('<p class="text-red-600')) {
+                        exportControls.classList.remove('hidden');
+                    }
                 } catch (error) {
                     responseContainer.innerHTML = `<p class="text-red-600 font-semibold">An error occurred. Please try again later. Check the browser console for details.</p>`;
                 } finally {
@@ -306,6 +314,102 @@
                     btnText.textContent = 'Generate Steps';
                     spinner.classList.add('hidden');
                 }
+            }
+
+            // --- AI Assistant Setup ---
+            document.getElementById('ai-submit').addEventListener('click', handleAISubmit);
+            document.getElementById('ai-prompt').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleAISubmit();
+                }
+            });
+
+            // --- Export Logic ---
+            const exportButton = document.getElementById('export-button');
+            const exportDropdown = document.getElementById('export-dropdown');
+
+            exportButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                exportDropdown.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!exportButton.contains(event.target) && !exportDropdown.contains(event.target)) {
+                    exportDropdown.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('export-png').addEventListener('click', () => exportResponse('png'));
+            document.getElementById('export-pdf').addEventListener('click', () => exportResponse('pdf'));
+            document.getElementById('export-html').addEventListener('click', () => exportResponse('html'));
+
+            function exportResponse(format) {
+                const { jsPDF } = window.jspdf;
+                const responseContainer = document.getElementById('ai-response');
+                const originalTitle = document.title;
+                document.title = 'BMW G20 Coding Report';
+
+                if (format === 'html') {
+                    const htmlContent = `
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>BMW G20 Coding Report</title>
+                            <script src="https://cdn.tailwindcss.com"></script>
+                            <style>
+                                body { font-family: 'Inter', sans-serif; }
+                                .ai-card { background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 1rem; overflow: hidden; }
+                                .ai-card-header { padding: 0.75rem 1rem; font-weight: bold; color: white; display: flex; align-items: center; }
+                                .ai-card-body { padding: 1rem; }
+                                .ai-card-body strong { color: #1e3a8a; }
+                                h3 { font-size: 1.25rem; font-weight: 700; color: #1e3a8a; }
+                                code { background-color: #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-family: monospace; }
+                            </style>
+                        </head>
+                        <body class="bg-gray-100 p-8">
+                            <h1 class="text-3xl font-bold text-blue-800 mb-6">AI-Generated Coding Report</h1>
+                            ${responseContainer.innerHTML}
+                        </body>
+                        </html>
+                    `;
+                    const blob = new Blob([htmlContent], { type: 'text/html' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'coding-report.html';
+                    link.click();
+                    document.title = originalTitle;
+                    return;
+                }
+
+                html2canvas(responseContainer, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#f8fafc'
+                }).then(canvas => {
+                    if (format === 'png') {
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL('image/png');
+                        link.download = 'coding-report.png';
+                        link.click();
+                    } else if (format === 'pdf') {
+                        const imgData = canvas.toDataURL('image/png');
+                        const pdf = new jsPDF({
+                            orientation: 'p',
+                            unit: 'px',
+                            format: [canvas.width, canvas.height]
+                        });
+                        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+                        pdf.save('coding-report.pdf');
+                    }
+                    document.title = originalTitle;
+                }).catch(err => {
+                    console.error('Export failed:', err);
+                    alert('Could not export the report. Please see the console for details.');
+                    document.title = originalTitle;
+                });
             }
 
             // --- Initial Load ---
