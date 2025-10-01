@@ -153,7 +153,53 @@
     </template>
 
     <template id="template-dkombi">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Instrument Cluster <span>(DKOMBI)</span></h3><p class="mb-4">Manages what is displayed on the main instrument panel.</p><ul><li><strong>Digital Dash Theme:</strong> Change <code>KOMBI_THEMA</code> to available options like <code>mpa_ansicht</code> (M Performance) or <code>alpina_ansicht</code>.</li><li><strong>Display Oil Temperature in Cluster:</strong> Set <code>BC_MOTOREN_OELTEMP_ENABLE</code> to <code>aktiv</code>.</li><li><strong>M Performance Logo in Instrument Cluster:</strong> Set <code>BMW_LOGO</code> to <code>mpa</code>.</li></ul></div>
+        <div class="content-item bg-white p-6 rounded-lg shadow">
+            <h3>Instrument Cluster <span>(DKOMBI)</span></h3>
+            <p class="mb-4">This guide provides detailed steps to enable the M Performance theme on your instrument cluster using Bimmercode's Expert Mode.</p>
+
+            <h4 class="font-bold text-lg text-blue-700 mt-4 mb-2">Step 1: Connect to Your Vehicle</h4>
+            <ul class="list-disc list-inside space-y-2">
+                <li>Plug your OBD2 adapter into your car's OBD2 port (located in the driver-side footwell, usually above the pedals).</li>
+                <li>Turn on your car's ignition by pressing the start button without your foot on the brake. The car's electronics should be on, but not the engine.</li>
+                <li>Connect your phone to the OBD2 adapter (via Wi-Fi or Bluetooth, depending on the adapter).</li>
+                <li>Open the Bimmercode app, select your adapter, and tap "Connect".</li>
+            </ul>
+
+            <h4 class="font-bold text-lg text-blue-700 mt-4 mb-2">Step 2: Navigate to the Instrument Cluster Module</h4>
+            <ul class="list-disc list-inside space-y-2">
+                <li>After Bimmercode reads your vehicle's data, it will display a list of Electronic Control Units (ECUs).</li>
+                <li>Scroll down and select "Instrument Cluster". The technical name for this ECU is often <code>DKOMBI4</code>.</li>
+            </ul>
+
+            <h4 class="font-bold text-lg text-blue-700 mt-4 mb-2">Step 3: Enter Expert Mode</h4>
+            <ul class="list-disc list-inside space-y-2">
+                <li>The app will first show you a list of common, pre-configured coding options. For this change, you need to use Expert Mode.</li>
+                <li>Scroll to the bottom of the list and tap on "Expert Mode".</li>
+                <li>Read and accept the warning message to proceed.</li>
+            </ul>
+
+            <h4 class="font-bold text-lg text-blue-700 mt-4 mb-2">Step 4: Modify the Parameters</h4>
+            <p class="mb-2">You are now in a more detailed, text-based editor. Use the search bar at the top to find and change the following two parameters precisely as described.</p>
+
+            <h5 class="font-semibold text-md text-gray-800 mt-3 mb-1">First Parameter (Logo)</h5>
+            <ul class="list-disc list-inside space-y-2">
+                <li>Search for: <code>Logo_Ausgabetyp</code></li>
+                <li>Tap on it.</li>
+                <li>Change the value from <code>bmw</code> (or whatever it is currently) to <code>m_gmbh</code>.</li>
+                <li>Tap "OK".</li>
+            </ul>
+
+            <h5 class="font-semibold text-md text-gray-800 mt-3 mb-1">Second Parameter (M View)</h5>
+            <ul class="list-disc list-inside space-y-2">
+                <li>Search for: <code>Darstellung_Sonderdarstellung</code></li>
+                <li>Tap on it.</li>
+                <li>Change the value from the current setting to <code>aktiv</code>.</li>
+                <li>Tap "OK".</li>
+            </ul>
+
+            <h4 class="font-bold text-lg text-blue-700 mt-4 mb-2">Step 5: Apply the Code</h4>
+            <p>After modifying the parameters, go back one screen and tap the "Code" button at the top right. Bimmercode will write the changes to your car. Wait for the process to complete, and the instrument cluster will restart to display the new M Performance theme.</p>
+        </div>
     </template>
     
     <template id="template-hkfm">
@@ -358,7 +404,7 @@
                             <meta charset="UTF-8">
                             <meta name="viewport" content="width=device-width, initial-scale=1.0">
                             <title>BMW G20 Coding Report</title>
-                            <script src="https://cdn.tailwindcss.com"></script>
+                            <script src="https://cdn.tailwindcss.com"><\/script>
                             <style>
                                 body { font-family: 'Inter', sans-serif; }
                                 .ai-card { background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 1rem; overflow: hidden; }
