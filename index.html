@@ -3,456 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bimmercode Guide</title>
+    <title>BMW G20 Dynamic Guide</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Modern Cool Gray -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+            background-color: #f1f5f9; /* slate-100 */
+            overflow-x: hidden;
         }
-        body.modal-open {
-            overflow: hidden;
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+            width: 280px;
         }
-        .font-code {
-             font-family: 'Fira Code', monospace;
+        .sidebar.is-open {
+            transform: translateX(0);
         }
-        .accordion-header {
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+        .main-content {
+            transition: margin-left 0.3s ease-in-out;
         }
-        .accordion-header:hover {
-            background-color: #e5e7eb;
+        @media (min-width: 1024px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+            .sidebar.is-collapsed {
+                transform: translateX(-224px); /* width - collapsed width */
+            }
+            .main-content.sidebar-open {
+                margin-left: 280px;
+            }
+            .main-content.sidebar-collapsed {
+                margin-left: 56px; /* collapsed width */
+            }
         }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-in-out;
+        .nav-link.active {
+            background-color: #eef2ff; /* indigo-100 */
+            color: #4338ca; /* indigo-700 */
+            font-weight: 600;
         }
-        .accordion-item.open .accordion-content {
-            max-height: 1500px; /* Increased to accommodate longer content */
+        .content-section {
+            display: none;
         }
-        .accordion-item.open .accordion-arrow {
-            transform: rotate(180deg);
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
         }
-        .modal {
-            background-color: rgba(0,0,0,0.5);
-            transition: opacity 0.3s ease;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .disclaimer-banner {
-            transition: opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease;
-            max-height: 500px;
-            opacity: 1;
-            transform: translateY(0);
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%;
+            width: 24px; height: 24px; animation: spin 1s linear infinite;
         }
-        .disclaimer-banner.hidden {
-            opacity: 0;
-            transform: translateY(-100%);
-            max-height: 0;
-            padding: 0;
-            margin: 0;
-            border: none;
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .tool-tag { font-size: 0.65rem; font-weight: 600; padding: 2px 6px; border-radius: 9999px; margin-left: 8px; vertical-align: middle; }
+        .tool-tag-blue { background-color: #dbeafe; color: #2563eb; }
+        .tool-tag-purple { background-color: #ede9fe; color: #7c3aed; }
+        .tool-tag-green { background-color: #dcfce7; color: #16a34a; }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-slate-100">
 
-    <div id="disclaimer-banner" class="disclaimer-banner hidden bg-amber-100 border-b-2 border-amber-300 p-4 mb-8">
-        <div class="container mx-auto max-w-6xl flex justify-between items-center">
-            <div class="flex items-start">
-                <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-amber-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.636-1.21 2.37-1.21 3.006 0l4.5 8.625c.636 1.21-.24 2.776-1.503 2.776H5.254c-1.263 0-2.139-1.566-1.503-2.776l4.5-8.625zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
-                </div>
-                <div class="ml-3"><h3 class="text-sm font-semibold text-amber-800">Important Disclaimer</h3><div class="mt-1 text-sm text-amber-700"><p>Modifying your vehicle's software comes with risks and may void your warranty. Proceed at your own risk.</p></div></div>
-            </div>
-            <button id="close-disclaimer-btn" class="ml-4 text-amber-700 hover:text-amber-900"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
-        </div>
-    </div>
-    
-    <div id="add-code-modal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-2xl w-full max-w-3xl mx-auto max-h-[90vh] flex flex-col">
-            <div class="p-6 border-b flex justify-between items-start">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Contribute a New Code</h2>
-                    <p id="form-instructions" class="text-sm text-gray-600">Use this form to structure a new coding entry. After preparing the submission, a GitHub issue will be opened for the administrator to review.</p>
-                </div>
-                 <button type="button" id="close-modal-x-btn" class="ml-4 text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+    <div class="relative min-h-screen">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar is-open bg-white fixed top-0 left-0 h-full z-40 border-r border-gray-200 flex flex-col">
+            <div class="p-4 flex items-center justify-between border-b">
+                <h1 class="text-xl font-bold text-gray-800 sidebar-text">G20 Guide</h1>
+                <button id="sidebar-toggle-desktop" class="hidden lg:block p-1 rounded-full hover:bg-gray-200">
+                    <svg data-lucide="chevrons-left" class="h-5 w-5 text-gray-600"></svg>
+                </button>
+                 <button id="sidebar-close-mobile" class="lg:hidden p-1 rounded-full hover:bg-gray-200">
+                    <svg data-lucide="x" class="h-5 w-5 text-gray-600"></svg>
                 </button>
             </div>
-            <form id="add-code-form" class="flex-grow overflow-y-auto">
-                <div class="p-6">
-                    <div id="form-inputs">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div><label for="code-name" class="block text-sm font-medium text-gray-700">Feature Name</label><input type="text" id="code-name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
-                            <div><label for="code-difficulty" class="block text-sm font-medium text-gray-700">Difficulty (1-10)</label><input type="number" id="code-difficulty" required min="1" max="10" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
-                        </div>
-                        <div class="mb-4">
-                            <label for="code-description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea id="code-description" required rows="2" placeholder="e.g., Disables the legal warnings that appear on startup..." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                        </div>
-                        <div class="mb-4">
-                            <label for="code-category" class="block text-sm font-medium text-gray-700">Category (Section)</label><select id="code-category" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></select>
-                            <input type="text" id="new-category-name" placeholder="Enter new category name" class="hidden mt-2 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2 border-t pt-4">Coding Steps</h3>
-                        <div id="coding-steps-container" class="space-y-4"></div>
-                        <button type="button" id="add-step-btn" class="mt-4 text-sm text-indigo-600 hover:text-indigo-800 font-medium">+ Add Another Step</button>
-                        <div class="mt-6"><label for="code-comments" class="block text-sm font-medium text-gray-700">Comments / Notes</label><textarea id="code-comments" rows="2" placeholder="Optional notes about this mod..." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea></div>
-                    </div>
+            <ul class="flex-1 overflow-y-auto p-2">
+                <li><a href="#welcome" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="home" class="h-5 w-5"></svg><span class="sidebar-text">Welcome</span></a></li>
+                
+                <li class="px-3 mt-4 mb-2 text-xs font-semibold uppercase text-gray-400 sidebar-text">Tools</li>
 
-                    <div id="submission-container" class="hidden mt-6">
-                        <h3 class="text-lg font-semibold text-gray-700">Submission Ready</h3>
-                        <p class="text-sm text-gray-500 mb-2">Your contribution has been formatted as HTML. Copy the code below or click the button to submit it for review.</p>
-                        <textarea id="html-preview" readonly rows="10" class="w-full bg-gray-800 text-white p-4 rounded-md font-code text-xs whitespace-pre overflow-x-auto focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                        <a id="submit-to-github-btn" href="#" target="_blank" class="mt-4 w-full block text-center bg-green-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Submit Issue on GitHub</a>
-                    </div>
-                </div>
-                 <div id="form-actions" class="bg-gray-50 px-6 py-4 flex justify-end items-center space-x-3 rounded-b-lg border-t">
-                    <button type="button" id="cancel-add-code-btn" class="bg-white text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
-                    <button type="submit" class="bg-indigo-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">Prepare GitHub Submission</button>
-                </div>
-            </form>
-        </div>
-    </div>
+                <li><a href="#bimmerlink" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="activity" class="h-5 w-5"></svg><span class="sidebar-text">BimmerLink</span></a></li>
+                <li><a href="#bimmercode" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="code" class="h-5 w-5"></svg><span class="sidebar-text">BimmerCode</span></a></li>
+                <li><a href="#bimmerutility" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="sliders-horizontal" class="h-5 w-5"></svg><span class="sidebar-text">BimmerUtility</span></a></li>
+                
+                <li class="px-3 mt-4 mb-2 text-xs font-semibold uppercase text-gray-400 sidebar-text">ECU Details</li>
 
-    <div class="container mx-auto max-w-6xl p-4 sm:p-6 md:p-8">
-        <header class="text-center mb-6">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Definitive Bimmercode Guide</h1>
-            <p class="mt-2 text-lg text-gray-600">A community-driven resource for BMW coding.</p>
-        </header>
-         <div class="text-center mb-10">
-            <button id="add-new-code-btn" class="bg-indigo-600 text-white font-medium py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                Contribute a New Code
+                <li><a href="#hu" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="tv" class="h-5 w-5"></svg><span class="sidebar-text">Headunit</span></a></li>
+                <li><a href="#ic" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="gauge-circle" class="h-5 w-5"></svg><span class="sidebar-text">Instrument Cluster</span></a></li>
+                <li><a href="#bdc" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="car" class="h-5 w-5"></svg><span class="sidebar-text">Body Domain Controller</span></a></li>
+                <li><a href="#dme" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="cpu" class="h-5 w-5"></svg><span class="sidebar-text">Engine (DME)</span></a></li>
+                <li><a href="#egs" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="git-merge" class="h-5 w-5"></svg><span class="sidebar-text">Transmission (EGS)</span></a></li>
+                <li><a href="#other" class="nav-link flex items-center gap-3 rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"><svg data-lucide="boxes" class="h-5 w-5"></svg><span class="sidebar-text">Other ECUs</span></a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main id="main-content" class="main-content sidebar-open p-4 sm:p-6 lg:p-8">
+            <button id="sidebar-open-mobile" class="lg:hidden fixed top-4 left-4 h-12 w-12 bg-white rounded-full shadow-lg flex items-center justify-center z-30">
+                <svg data-lucide="menu" class="h-6 w-6"></svg>
             </button>
-        </div>
+            
+            <div id="content-container">
+                <!-- Welcome Section -->
+                <section id="welcome" class="content-section">
+                    <h2 class="text-4xl font-bold mb-4">Welcome to the G20 Advanced Guide</h2>
+                    <p class="text-lg text-gray-600 mb-8">This page is a comprehensive resource for diagnosing, coding, and enhancing your BMW G20 series vehicle using popular mobile applications.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-2xl font-bold mb-3">What This Page Offers</h3>
+                            <ul class="space-y-2 list-disc list-inside text-gray-700">
+                                <li><b>Detailed Guides:</b> Step-by-step instructions for popular features across three major tools.</li>
+                                <li><b>Expert Mode Parameters:</b> A clear list of expert coding parameters and their functions.</li>
+                                <li><b>Tool-Specific Info:</b> Understand the difference between diagnostics (BimmerLink) and coding (BimmerCode/Utility).</li>
+                                <li><b>AI-Powered Assistance:</b> Generate custom coding steps for your desired features instantly.</li>
+                            </ul>
+                        </div>
+                         <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-2xl font-bold mb-3">The Tools Explained</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><strong class="text-green-600">BimmerLink:</strong> For diagnostics. Read/clear errors, view live sensor data, and control functions like exhaust flaps. It does not make permanent changes.</li>
+                                <li><strong class="text-blue-600">BimmerCode:</strong> For standard coding. Easily activate or deactivate common features in modules like the Headunit and Body Controller.</li>
+                                <li><strong class="text-purple-600">BimmerUtility:</strong> For advanced coding. Access critical ECUs like the Engine and Transmission to perform performance-oriented modifications. Use with caution.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Assistant -->
+                    <div id="ai-assistant" class="bg-white rounded-xl shadow p-6 border border-gray-200">
+                        <div class="flex items-center mb-4"><div class="p-2 bg-indigo-100 rounded-full mr-4"><svg data-lucide="sparkles" class="w-6 h-6 text-indigo-600"></svg></div><h2 class="text-2xl font-bold text-gray-900">AI Coding Assistant</h2></div>
+                        <p class="text-gray-600 mb-4">Describe the feature you want to code (e.g., "Enable GTS startup roar"). The AI will generate steps for BimmerCode or BimmerUtility.</p>
+                        <div class="space-y-4"><textarea id="ai-prompt" class="w-full h-24 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Enter your desired coding feature here..."></textarea><button id="generate-btn" class="w-full sm:w-auto bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 flex items-center justify-center"><svg data-lucide="wand-2" class="w-5 h-5 mr-2"></svg><span>Generate Coding Steps</span></button></div>
+                        <div id="ai-result-container" class="mt-6 hidden"><h3 class="text-xl font-semibold mb-3">Generated Steps:</h3><div id="ai-result" class="bg-gray-50 p-4 rounded-lg border"></div><div id="ai-loader" class="flex justify-center p-4"><div class="loader"></div></div></div>
+                    </div>
+                </section>
 
-        <div id="mods-container" class="space-y-12">
-        </div>
-        <footer class="text-center text-xs text-gray-500 mt-12">
-            This guide is a community project and is not affiliated with BMW AG. All modifications are performed at your own risk.
-        </footer>
+                <!-- Tool Content Sections -->
+                <section id="bimmerlink" class="content-section">
+                    <h2 class="text-3xl font-bold border-b pb-2 mb-6">BimmerLink <span class="tool-tag tool-tag-green">Diagnostics</span></h2>
+                    <div class="space-y-6">
+                        <div><h3 class="text-xl font-semibold">Read & Clear Error Codes</h3><p class="text-gray-600 mt-1">Scan all ECUs for Diagnostic Trouble Codes (DTCs) and clear them after repairs.</p></div>
+                        <div><h3 class="text-xl font-semibold">Real-Time Sensor Values</h3><p class="text-gray-600 mt-1">Monitor hundreds of live sensor values like oil temperature, boost pressure, and battery voltage.</p></div>
+                        <div><h3 class="text-xl font-semibold">Exhaust Flap Control</h3><p class="text-gray-600 mt-1">Temporarily open or close the exhaust flaps on demand, overriding the car's automatic control.</p></div>
+                    </div>
+                </section>
+                
+                <section id="bimmercode" class="content-section">
+                     <h2 class="text-3xl font-bold border-b pb-2 mb-6">BimmerCode <span class="tool-tag tool-tag-blue">Standard Coding</span></h2>
+                     <p class="text-gray-600">Use BimmerCode for safe, common modifications in non-critical ECUs. Below are Expert Mode parameters for popular features.</p>
+                </section>
+                
+                <section id="bimmerutility" class="content-section">
+                    <h2 class="text-3xl font-bold border-b pb-2 mb-6">BimmerUtility <span class="tool-tag tool-tag-purple">Advanced Coding</span></h2>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-6">
+                        <div class="flex"><div class="py-1"><svg class="w-6 h-6 text-yellow-500 mr-4" data-lucide="alert-triangle"></svg></div><div><p class="font-bold text-yellow-800">Warning</p><p class="text-sm text-yellow-700">This tool modifies critical ECUs. Incorrect coding can lead to vehicle malfunction. Proceed with caution.</p></div></div>
+                    </div>
+                    <p class="text-gray-600">BimmerUtility provides access to ECUs like the Engine and Transmission for performance-oriented coding.</p>
+                </section>
+                
+                <!-- ECU Content Sections -->
+                <section id="hu" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Headunit (HU_MGU)</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">Video in Motion</h3><p class="text-gray-600 mt-1">Allows video playback while the vehicle is moving.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">SPEEDLOCK_X_KMH_MAX: FFFF</pre></div><div><h3 class="text-xl font-semibold">Disable Startup Warning</h3><p class="text-gray-600 mt-1">Removes the legal disclaimer on iDrive startup.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">MACRO_LEGALDISCLAIMER_SPEED: nicht_aktiv</pre></div></div></section>
+                <section id="ic" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Instrument Cluster (DKOMBI)</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">Alpina Display Layout</h3><p class="text-gray-600 mt-1">Changes the cluster theme to the Alpina design.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">Layout: layout_alpina</pre></div><div><h3 class="text-xl font-semibold">M Performance Logo</h3><p class="text-gray-600 mt-1">Adds the "M Performance" logo to the cluster.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">LOGO_SCHRIFTZUG: m_performance</pre></div></div></section>
+                <section id="bdc" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Body Domain Controller (BDC)</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">Fold Mirrors on Lock</h3><p class="text-gray-600 mt-1">Automatically folds mirrors when locking the car.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">KOMFORTSCHLIESSUNG_FB: aktiv</pre></div><div><h3 class="text-xl font-semibold">Turn Signal Blink Count</h3><p class="text-gray-600 mt-1">Changes the number of blinks for one-touch turn signal.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">BLINKZYKLEN_ANZAHL_TIPP: Werte=5</pre></div></div></section>
+                <section id="dme" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Engine (DME)</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">GTS Startup Roar</h3><p class="text-gray-600 mt-1">Enables a louder engine sound on startup.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">Tool: BimmerUtility\nFunction: F8x_GTS_Start_up\nValue: Aktiv</pre></div><div><h3 class="text-xl font-semibold">Disable Auto Start/Stop</h3><p class="text-gray-600 mt-1">Permanently disables the Auto Start/Stop function.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">Tool: BimmerUtility\nFunction: MSA_ deaktivieren\nValue: Aktiv</pre></div></div></section>
+                <section id="egs" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Transmission (EGS)</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">Alpina/M Transmission Flash</h3><p class="text-gray-600 mt-1">Flashes transmission software for faster shifts. This is a complex procedure, not a simple parameter change.</p></div></div></section>
+                <section id="other" class="content-section"><h2 class="text-3xl font-bold border-b pb-2 mb-6">Other ECUs</h2><div class="space-y-6"><div><h3 class="text-xl font-semibold">Disable Active Sound (ASD)</h3><p class="text-gray-600 mt-1">Disables artificial engine noise played through speakers.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">Model: nicht_aktiv</pre></div><div><h3 class="text-xl font-semibold">Disable Seatbelt Reminders (ACSM)</h3><p class="text-gray-600 mt-1">Turns off the seatbelt warning chime.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">Gurtwarnung_Fahrer: nicht_aktiv</pre></div><div><h3 class="text-xl font-semibold">Remember A/C Setting (IHKA)</h3><p class="text-gray-600 mt-1">The car will remember if the A/C was off at shutdown.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">OFF_MEMORY: aktiv</pre></div><div><h3 class="text-xl font-semibold">Close Tailgate from Keyfob (HKFM)</h3><p class="text-gray-600 mt-1">Allows closing the power tailgate with the keyfob button.</p><pre class="text-sm bg-slate-200 p-3 rounded-md mt-2">SCH_FBD: aktiv</pre></div></div></section>
+            </div>
+        </main>
+        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const toggleDesktopBtn = document.getElementById('sidebar-toggle-desktop');
+        const openMobileBtn = document.getElementById('sidebar-open-mobile');
+        const closeMobileBtn = document.getElementById('sidebar-close-mobile');
+        const overlay = document.getElementById('overlay');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        // --- Sidebar Logic ---
+        function toggleSidebarDesktop() {
+            sidebar.classList.toggle('is-collapsed');
+            mainContent.classList.toggle('sidebar-open');
+            mainContent.classList.toggle('sidebar-collapsed');
+            const icon = sidebar.classList.contains('is-collapsed') ? 'chevrons-right' : 'chevrons-left';
+            toggleDesktopBtn.innerHTML = `<svg data-lucide="${icon}" class="h-5 w-5 text-gray-600"></svg>`;
+            lucide.createIcons();
+        }
+
+        function toggleSidebarMobile() {
+            sidebar.classList.toggle('is-open');
+            overlay.classList.toggle('hidden');
+        }
+
+        toggleDesktopBtn.addEventListener('click', toggleSidebarDesktop);
+        openMobileBtn.addEventListener('click', toggleSidebarMobile);
+        closeMobileBtn.addEventListener('click', toggleSidebarMobile);
+        overlay.addEventListener('click', toggleSidebarMobile);
+
+        // --- Content Switching Logic ---
+        function showContent(hash) {
+            const targetHash = hash || '#welcome';
             
-            // ADMIN CONFIGURATION
-            const GITHUB_REPO_URL = 'redmantitu/bimmercode-interactive-guide'; 
-            
-            const appData = [
-                {
-                    "categoryName": "iDrive & Display",
-                    "mods": [
-                        { "name": "Display Oil Temperature in Cluster", "description": "Shows the engine oil temperature as a numerical value in the instrument cluster's board computer.", "difficulty": 3, "steps": [{"ecu": "DKOMBI4", "parameter": "BC_MOTOREN_OEL_TEMP_ENABLE", "value": "aktiv"}]},
-                        { "name": "Digital Dash Theme", "description": "Changes the visual style of the digital instrument cluster to various themes like M Sport or Alpina.", "difficulty": 4, "steps": [{"ecu": "DKOMBI4", "parameter": "Display_Variante", "value": "m_sport, m_gmbh (M), alpina"}]},
-                        { "name": "M Startup Animation", "description": "Replaces the standard BMW startup graphic on the iDrive screen with the M animation.", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "STARTUP_EMBLEM", "value": "bmw_m"}]},
-                        { "name": "Remove iDrive & Camera Disclaimers", "description": "Disables the legal warnings that appear on startup and when using cameras.", "difficulty": 1, "steps": [ {"ecu": "MGU", "parameter": "LEGAL_DISCLAIMER_TIME", "value": "kein_id"}, {"ecu": "MGU", "parameter": "MACRO_CAM_LEGALDISCLAIMER", "value": "kein_id"} ]},
-                        { "name": "Tire Pressure & Temperature Display", "description": "Adds individual tire temperature readings to the existing tire pressure monitor screen in iDrive.", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "RDC_DRUCK_TEMP", "value": "Druck_und_Temp"}]},
-                        { "name": "Video in Motion", "description": "Allows video playback from USB sources while the car is moving, intended for passenger use only.", "difficulty": 5, "steps": [{"ecu": "MGU", "parameter": "SPEEDLOCK_X_KMH_MAX / MIN", "value": "Set to FF (nicht_aktiv)"}]},
-                        { "name": "Rear Camera Zoom (Towbar)", "description": "Enables a zoomed-in rear camera view, useful for aligning a tow hitch.", "difficulty": 2, "steps": [{"ecu": "MGU", "parameter": "MACRO_TRAILER_COUPLING", "value": "aktiv"}]}
-                    ]
-                },
-                {
-                    "categoryName": "Lighting",
-                    "mods": [
-                        { "name": "5-Blink Turn Signal", "description": "Increases the one-touch turn signal indicator flash count from the default of three to five.", "difficulty": 1, "steps": [{"ecu": "MGU", "parameter": "5_FACH_TIPPBLINKEN", "value": "aktiv"}]},
-                        { "name": "Rear Lamps as Daytime Running Lights", "description": "Activates the rear tail lights to illuminate along with the front DRLs for increased visibility.", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "LIC_FEATURE_4", "value": "enable"}]}
-                    ]
-                },
-                {
-                    "categoryName": "Comfort & Convenience",
-                    "mods": [
-                         { "name": "A/C System Memory", "description": "The car will remember if the air conditioning was on or off when you last turned it off.", "difficulty": 1, "steps": [{"ecu": "IHKA", "parameter": "MEMORY_OFF", "value": "aktiv"}]},
-                         { "name": "Enable Auto Steering Wheel Heat", "description": "Activates the option in iDrive to automatically turn on the heated steering wheel based on the cabin temperature.", "difficulty": 5, "steps": [ {"description": "<strong>1. Enable iDrive Option (Expert Mode)</strong>"}, {"ecu": "MGU", "path": "3000 HMI_SPEECH", "parameter": "AKT_Auto_Lenkradheizung", "value": "aktiv"}, {"description": "<strong>2. Enable Function (Expert Mode)</strong>"}, {"ecu": "BDC", "path": "3142 PfLinLRE", "parameter": "LHZ_CCM_IKF", "value": "aktiv"}, {"ecu": "BDC", "path": "3450 Others 1", "parameter": "IKF_ENABLE", "value": "ikf_alle_sitze"} ]},
-                         { "name": "Enable Wireless Charging Tray", "description": "Activates the functionality of the wireless charging tray if the hardware is present but disabled in software.", "difficulty": 4, "steps": [{"ecu": "BDC", "parameter": "WcaWirelessChargingAblage", "value": "aktiv"}, {"ecu": "MGU", "path": "3000 HMI_SPEECH", "parameter": "WCA", "value": "aktiv"}]},
-                         { "name": "Open/Close Trunk with Short Press (Remote & Interior)", "description": "Allows the powered tailgate to be opened and closed with a single, short press of the key fob or interior button instead of a long press.", "difficulty": 3, "steps": [{"ecu": "HKFM", "parameter": "HECKKLAPPE_FUNKTION_TIPP", "value": "aktiv"}, {"ecu": "HKFM", "parameter": "TASTER_FBD", "value": "nicht_aktiv"}]},
-                         { "name": "Window Roll-up on Door Open", "description": "Prevents the automatic window roll-up process from being interrupted when a door is opened.", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "FH_TUERAUF_STOP_MAUT", "value": "nicht aktiv"}]}
-                    ]
-                },
-                {
-                    "categoryName": "Safety Systems & Warnings",
-                    "mods": [
-                        { "name": "Remove Seatbelt Chimes", "description": "Disables the audible seatbelt reminders for both the driver and passenger seats.", "difficulty": 2, "steps": [{"ecu": "ACSM", "parameter": "Gurtwarnung_Fahrer / Gurtwarnung_Beifahrer", "value": "nicht aktiv"}]},
-                        { "name": "No Horn on Lock with Engine Running", "description": "Prevents the horn from beeping when you lock the car while the engine is still running.", "difficulty": 2, "steps": [{"ecu": "BDC_BODY3", "parameter": "VAM_HORN_AT_SECURE", "value": "nicht aktiv"}]}
-                    ]
-                },
-                 {
-                    "categoryName": "Drivetrain & Driving Modes",
-                    "mods": [
-                        { "name": "Auto Start-Stop Memory", "description": "The car will remember your last selected setting for the Auto Start-Stop function across ignition cycles.", "difficulty": 1, "steps": [{"ecu": "BDC_BODY3", "parameter": "TCM_MSA_MEMORY", "value": "aktiv"}]},
-                        { "name": "Default Driving Mode on Startup", "description": "Sets a preferred driving mode (e.g., Adaptive, Sport) as the default every time the car starts.", "difficulty": 3, "steps": [{"ecu": "BDC_BODY3", "parameter": "FesPiaDefaultLastUserMode", "value": "Adaptive (0A), Sport (02), etc."}]},
-                        { "name": "Enable Coasting in Comfort Mode", "description": "Allows the drivetrain to decouple when coasting in Comfort mode to save fuel.", "difficulty": 3, "steps": [{"ecu": "DKOMBI4", "parameter": "Segeln_In_Comfort_Modus", "value": "aktiv"}]}
-                    ]
-                },
-                {
-                    "categoryName": "Expert Mode & Advanced Coding",
-                    "mods": [
-                         { 
-                            "name": "Full Tire Pressure & Temperature Walkthrough", 
-                            "description": "A detailed, step-by-step guide to enabling tire data in both the iDrive screen and the Instrument Cluster widget.", 
-                            "difficulty": 7,
-                            "steps": [
-                                { "description": "<h4 class='font-bold text-base mb-2'>Phase 1: iDrive Display (Standard Mode)</h4><p class='text-xs'>This is the core modification to show temperature in the main iDrive screen.</p>" },
-                                { "description": "<strong>1. Connect & Select ECU:</strong> In Bimmercode, connect to the vehicle and select the <strong>Headunit</strong> ECU (usually <strong>HU_MGU</strong>)." },
-                                {
-                                    "ecu": "HU_MGU",
-                                    "parameter": "Tire Pressure Control (RDC_DRUCK_TEMP)",
-                                    "value": "Display pressure and temperature (Druck_und_Temp)"
-                                },
-                                { "description": "<strong>2. Code:</strong> Tap 'Code' to apply the changes. The iDrive screen will reboot." },
-                                { "description": "<h4 class='font-bold text-base mt-4 mb-2 text-amber-700'>Phase 2: Instrument Cluster Widget (Expert Mode)</h4><p class='text-xs text-red-700'><strong>WARNING:</strong> Expert mode can be risky. Proceed with caution and use a stable connection.</p>" },
-                                { "description": "<strong>1. Select ECU:</strong> Select the <strong>Instrument Cluster</strong> ECU (usually <strong>DKOMBI4</strong>)." },
-                                { "description": "<strong>2. Enter Expert Mode:</strong> Tap 'Expert Mode' at the bottom of the screen and acknowledge the warning." },
-                                {
-                                    "ecu": "DKOMBI4",
-                                    "parameter": "Look for Board Computer (BC) widget parameters. Community suggests trying 'M_VEHICLE_SP2018_RUEKO'.",
-                                    "value": "aktiv"
-                                },
-                                { "description": "<strong>3. Code:</strong> Tap 'Code' to apply. The instrument cluster may reboot. This step may require research as parameters can vary between software versions." }
-                            ]
-                        },
-                        { 
-                            "name": "Enable Anti-Dazzle High-Beam Assistant (Full)", 
-                            "description": "Activates the advanced high-beam feature that creates a 'light tunnel' around other vehicles.",
-                            "difficulty": 9,
-                            "comments": "Requires KAFAS camera and Adaptive LED headlights. This enables the 'light tunnel' effect.",
-                            "steps": [
-                                {"ecu": "BDC", "path": "LaMaster1", "parameter": "FLA_VERBAUT", "value": "aktiv"},
-                                {"ecu": "BDC", "path": "LaMaster1", "parameter": "FLA_AUTO_AKTIV", "value": "aktiv"},
-                                {"ecu": "BDC", "path": "LaMaster1", "parameter": "LUT_FLC_FORWARDLIGHTING_Y", "value": "aktiv"},
-                                {"ecu": "BDC", "path": "LaMaster1", "parameter": "C_HBA_ADAPT_SHUT_ENA", "value": "aktiv"},
-                                {"ecu": "BDC", "path": "LaMaster1", "parameter": "C_HBA_GRHB_ENA", "value": "aktiv"},
-                                {"ecu": "KAFAS", "path": "", "parameter": "C_FLA_BS_FN_ENABLE", "value": "FN_BS_ENABLE"},
-                                {"ecu": "KAFAS", "path": "", "parameter": "C_FLA_CC_MESSAGE_3", "value": "GLAREFREE_HIGHBEAM_ZEITWEISE_AUS"},
-                                {"ecu": "KAFAS", "path": "", "parameter": "C_FLA_COUNTRY_VARIANT", "value": "ECE/ROW"},
-                                {"ecu": "KAFAS", "path": "", "parameter": "C_FLA_HA_PRESENT", "value": "YES"},
-                                {"ecu": "KAFAS", "path": "", "parameter": "C_FLA_HBA_STAT_NAVI", "value": "AKTIV"}
-                            ]
-                        },
-                        { "name": "Enable Sport+ & Comfort+ (Full)", "description": "Unlocks the Sport+ and Comfort+ driving modes, making them selectable in iDrive.", "difficulty": 7, "steps": [{"ecu": "BDC_BODY3", "path": "3221 PfFesMaster", "parameter": "FesSportWorldMode1", "value": "SportExpert"}, {"ecu": "BDC_BODY3", "path": "3221 PfFesMaster", "parameter": "FesComfortWorldMode1", "value": "ComfortPlus"}, {"ecu": "MGU", "path": "3008 FES", "parameter": "FES_SPORT_EXPERT", "value": "aktiv"}, {"ecu": "MGU", "path": "3008 FES", "parameter": "FES_COMFORT_PLUS", "value": "aktiv"}]},
-                        { "name": "Bang & Olufsen Sound Profile", "description": "Changes the audio equalizer to the premium Bang & Olufsen sound signature.", "difficulty": 4, "steps": [{"ecu": "MGU", "path": "3002 Audio_Broadcast", "parameter": "Audio_System", "value": "alev4_ram (from alev3_ram)"}]},
-                        { "name": "M Performance Logo in Instrument Cluster", "description": "Adds the M Performance logo to the digital instrument cluster display.", "difficulty": 3, "steps": [{"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "LOGO_SCHRIFTZUG", "value": "m_logo / m_performance"}]},
-                        { "name": "Lane Change Assistant", "description": "Enables the vehicle to perform automated lane changes when using driving assistance systems.", "difficulty": 9, "steps": [{"ecu": "BDC_BODY3", "path": "", "parameter": "SpurWechsel_Assistent", "value": "aktiv"}, {"ecu": "HU_MGU", "path": "", "parameter": "SpurWechselAssistent", "value": "Gen1"}, {"ecu": "SAS3", "path": "", "parameter": "C_SWA_Vorhanden", "value": "Nr001_Vorhanden"}]},
-                        { "name": "Assisted Driving View", "description": "Activates the 3D visualization of surrounding vehicles and lane markings in the instrument cluster.", "difficulty": 8, "steps": [{"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "CB_FZG_UMGEBUNG_FAS", "value": "aktiv"}, {"ecu": "DKOMBI4", "path": "3000 Anzeige_Configuration", "parameter": "CB_PRESELECT_NAVI_ANSICHT_FZG_UMGEBUNG", "value": "aktiv"}, {"ecu": "DKOMBI4", "path": "3007 PIA_Einheiten", "parameter": "PIA_FZG_UMGEBUNG_FAS", "value": "aktiv"}]}
-                    ]
-                }
-            ];
-
-            function generateModHtml(mod) {
-                let stepsHtml = mod.steps.map((step, index) => {
-                    // Check if it's a descriptive step or a standard coding step
-                    if (step.description) {
-                         return `<div class="p-3 bg-gray-50 rounded-md ${index > 0 ? 'mt-3' : ''}">${step.description}</div>`;
-                    } else {
-                        return `
-                        <div class="p-3 bg-gray-100 rounded-md ${index > 0 ? 'mt-3' : ''}">
-                            <p class="font-semibold text-gray-700">ECU: <span class="font-normal font-code text-gray-900">${step.ecu || ''}</span></p>
-                            ${step.path ? `<p class="font-semibold text-gray-700">Path: <span class="font-normal font-code text-gray-900">${step.path}</span></p>` : ''}
-                            <p class="font-semibold text-gray-700">Parameter: <span class="font-normal font-code text-gray-900">${step.parameter || ''}</span></p>
-                            <p class="font-semibold text-gray-700">Value: <span class="font-normal font-code text-gray-900">${step.value || ''}</span></p>
-                        </div>
-                    `;
-                    }
-                }).join('');
-
-                const modHtml = `
-                    <div class="accordion-item bg-white rounded-xl shadow-sm border border-gray-200">
-                        <div class="accordion-header flex justify-between items-center p-5">
-                            <div class="flex-1 pr-4">
-                                <span class="font-semibold text-lg text-gray-800">${mod.name}</span>
-                                <p class="text-sm text-gray-500 mt-1">${mod.description || ''}</p>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">Difficulty: ${mod.difficulty}/10</span>
-                                <span class="accordion-arrow text-gray-400 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></span>
-                            </div>
-                        </div>
-                        <div class="accordion-content"><div class="px-5 pb-5 pt-2"><div class="text-sm space-y-2">${mod.comments ? `<p class="text-xs italic text-gray-500 mb-3">${mod.comments}</p>` : ''}${stepsHtml}</div></div></div>
-                    </div>
-                `;
-                return modHtml;
-            }
-
-            function renderUI() {
-                const container = document.getElementById('mods-container');
-                container.innerHTML = '';
-
-                appData.forEach(category => {
-                    const categoryWrapper = document.createElement('div');
-                    const categoryHeader = document.createElement('h2');
-                    categoryHeader.className = 'text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-200 pb-3';
-                    categoryHeader.textContent = category.categoryName;
-                    categoryWrapper.appendChild(categoryHeader);
-
-                    const categoryModsContainer = document.createElement('div');
-                    categoryModsContainer.className = 'space-y-4';
-                    
-                    category.mods.sort((a, b) => a.name.localeCompare(b.name)).forEach(mod => {
-                        const modElement = document.createElement('div');
-                        modElement.innerHTML = generateModHtml(mod).trim();
-                        categoryModsContainer.appendChild(modElement.firstChild);
-                    });
-                    categoryWrapper.appendChild(categoryModsContainer);
-                    container.appendChild(categoryWrapper);
-                });
-            }
-            
-            const disclaimerBanner = document.getElementById('disclaimer-banner');
-            const closeDisclaimerBtn = document.getElementById('close-disclaimer-btn');
-            if (localStorage.getItem('disclaimerDismissed') !== 'true') {
-                disclaimerBanner.classList.remove('hidden');
-            }
-            closeDisclaimerBtn.addEventListener('click', () => {
-                localStorage.setItem('disclaimerDismissed', 'true');
-                disclaimerBanner.classList.add('hidden');
+            navLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === targetHash);
             });
 
-            const addCodeModal = document.getElementById('add-code-modal');
-            const openAddModalBtn = document.getElementById('add-new-code-btn');
-            const cancelAddBtn = document.getElementById('cancel-add-code-btn');
-            const addCodeForm = document.getElementById('add-code-form');
-            const newCategoryInput = document.getElementById('new-category-name');
-            const stepsContainer = document.getElementById('coding-steps-container');
-            const addStepBtn = document.getElementById('add-step-btn');
-            const submissionContainer = document.getElementById('submission-container');
-            const htmlPreview = document.getElementById('html-preview');
-            const formInputs = document.getElementById('form-inputs');
-            const formActions = document.getElementById('form-actions');
-            const submitToGithubBtn = document.getElementById('submit-to-github-btn');
-            const closeModalXBtn = document.getElementById('close-modal-x-btn');
-
-            function createStepElement() {
-                const stepDiv = document.createElement('div');
-                stepDiv.className = 'space-y-3 border-2 border-dashed p-4 rounded-lg bg-gray-50 relative';
-                stepDiv.innerHTML = `
-                    <button type="button" class="remove-step-btn absolute top-2 right-2 text-gray-400 hover:text-red-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">ECU</label><input type="text" name="ecu" required placeholder="e.g., MGU" class="font-code block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Path (Expert Mode)</label><input type="text" name="path" placeholder="e.g., 3000 Anzeige_Configuration" class="font-code block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Parameter</label><input type="text" name="parameter" required placeholder="e.g., LOGO_SCHRIFTZUG" class="font-code block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Value</label><input type="text" name="value" required placeholder="e.g., m_performance" class="font-code block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></div>
-                `;
-                stepDiv.querySelector('.remove-step-btn').addEventListener('click', () => {
-                    if (stepsContainer.children.length > 1) { stepDiv.remove(); }
-                });
-                return stepDiv;
-            }
-            
-            function resetModal() {
-                const categorySelect = document.getElementById('code-category');
-                addCodeForm.reset();
-                stepsContainer.innerHTML = '';
-                stepsContainer.appendChild(createStepElement());
-                submissionContainer.classList.add('hidden');
-                formInputs.classList.remove('hidden');
-                formActions.classList.remove('hidden');
-                
-                categorySelect.innerHTML = '';
-                appData.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat.categoryName;
-                    option.textContent = cat.categoryName;
-                    categorySelect.appendChild(option);
-                });
-                const newCatOption = document.createElement('option');
-                newCatOption.value = 'new';
-                newCatOption.textContent = '--- Create New Category ---';
-                categorySelect.appendChild(newCatOption);
-                
-                newCategoryInput.classList.add('hidden');
-            }
-
-            addStepBtn.addEventListener('click', () => {
-                stepsContainer.appendChild(createStepElement());
+            contentSections.forEach(section => {
+                section.classList.toggle('active', `#${section.id}` === targetHash);
             });
+        }
 
-            openAddModalBtn.addEventListener('click', () => {
-                resetModal();
-                addCodeModal.classList.remove('hidden');
-                document.body.classList.add('modal-open');
-            });
-            
-            addCodeForm.addEventListener('change', (e) => {
-                if (e.target.id === 'code-category') {
-                    const categorySelect = e.target;
-                    newCategoryInput.classList.toggle('hidden', categorySelect.value !== 'new');
-                    newCategoryInput.required = categorySelect.value === 'new';
-                }
-            });
-
-            const closeModal = () => {
-                addCodeModal.classList.add('hidden');
-                document.body.classList.remove('modal-open');
-            };
-
-            cancelAddBtn.addEventListener('click', closeModal);
-            closeModalXBtn.addEventListener('click', closeModal);
-
-            addCodeForm.addEventListener('submit', (e) => {
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const categorySelect = document.getElementById('code-category');
-                
-                const newMod = {
-                    name: document.getElementById('code-name').value,
-                    description: document.getElementById('code-description').value,
-                    difficulty: parseInt(document.getElementById('code-difficulty').value, 10),
-                    steps: [],
-                    comments: document.getElementById('code-comments').value.trim()
-                };
-
-                stepsContainer.querySelectorAll('.space-y-3').forEach(stepDiv => {
-                    newMod.steps.push({
-                        ecu: stepDiv.querySelector('[name="ecu"]').value.trim(),
-                        path: stepDiv.querySelector('[name="path"]').value.trim() || undefined,
-                        parameter: stepDiv.querySelector('[name="parameter"]').value.trim(),
-                        value: stepDiv.querySelector('[name="value"]').value.trim(),
-                    });
-                });
-                
-                if (!newMod.comments) delete newMod.comments;
-
-                const modHtml = generateModHtml(newMod);
-                htmlPreview.value = modHtml.trim();
-
-                const categoryValue = categorySelect.value;
-                const categoryName = categoryValue === 'new' ? newCategoryInput.value.trim() : categoryValue;
-                const isNewCategory = categoryValue === 'new';
-
-                const title = `[Code Contribution] ${newMod.name}`;
-                let body = `**New Code Contribution**\n\n`;
-                body += `**Category:** ${categoryName} ${isNewCategory ? '(New Category)' : ''}\n\n`;
-                body += `**Admin Action:** Please review and add the following HTML snippet to the appropriate category container in the main file.\n\n`;
-                body += '```html\n';
-                body += modHtml.trim();
-                body += '\n```';
-
-                const url = `https://github.com/${GITHUB_REPO_URL}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
-                submitToGithubBtn.href = url;
-                
-                submissionContainer.classList.remove('hidden');
-                formInputs.classList.add('hidden');
-                formActions.classList.add('hidden');
-            });
-            
-            document.getElementById('mods-container').addEventListener('click', (e) => {
-                const header = e.target.closest('.accordion-header');
-                if (header) {
-                    const item = header.parentElement;
-                    item.classList.toggle('open');
+                const targetHash = link.getAttribute('href');
+                window.location.hash = targetHash;
+                if (window.innerWidth < 1024) {
+                    toggleSidebarMobile();
                 }
             });
-
-            renderUI();
         });
+        
+        window.addEventListener('hashchange', () => showContent(window.location.hash));
+        // Initial load
+        showContent(window.location.hash);
+
+        // --- AI Assistant Logic ---
+        const generateBtn = document.getElementById('generate-btn');
+        const aiPrompt = document.getElementById('ai-prompt');
+        const resultContainer = document.getElementById('ai-result-container');
+        const aiResult = document.getElementById('ai-result');
+        const aiLoader = document.getElementById('ai-loader');
+        
+        // --- MODIFIED: Use Cloudflare Worker for Gemini API calls ---
+        async function callGeminiAPI(prompt) {
+            resultContainer.style.display = 'block';
+            aiResult.style.display = 'none';
+            aiLoader.style.display = 'flex';
+
+            // IMPORTANT: Replace this with your actual Cloudflare Worker URL
+            const CLOUDFLARE_WORKER_URL = "https://healthfoodworker.rosucostine.workers.dev"; 
+            
+            // The system prompt needs to be combined with the user prompt
+            // because the worker only accepts a single 'prompt' field.
+            const systemPrompt = `You are an expert on BMW G20 coding using BimmerCode and BimmerUtility. A user will describe a feature. Provide clear, step-by-step instructions. For each step, you MUST specify the tool ("BimmerCode" or "BimmerUtility"), the ECU, the parameter, and the new value. If a feature requires both tools, clearly separate the steps. Format the response cleanly. Do not provide instructions for BimmerLink. User's request is: `;
+
+            const combinedPrompt = systemPrompt + prompt;
+
+            try {
+                const response = await fetch(CLOUDFLARE_WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: combinedPrompt })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Cloudflare Worker error: ${response.status} ${response.statusText}`);
+                }
+                
+                const text = await response.text();
+                aiResult.textContent = text || 'Sorry, I could not generate the steps.';
+
+            } catch (error) {
+                console.error('Error calling Cloudflare Worker:', error);
+                aiResult.textContent = 'An error occurred while fetching coding steps. Please ensure your worker URL is correct and the service is running.';
+            } finally {
+                aiLoader.style.display = 'none';
+                aiResult.style.display = 'block';
+            }
+        }
+
+        generateBtn.addEventListener('click', () => { 
+            if (aiPrompt.value.trim()) {
+                callGeminiAPI(aiPrompt.value);
+            }
+        });
+    });
     </script>
 </body>
 </html>
