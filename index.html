@@ -12,14 +12,19 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .sidebar { transition: transform 0.3s ease-in-out; }
-        .content-item h3 { font-size: 1.125rem; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #dbeafe; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        .content-item h3 { font-size: 1.25rem; font-weight: 700; color: #1e3a8a; }
+        .content-item h3 span { font-size: 0.875rem; font-weight: 500; color: #64748b; }
         .content-item ul { list-style-type: none; padding-left: 0; }
-        .content-item li { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
-        .content-item li strong { color: #1e3a8a; }
-        .content-item li code { background-color: #e2e8f0; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: monospace; }
+        .content-item li { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1rem; margin-bottom: 0.75rem; }
+        .content-item li strong { color: #1e3a8a; display: block; margin-bottom: 0.25rem; }
+        .content-item li code { background-color: #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-family: monospace; }
         .sidebar-item { transition: background-color 0.2s ease, color 0.2s ease; }
         .sidebar-item.active { background-color: #1d4ed8; color: white; }
         .sidebar-header { font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
+        #ai-response .ai-card { background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 1rem; overflow: hidden; }
+        #ai-response .ai-card-header { padding: 0.75rem 1rem; font-weight: bold; color: white; display: flex; align-items: center; }
+        #ai-response .ai-card-body { padding: 1rem; }
+        #ai-response .ai-card-body strong { color: #1e3a8a; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -50,21 +55,21 @@
                         BimmerCode
                     </h3>
                      <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="asd">Active Sound Design (ASD)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="acsm">Advanced Crash Safety Module (ACSM)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="fem">Front Electronic Module (FEM)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="hu_nbt">Headunit (HU_NBT)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="ic">Instrument Cluster (IC)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="rem">Rear Electronic Module (REM)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="rfc">Roof Function Center (RFC)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="tfm">Tailgate Function Module (TFM)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="acsm">Advanced Crash Safety (ACSM)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="bdc">Body Domain Controller (BDC)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="hu_mgu">Headunit (HU_MGU)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="dkombi">Instrument Cluster (DKOMBI)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="hkfm">Tailgate Function (HKFM)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="ihka">Air Conditioning (IHKA)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="kafas">Camera System (KAFAS)</a>
                 </div>
                 <div>
                      <h3 class="sidebar-header text-sm px-2 mb-2 flex items-center">
                          <span class="bg-red-500 w-2.5 h-2.5 rounded-full mr-2"></span>
                         BimmerUtility
                     </h3>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="ecu-engine">Engine ECU (DME/DDE)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="ecu-trans">Transmission ECU (EGS)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="dme">Engine Control Unit (DME)</a>
+                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="egs">Transmission Control (EGS)</a>
                 </div>
             </nav>
         </aside>
@@ -91,21 +96,6 @@
             <h2 class="text-3xl font-bold text-blue-800 mb-4">Welcome to the BMW G20 Advanced Guide</h2>
             <p class="text-lg text-gray-600 mb-6">This guide provides detailed explanations for Expert Mode coding and diagnostic functions available through BimmerCode, BimmerLink, and BimmerUtility for the BMW G20 series.</p>
             
-            <div class="space-y-4 mb-8">
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-700 flex items-center"><span class="bg-blue-500 w-3 h-3 rounded-full mr-3"></span>BimmerCode</h3>
-                    <p class="ml-6 text-gray-600">Permanently code new features and customize existing ones in various Electronic Control Units (ECUs).</p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-700 flex items-center"><span class="bg-red-500 w-3 h-3 rounded-full mr-3"></span>BimmerUtility</h3>
-                    <p class="ml-6 text-gray-600">Access advanced ECUs like the engine and transmission for performance-related adjustments. Use with caution.</p>
-                </div>
-                 <div>
-                    <h3 class="text-xl font-semibold text-gray-700 flex items-center"><span class="bg-green-500 w-3 h-3 rounded-full mr-3"></span>BimmerLink</h3>
-                    <p class="ml-6 text-gray-600">Perform diagnostics, read real-time sensor values, and control specific functions like the exhaust flap. Does not perform permanent coding.</p>
-                </div>
-            </div>
-
             <div id="ai-assistant" class="bg-blue-50 border-2 border-blue-200 p-6 rounded-lg">
                 <h3 class="text-2xl font-bold text-blue-700 mb-3">AI Coding Assistant</h3>
                 <p class="text-gray-600 mb-4">Describe the feature you want to code (e.g., "Enable Sport+ mode" or "Disable auto start/stop"), and the AI will generate the required steps for BimmerCode and/or BimmerUtility.</p>
@@ -117,7 +107,7 @@
                     <div id="ai-spinner" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2 hidden"></div>
                 </button>
                  <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-                    <strong>Disclaimer:</strong> Expert mode and BimmerUtility modifications can be complex and carry risks. Always back up your vehicle's data before making changes. The generated steps are for informational purposes. Proceed at your own risk.
+                    <strong>Disclaimer:</strong> Expert mode modifications can be complex. Always back up your vehicle's data before making changes. The generated steps are for informational purposes. Proceed at your own risk.
                 </div>
                 <div id="ai-response" class="mt-6 prose max-w-none"></div>
             </div>
@@ -131,45 +121,58 @@
     <template id="template-bimmerlink-battery">
         <div class="content-item bg-white p-6 rounded-lg shadow"><h3>New Battery Registration</h3><p class="mb-4">When replacing your vehicle's battery, you must register the new one with the car's electrical system. This ensures the charging system works correctly for the new battery's capacity and type, prolonging its life.</p><ul><li><strong>Step 1:</strong> After installing the new battery, connect BimmerLink.</li><li><strong>Step 2:</strong> Navigate to the "Battery" section.</li><li><strong>Step 3:</strong> Tap "Register new battery".</li><li><strong>Step 4:</strong> Select the capacity (e.g., 90Ah, 105Ah) and type (e.g., AGM) that matches the newly installed battery. Confirm the registration.</li></ul></div>
     </template>
-
+    
     <template id="template-asd">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Active Sound Design (ASD)</h3><p class="mb-4">Controls the synthesized engine sound played through the vehicle's speakers.</p><ul><li><strong>Deactivate ASD:</strong> Find <code>ASD_SOUND_OFF</code> and set it to <code>aktiv</code> (active). This will disable the feature.</li><li><strong>Change Sound Profile:</strong> Look for parameters like <code>AUDIO_SYSTEM</code> or <code>SOUND_MODE</code>. Changing these values can sometimes load different sound profiles (e.g., from a different model like M3/M4), but compatibility varies.</li></ul></div>
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Active Sound Design <span>(ASD)</span></h3><p class="mb-4">Controls the synthesized engine sound played through the vehicle's speakers.</p><ul><li><strong>Deactivate ASD:</strong> Find <code>ASD_SOUND_OFF</code> and set it to <code>aktiv</code>. This will disable the feature.</li></ul></div>
     </template>
     
     <template id="template-acsm">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Advanced Crash Safety Module (ACSM)</h3><p class="mb-4">Manages seatbelt reminders and other safety features.</p><ul><li><strong>Disable Seatbelt Reminder (Driver):</strong> Set <code>SBR_FAHRER_SBR_DISABLE</code> to <code>aktiv</code>.</li><li><strong>Disable Seatbelt Reminder (Passenger):</strong> Set <code>SBR_BEIFAHRER_SBR_DISABLE</code> to <code>aktiv</code>.</li><li><strong>Initial Gong Warning:</strong> To disable the initial chime when starting the car, find <code>Initialwarnung_GWF_SBR</code> and set it to <code>nicht_aktiv</code>.</li></ul></div>
-    </template>
-
-    <template id="template-fem">
-         <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Front Electronic Module (FEM)</h3><p class="mb-4">Controls lighting, windows, and mirror functions.</p><ul><li><strong>Mirror Folding Delay:</strong> Change <code>KOMFORT_SCHLIESSEN</code> value in ms (e.g., <code>00</code> for instant folding with lock).</li><li><strong>Window Lifter Behavior:</strong> Allow windows to continue rolling up/down even when the door is opened by setting <code>FH_TUERAUF_STOP_MAUT</code> to <code>nicht_aktiv</code>.</li></ul></div>
-    </template>
-
-    <template id="template-hu_nbt">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Headunit (HU_NBT)</h3><p class="mb-4">Governs the iDrive system, display, and media functions.</p><ul><li><strong>Enable Video in Motion:</strong> Set <code>SPEEDLOCK_X_KMH_MAX</code> and <code>SPEEDLOCK_X_KMH_MIN</code> to <code>FF</code> (255 km/h). Also set <code>VIDEO_HANDBRAKE</code> to <code>nicht_aktiv</code>.</li><li><strong>Startup Animation:</strong> Change <code>STARTUP_EMBLEM</code> to different variants (e.g., <code>bmw_m</code>, <code>alpina</code>) to alter the boot screen.</li><li><strong>Legal Disclaimers:</strong> Disable the startup and camera disclaimers by setting <code>LEGAL_DISCLAIMER_TIME</code> and <code>MACRO_CAM_LEGALDISCLAIMER</code> to <code>kein_ld</code> / <code>nicht_aktiv</code>.</li><li><strong>Tire Pressure & Temperature:</strong> Enable the display of individual tire pressures and temperatures by setting <code>RDC_DRUCK_TEMP</code> to <code>druck_und_temperatur</code>.</li></ul></div>
-    </template>
-
-    <template id="template-ic">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Instrument Cluster (IC)</h3><p class="mb-4">Manages what is displayed on the main instrument panel.</p><ul><li><strong>Digital Speedometer:</strong> Set <code>BC_DIGITAL_V</code> to <code>aktiv</code>.</li><li><strong>M Performance Logo:</strong> Enable the M Performance logo in the cluster by setting <code>BMW_LOGO</code> to <code>mpa</code>.</li><li><strong>Enable Sport+ Mode:</strong> For cars with Sport mode but not Sport+, set <code>Fahrwerk_Sport_Plus</code> to <code>aktiv</code> (may require additional coding in other ECUs).</li></ul></div>
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Advanced Crash Safety Module <span>(ACSM)</span></h3><p class="mb-4">Manages seatbelt reminders and other safety features.</p><ul><li><strong>Disable Seatbelt Chimes (Driver):</strong> Set <code>SBR_FAHRER_SBR_DISABLE</code> to <code>aktiv</code>.</li><li><strong>Disable Seatbelt Chimes (Passenger):</strong> Set <code>SBR_BEIFAHRER_SBR_DISABLE</code> to <code>aktiv</code>.</li></ul></div>
     </template>
     
-    <template id="template-rem">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Rear Electronic Module (REM)</h3><p class="mb-4">Controls rear lighting and other functions.</p><ul><li><strong>Brighter Angel Eyes:</strong> Search for parameters related to daytime running light brightness, often named with "PWM" (Pulse Width Modulation), and increase their values cautiously.</li><li><strong>Welcome Light Carpets:</strong> If the hardware is present, activate the welcome light carpets by setting <code>MAPPING_STANDL_V_L_PWM_LEVEL_1</code> and its right-side equivalent to a higher value.</li></ul></div>
-    </template>
-
-    <template id="template-rfc">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Roof Function Center (RFC)</h3><p class="mb-4">Controls the sunroof and interior lighting.</p><ul><li><strong>Close Sunroof When Raining:</strong> If your car has a rain sensor, set <code>SCHIEBEHEBEDACH_REGEN_SCHLIESSEN</code> to <code>aktiv</code> to automatically close the sunroof when rain is detected.</li></ul></div>
-    </template>
-
-    <template id="template-tfm">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Tailgate Function Module (TFM)</h3><p class="mb-4">Controls the powered tailgate.</p><ul><li><strong>Close Tailgate with Key Fob:</strong> Set <code>SCH_FBD</code> and <code>TASTER_FBD</code> to <code>aktiv</code> to allow closing the trunk with a single press of the key fob button (no long-press needed).</li></ul></div>
+    <template id="template-bdc">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Body Domain Controller <span>(BDC / FEM)</span></h3><p class="mb-4">Controls a wide range of body functions like lighting, windows, mirrors, and locking.</p><ul><li><strong>5-Blink Turn Signal:</strong> Set <code>BLINKZYKLEN_ANZAHL_TIPP</code> to <code>Werte=04</code> (for 5 blinks).</li><li><strong>Window Roll-up on Door Open:</strong> Allow windows to continue closing when a door is opened by setting <code>FH_TUERAUF_STOP_MAUT</code> to <code>nicht_aktiv</code>.</li><li><strong>No Horn on Lock with Engine Running:</strong> Set <code>VAM_HORN_AT_SECURE</code> to <code>nicht_aktiv</code>.</li><li><strong>Rear Lamps as Daytime Running Lights:</strong> Set <code>MAPPING_TAGFAHRL_H_L_OUTPUT</code> and <code>MAPPING_TAGFAHRL_H_R_OUTPUT</code> to <code>sl_l</code> and <code>sl_r</code> respectively.</li><li><strong>Enable Wireless Charging Tray:</strong> For retrofits, find <code>WIRELESS_CHARGING_TRAY</code> and set it to <code>aktiv</code>.</li><li><strong>Enable Paddle Shifters (for Retrofit):</strong> This coding is for cars where paddle shifters have been physically installed. In BDC, find <code>PADDLES_VERBAUT</code> and set to <code>aktiv</code>. If this is not enough, the Sport Automatic Transmission option (<code>2TB</code>) may need to be added to the vehicle order with BimmerUtility.</li></ul></div>
     </template>
     
-    <template id="template-ecu-engine">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Engine ECU (DME/DDE) - BimmerUtility</h3><p class="mb-4"><strong>WARNING:</strong> Modifying the engine ECU is for advanced users and can affect performance and warranty. Proceed with extreme caution.</p><ul><li><strong>Disable Auto Start/Stop (Default Off):</strong> Find the parameter for Auto Start/Stop memory (e.g., <code>TC_MSA_MEMORY</code>) and set it to <code>aktiv</code>. This will make the car remember the last setting (off) across restarts.</li><li><strong>Exhaust Flap Behavior (Default Open):</strong> Modify parameters like <code>KLAPPENSTEUERUNG</code> to change the default position of the exhaust flap in certain driving modes.</li></ul></div>
+    <template id="template-hu_mgu">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Headunit <span>(HU_MGU)</span></h3><p class="mb-4">Governs the iDrive system, display, and media functions.</p><ul><li><strong>M Startup Animation:</strong> Change <code>STARTUP_EMBLEM</code> to <code>bmw_m</code>.</li><li><strong>Rear Camera Zoom (Towbar):</strong> Set <code>MACRO_TRAILER_COUPLING</code> to <code>aktiv</code>.</li><li><strong>Remove iDrive & Camera Disclaimers:</strong> Set <code>LEGAL_DISCLAIMER_TIME</code> to <code>kein_ld</code> and <code>MACRO_CAM_LEGALDISCLAIMER</code> to <code>nicht_aktiv</code>.</li><li><strong>Tire Pressure & Temperature Display:</strong> Set <code>RDC_DRUCK_TEMP</code> to <code>druck_und_temperatur</code>.</li><li><strong>Video in Motion:</strong> Set <code>SPEEDLOCK_X_KMH_MAX</code> and <code>SPEEDLOCK_X_KMH_MIN</code> to <code>FF</code>.</li><li><strong>Bang & Olufsen Sound Profile:</strong> Set <code>AUDIO_SYSTEM</code> to <code>bang_olufsen</code> or similar available value.</li></ul></div>
     </template>
 
-    <template id="template-ecu-trans">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Transmission ECU (EGS) - BimmerUtility</h3><p class="mb-4"><strong>WARNING:</strong> Changes to the transmission ECU can alter shift behavior significantly.</p><ul><li><strong>Alpina Transmission Flash:</strong> Advanced users can flash the Alpina B3/D3 software for faster, smoother shifts. This involves finding the correct software flash file (not just FDL coding) and is a complex procedure outside the scope of simple parameter changes.</li></ul></div>
+    <template id="template-dkombi">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Instrument Cluster <span>(DKOMBI)</span></h3><p class="mb-4">Manages what is displayed on the main instrument panel.</p><ul><li><strong>Digital Dash Theme:</strong> Change <code>KOMBI_THEMA</code> to available options like <code>mpa_ansicht</code> (M Performance) or <code>alpina_ansicht</code>.</li><li><strong>Display Oil Temperature in Cluster:</strong> Set <code>BC_MOTOREN_OELTEMP_ENABLE</code> to <code>aktiv</code>.</li><li><strong>M Performance Logo in Instrument Cluster:</strong> Set <code>BMW_LOGO</code> to <code>mpa</code>.</li></ul></div>
+    </template>
+    
+    <template id="template-hkfm">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Tailgate Function Module <span>(HKFM / TFM)</span></h3><p class="mb-4">Controls the powered tailgate.</p><ul><li><strong>Open/Close Trunk with Short Press (Remote & Interior):</strong> Set <code>HFINAL_ Kurz</code>, <code>HFINAL_Lang</code>, <code>TASTER_KURZ</code>, and <code>TASTER_LANG</code> all to <code>nicht_aktiv (close)</code> / <code>aktiv (open)</code> as needed to remove long-press requirement.</li></ul></div>
+    </template>
+    
+    <template id="template-ihka">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Air Conditioning <span>(IHKA)</span></h3><p class="mb-4">Controls the climate system.</p><ul><li><strong>A/C System Memory:</strong> Set <code>OFF_MEMORY</code> to <code>aktiv</code>.</li><li><strong>Enable Auto Steering Wheel Heat:</strong> Set <code>LENKRADHEIZUNG_AUTO_Aktiv</code> to <code>aktiv</code> (requires appropriate hardware).</li></ul></div>
+    </template>
+    
+    <template id="template-kafas">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Camera-Based Driver Assistance <span>(KAFAS)</span></h3><p class="mb-4">Controls systems like lane assist and high beams.</p><ul><li><strong>Enable Anti-Dazzle High-Beam Assistant (Full):</strong> This is a complex coding that requires changing multiple values (<code>C_FLA_BS_ENTER_THRESH</code>, <code>C_FLA_BS_EXIT_THRESH</code>, etc.) in KAFAS and BDC. It is best handled by the AI assistant for a full walkthrough.</li><li><strong>Lane Change Assistant:</strong> Set <code>SPURWECHSEL_ASSISTENT</code> to <code>aktiv</code>.</li></ul></div>
+    </template>
+    
+    <template id="template-dme">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Engine Control Unit <span>(DME) - BimmerUtility</span></h3><p class="mb-4"><strong>WARNING:</strong> Modifying the engine ECU is for advanced users and can affect performance and warranty.</p>
+            <ul>
+                <li><strong>Auto Start-Stop Memory:</strong> Set <code>TC_MSA_MEMORY</code> to <code>aktiv</code>.</li>
+                <li><strong>Default Driving Mode on Startup:</strong> Set <code>TCM_DEFAULT_DRIVING_MODE</code> to your desired mode (e.g., <code>0x02</code> for Sport, <code>0x07</code> for Adaptive).</li>
+                <li><strong>Enable Coasting in Comfort Mode:</strong> Set <code>ECO_COASTING</code> to <code>aktiv</code>.</li>
+                <li><strong>Enable Sport+ & Comfort+:</strong> This is a multi-stage process.
+                    <br><br>1. <strong>In DME (BimmerUtility):</strong> Set <code>FesSportWorldMode1</code> to <code>aktiv</code>.
+                    <br>2. <strong>In Headunit (BimmerCode):</strong> Add "Sport+" and "Comfort+" to the driving modes list. Find <code>FES_MODES_ADDITIONAL</code> and ensure they are enabled.
+                    <br>3. <strong>In Instrument Cluster (BimmerCode):</strong> Find <code>MODUS_SPORT_PLUS</code> and set to <code>aktiv</code>.</li>
+                <li><strong>Assisted Driving View:</strong> This requires specific hardware (KAFAS camera).
+                    <br><br>1. <strong>In DME (BimmerUtility):</strong> Set <code>Cb_Assistview_gen_M</code> to <code>gen_M</code>.
+                    <br>2. <strong>In Headunit (BimmerCode):</strong> Find <code>ASSISTED_DRIVING_VIEW</code> and set to <code>aktiv</code>.</li>
+            </ul>
+        </div>
+    </template>
+
+    <template id="template-egs">
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Transmission Control Unit <span>(EGS) - BimmerUtility</span></h3><p class="mb-4"><strong>WARNING:</strong> Changes to the transmission ECU can alter shift behavior significantly.</p><ul><li><strong>Enable Sport Automatic Transmission (2TB):</strong> This procedure enables faster shifts and Launch Control by changing the vehicle order (FA).<br><br><strong>Step 1 (BimmerUtility):</strong> Connect and go to <code>Vehicle Profile > Vehicle Order</code>.<br><strong>Step 2 (BimmerUtility):</strong> Find the SALAPA-Elements list, tap 'Edit', and add <code>2TB</code> to the list. Save the changes to the vehicle order.<br><strong>Step 3 (BimmerUtility):</strong> Return to the ECU list and select the <code>EGS (Transmission Control Unit)</code>.<br><strong>Step 4 (BimmerUtility):</strong> Tap the 'Code' button. This applies the new configuration based on the updated vehicle order.<br><strong>Step 5:</strong> After coding is complete, clear any potential error codes and restart the vehicle.</li></ul></div>
     </template>
     
 
@@ -226,23 +229,40 @@
             async function callGeminiAPI(prompt) {
                 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2iJG2TF-ZQC6llieCC8JJHdVNKEQ3SpsjlbyA9gpgWQmdNInS6_hewUDsi0ilSW4F/exec';
 
-                 const systemPrompt = `You are an expert on BMW G20 coding. Your task is to provide clear, step-by-step instructions for coding features using BimmerCode or BimmerUtility Expert Mode.
-                **Rules:**
-                1.  For each step, specify the **ECU**, the **parameter name** (e.g., \`TCM_MSA_MEMORY\`), and the **value to set** (e.g., \`aktiv\`).
-                2.  If a feature requires coding in multiple ECUs, list them clearly.
-                3.  Clearly distinguish between steps for **BimmerCode** and the more advanced **BimmerUtility**.
-                4.  If a feature cannot be coded, state that clearly.
-                5.  Format the response using Markdown for readability (e.g., headings, bold text, lists).
-                6.  Do not include any warnings or disclaimers; focus only on the technical steps.`;
+                const systemPrompt = `You are an expert on BMW G20 coding. Your task is to provide clear, step-by-step instructions for coding features using BimmerCode or BimmerUtility Expert Mode.
+
+                **RESPONSE FORMATTING RULES:**
+                1.  **Main Container:** Enclose the entire response within a single \`<div>\` element.
+                2.  **Tool Sections:** For each tool (BimmerCode, BimmerUtility), create a self-contained card: \`<div class="ai-card">\`.
+                3.  **Card Header:**
+                    * The header must be a \`<div>\` with the class \`"ai-card-header"\`.
+                    * For BimmerCode, add a background color style: \`style="background-color: #2563eb;"\`.
+                    * For BimmerUtility, add a background color style: \`style="background-color: #dc2626;"\`.
+                    * The header must contain the tool name (e.g., "BimmerCode Steps").
+                4.  **Card Body:**
+                    * The body must be a \`<div>\` with the class \`"ai-card-body"\`.
+                5.  **ECU Sections:**
+                    * Inside the card body, start each new ECU with an \`<h3>\` tag containing the ECU's common name and official name (e.g., \`<h3>Headunit (HU_MGU)</h3>\`).
+                6.  **Instructions List:**
+                    * Use an unordered list \`<ul>\` for the steps.
+                    * Each step must be a list item \`<li>\`.
+                    * Use \`<strong>\` for the feature name (e.g., \`<strong>Video in Motion:</strong>\`).
+                    * Use \`<code>\` tags for parameter names and values (e.g., \`Set <code>SPEEDLOCK_X_KMH_MAX</code> to <code>FF</code>\`).
+                7.  **Clarity:** If a feature cannot be coded, state that clearly in a simple paragraph within a card body.
+
+                **CODING KNOWLEDGE RULES:**
+                * Provide the full, official ECU name (e.g., HU_MGU, BDC, DKOMBI) and the common name.
+                * If a feature needs coding in multiple ECUs, create a separate \`<h3>\` section for each ECU within the same tool card.
+                * Do not include any disclaimers or warnings; focus only on the technical steps in the specified format.`;
                 
                 const fullPrompt = `${systemPrompt}\n\nUser request: ${prompt}`;
 
                 try {
                     const response = await fetch(APPS_SCRIPT_URL, {
                         method: 'POST',
-                        // Using text/plain as Apps Script can have issues with CORS preflight for application/json
                         headers: { 'Content-Type': 'text/plain' }, 
                         body: JSON.stringify({ prompt: fullPrompt }),
+                        mode: 'cors' 
                     });
 
                     if (!response.ok) {
@@ -250,16 +270,10 @@
                     }
 
                     const text = await response.text();
-                     // Check if the response from Apps Script is an error object
                     try {
                         const parsed = JSON.parse(text);
-                        if (parsed.error) {
-                            throw new Error(`Apps Script Error: ${parsed.error}`);
-                        }
-                    } catch(e) {
-                        // Not an error object, so it's the valid text response
-                    }
-
+                        if (parsed.error) throw new Error(`Apps Script Error: ${parsed.error}`);
+                    } catch(e) { /* Not a JSON error, proceed */ }
                     return text;
                 } catch (error) {
                     console.error('Error calling Google Apps Script:', error);
@@ -273,14 +287,8 @@
                 const submitBtn = document.getElementById('ai-submit');
                 const btnText = document.getElementById('ai-submit-text');
                 const spinner = document.getElementById('ai-spinner');
-                const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbw2iJG2TF-ZQC6llieCC8JJHdVNKEQ3SpsjlbyA9gpgWQmdNInS6_hewUDsi0ilSW4F/exec';
 
                 if (!promptText.trim()) return;
-                
-                if (appsScriptUrl.includes('PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE')) {
-                    responseContainer.innerHTML = `<p class="text-red-600 font-semibold">Error: The Google Apps Script URL has not been configured in the HTML file.</p>`;
-                    return;
-                }
 
                 submitBtn.disabled = true;
                 btnText.textContent = 'Generating...';
@@ -289,7 +297,8 @@
 
                 try {
                     const result = await callGeminiAPI(promptText);
-                    responseContainer.innerHTML = marked.parse(result);
+                    // The result is now expected to be raw HTML, so no need for marked.parse
+                    responseContainer.innerHTML = result;
                 } catch (error) {
                     responseContainer.innerHTML = `<p class="text-red-600 font-semibold">An error occurred. Please try again later. Check the browser console for details.</p>`;
                 } finally {
