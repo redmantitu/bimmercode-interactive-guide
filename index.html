@@ -79,13 +79,21 @@
 
         <!-- Main Content -->
         <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="bg-white shadow-md p-4 flex items-center z-10">
-                <button id="menu-toggle" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-200 mr-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 12h-8" />
+            <header class="bg-white shadow-md p-4 flex justify-between items-center z-10">
+                <div class="flex items-center">
+                    <button id="menu-toggle" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-200 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 12h-8" />
+                        </svg>
+                    </button>
+                    <h1 id="content-title" class="text-xl md:text-2xl font-semibold text-gray-700 truncate">Welcome</h1>
+                </div>
+                <button id="ai-header-button" class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM5.05 5.05a.75.75 0 011.06 0l1.062 1.062a.75.75 0 01-1.06 1.06L5.05 6.11a.75.75 0 010-1.06zm9.9 0a.75.75 0 010 1.06l-1.062 1.062a.75.75 0 11-1.06-1.06L14.95 5.05a.75.75 0 011.06 0zM2 10a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 012 10zm14.25.75a.75.75 0 000-1.5h1.5a.75.75 0 000 1.5h-1.5zM5.05 14.95a.75.75 0 010-1.06l1.062-1.062a.75.75 0 111.06 1.06L6.11 14.95a.75.75 0 01-1.06 0zm9.9 0a.75.75 0 01-1.06 0l-1.062-1.062a.75.75 0 111.06-1.06L14.95 13.89a.75.75 0 010 1.06zM10 18a.75.75 0 01-.75-.75v-1.5a.75.75 0 011.5 0v1.5A.75.75 0 0110 18z" clip-rule="evenodd" />
                     </svg>
+                    <span>Ask Gemini</span>
                 </button>
-                <h1 id="content-title" class="text-xl md:text-2xl font-semibold text-gray-700 truncate">Welcome</h1>
             </header>
             <div id="content-area" class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50">
                 <!-- Dynamic Content Loads Here -->
@@ -97,13 +105,7 @@
     <!-- Mobile Sidebar Backdrop -->
     <div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
 
-    <!-- Floating AI Button and Modal -->
-    <button id="ai-fab" class="fixed bottom-8 right-8 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110 z-30 hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-        </svg>
-    </button>
-
+    <!-- AI Modal -->
     <div id="ai-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden"></div>
     <div id="ai-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl bg-gray-50 rounded-2xl shadow-2xl p-6 md:p-8 z-50 hidden transform transition-all">
         <!-- AI Assistant content will be injected here -->
@@ -176,7 +178,7 @@
     </template>
     
     <template id="template-bdc">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Body Domain Controller <span>(BDC / FEM)</span></h3><p class="mb-4">Controls a wide range of body functions like lighting, windows, mirrors, and locking.</p><ul><li><strong>5-Blink Turn Signal:</strong> Set <code>BLINKZYKLEN_ANZAHL_TIPP</code> to <code>Werte=04</code> (for 5 blinks).</li><li><strong>Window Roll-up on Door Open:</strong> Allow windows to continue closing when a door is opened by setting <code>FH_TUERAUF_STOP_MAUT</code> to <code>nicht_aktiv</code>.</li><li><strong>No Horn on Lock with Engine Running:</strong> Set <code>VAM_HORN_AT_SECURE</code> to <code>nicht_aktiv</code>.</li><li><strong>Rear Lamps as Daytime Running Lights:</strong> Set <code>MAPPING_TAGFAHRL_H_L_OUTPUT</code> and <code>MAPPING_TAGFAHRL_H_R_OUTPUT</code> to <code>sl_l</code> and <code>sl_r</code> respectively.</li><li><strong>Enable Wireless Charging Tray:</strong> For retrofits, find <code>WIRELESS_CHARGING_TRAY</code> and set it to <code>aktiv</code>.</li><li><strong>Enable Paddle Shifters (for Retrofit):</strong> This coding is for cars where paddle shifters have been physically installed. In BDC, find <code>PADDLES_VERBAUT</code> and set to <code>aktiv</code>. If this is not enough, the Sport Automatic Transmission option (<code>2TB</code>) may need to be added to the vehicle order with BimmerUtility.</li></ul></div>
+        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Body Domain Controller <span>(BDC / FEM)</span></h3><p class="mb-4">Controls a wide range of body functions like lighting, windows, mirrors, and locking.</p><ul><li><strong>5-Blink Turn Signal:</strong> Set <code>BLINKZYKLEN_ANZAHL_TIPP</code> to <code>Werte=04</code> (for 5 blinks).</li><li><strong>Window Roll-up on Door Open:</strong> Allow windows to continue closing when a door is opened by by setting <code>FH_TUERAUF_STOP_MAUT</code> to <code>nicht_aktiv</code>.</li><li><strong>No Horn on Lock with Engine Running:</strong> Set <code>VAM_HORN_AT_SECURE</code> to <code>nicht_aktiv</code>.</li><li><strong>Rear Lamps as Daytime Running Lights:</strong> Set <code>MAPPING_TAGFAHRL_H_L_OUTPUT</code> and <code>MAPPING_TAGFAHRL_H_R_OUTPUT</code> to <code>sl_l</code> and <code>sl_r</code> respectively.</li><li><strong>Enable Wireless Charging Tray:</strong> For retrofits, find <code>WIRELESS_CHARGING_TRAY</code> and set it to <code>aktiv</code>.</li><li><strong>Enable Paddle Shifters (for Retrofit):</strong> This coding is for cars where paddle shifters have been physically installed. In BDC, find <code>PADDLES_VERBAUT</code> and set to <code>aktiv</code>. If this is not enough, the Sport Automatic Transmission option (<code>2TB</code>) may need to be added to the vehicle order with BimmerUtility.</li></ul></div>
     </template>
     
     <template id="template-hu_mgu">
@@ -292,7 +294,7 @@
             const contentTitle = document.getElementById('content-title');
             const sidebarItems = document.querySelectorAll('.sidebar-item');
             const sidebarBackdrop = document.getElementById('sidebar-backdrop');
-            const aiFab = document.getElementById('ai-fab');
+            const aiHeaderButton = document.getElementById('ai-header-button');
             const aiModalBackdrop = document.getElementById('ai-modal-backdrop');
             const aiAssistantContainer = document.getElementById('ai-assistant-staging').querySelector('#ai-assistant-container');
             const aiModal = document.getElementById('ai-modal');
@@ -323,10 +325,10 @@
                     if (placeholder) {
                         placeholder.appendChild(aiAssistantContainer);
                     }
-                    aiFab.classList.add('hidden');
+                    aiHeaderButton.classList.add('hidden');
                 } else {
                     aiModal.appendChild(aiAssistantContainer);
-                    aiFab.classList.remove('hidden');
+                    aiHeaderButton.classList.remove('hidden');
                 }
 
                 setupAIListeners();
@@ -346,7 +348,7 @@
                 });
             });
 
-            aiFab.addEventListener('click', () => toggleAIModal(true));
+            aiHeaderButton.addEventListener('click', () => toggleAIModal(true));
             aiModalBackdrop.addEventListener('click', () => toggleAIModal());
 
             function setupAIListeners() {
@@ -475,4 +477,3 @@
     </script>
 </body>
 </html>
-
