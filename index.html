@@ -28,6 +28,15 @@
         #ai-response .ai-card-body { padding: 1rem; }
         #ai-response .ai-card-body strong { color: #1e3a8a; }
 
+        /* Accordion styles */
+        details { border: 1px solid #e5e7eb; border-radius: 0.5rem; margin-bottom: 0.5rem; }
+        summary { cursor: pointer; padding: 1rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        summary::-webkit-details-marker { display: none; }
+        details[open] summary { border-bottom: 1px solid #e5e7eb; }
+        .accordion-content { padding: 1rem; }
+        summary::after { content: '+'; font-size: 1.5rem; transition: transform 0.2s; }
+        details[open] summary::after { transform: rotate(45deg); }
+
     </style>
 </head>
 <body class="bg-gray-200 text-gray-800">
@@ -401,7 +410,28 @@
 
             async function callGeminiAPI(prompt) {
                 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2iJG2TF-ZQC6llieCC8JJHdVNKEQ3SpsjlbyA9gpgWQmdNInS6_hewUDsi0ilSW4F/exec';
-                const systemPrompt = `You are an expert on BMW G20 coding. Your task is to provide clear, step-by-step instructions for coding features using BimmerCode or BimmerUtility Expert Mode. **RESPONSE FORMATTING RULES:** 1. **Main Container:** Enclose the entire response within a single \`<div>\`. 2. **Tool Sections:** For each tool (BimmerCode, BimmerUtility), create a self-contained card: \`<div class="ai-card">\`. 3. **Card Header:** The header must be a \`<div>\` with class \`"ai-card-header"\`. For BimmerCode, add \`style="background-color: #2563eb;"\`. For BimmerUtility, add \`style="background-color: #dc2626;"\`. It must contain the tool name. 4. **Card Body:** The body must be a \`<div>\` with class \`"ai-card-body"\`. 5. **ECU Sections:** Inside the body, start each ECU with an \`<h3>\` tag (e.g., \`<h3>Headunit (HU_MGU)</h3>\`). 6. **Instructions List:** Use \`<ul>\` for steps, \`<li>\` for each step, \`<strong>\` for feature names, and \`<code>\` for parameters/values. 7. **Clarity:** If a feature cannot be coded, state that clearly in a simple paragraph. **CODING KNOWLEDGE RULES:** Provide full ECU names. If multiple ECUs are needed, create separate \`<h3>\` sections. No disclaimers.`;
+                const systemPrompt = `You are an expert on BMW G20 coding. Your task is to provide clear, step-by-step instructions for coding features using BimmerCode or BimmerUtility Expert Mode.
+
+                **RESPONSE FORMATTING RULES:**
+                1.  **Main Container:** Enclose the entire response within a single \`<div>\`.
+                2.  **Collapsible Sections:** For each tool (BimmerCode, BimmerUtility), create a collapsible accordion section using the \`<details>\` tag. The first section should be open by default (\`<details open>\`).
+                3.  **Accordion Header:** The header for each section must be a \`<summary>\` tag. For BimmerCode, use \`<summary style="background-color: #2563eb; color: white;">BimmerCode Steps</summary>\`. For BimmerUtility, use \`<summary style="background-color: #dc2626; color: white;">BimmerUtility Steps</summary>\`.
+                4.  **Accordion Content:** The content for each section must be inside a \`<div class="accordion-content">\`.
+                5.  **ECU Sections:** Inside the accordion content, start each new ECU with an \`<h3>\` tag containing the ECU's common name and official name (e.g., \`<h3>Headunit (HU_MGU)</h3>\`).
+                6.  **Instructions List:** Use an unordered list \`<ul>\` for the steps. Each step must be a list item \`<li>\`.
+                7.  **Text Formatting:** Use \`<strong>\` for the feature name (e.g., \`<strong>Video in Motion:</strong>\`). Use \`<code>\` tags for parameter names and values (e.g., \`Set <code>SPEEDLOCK_X_KMH_MAX</code> to <code>FF</code>\`).
+                8.  **Clarity:** If a feature cannot be coded, state that clearly in a simple paragraph within the accordion content.
+
+                **CODING KNOWLEDGE RULES:**
+                *   Provide the full, official ECU name (e.g., HU_MGU, BDC, DKOMBI) and the common name.
+                *   If a feature needs coding in multiple ECUs, create a separate \`<h3>\` section for each ECU within the same tool's accordion.
+                *   Do not include any disclaimers or warnings; focus only on the technical steps in the specified format.
+
+                **TOOL-SPECIFIC ECU ACCESS RULES (IMPORTANT!):**
+                *   **BimmerCode** can ONLY access: ASD, ACSM, BDC, HU_MGU, DKOMBI, HKFM, IHKA, KAFAS.
+                *   **BimmerUtility** can ONLY access: DME, EGS.
+                *   **BimmerLink** can ONLY access: Exhaust Flap Control, Battery Registration. It does NOT do coding.
+                *   NEVER suggest coding an ECU with a tool that cannot access it. For example, do not suggest coding DME with BimmerCode.`;
                 const fullPrompt = `${systemPrompt}\n\nUser request: ${prompt}`;
                 const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ prompt: fullPrompt }), mode: 'cors' });
                 if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -440,18 +470,59 @@
                 const originalTitle = document.title;
                 document.title = 'BMW G20 Coding Report';
 
+                // --- HTML Export ---
                 if (format === 'html') {
-                    const htmlContent = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BMW G20 Coding Report</title><script src="https://cdn.tailwindcss.com"><\/script><style>body{font-family:'Inter',sans-serif;}.ai-card{background-color:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);margin-top:1rem;overflow:hidden;}.ai-card-header{padding:0.75rem 1rem;font-weight:bold;color:white;display:flex;align-items:center;}.ai-card-body{padding:1rem;}.ai-card-body strong{color:#1e3a8a;}h3{font-size:1.25rem;font-weight:700;color:#1e3a8a;}code{background-color:#e2e8f0;padding:0.25rem 0.5rem;border-radius:0.25rem;font-family:monospace;}</style></head><body class="bg-gray-100 p-8"><h1 class="text-3xl font-bold text-blue-800 mb-6">AI-Generated Coding Report</h1>${responseContainer.innerHTML}</body></html>`;
+                    const styles = Array.from(document.styleSheets).map(s => {
+                        try {
+                            return Array.from(s.cssRules).map(r => r.cssText).join('\n');
+                        } catch (e) {
+                            return ''; // Ignore CORS-related errors on external stylesheets
+                        }
+                    }).join('\n');
+
+                    const htmlContent = `
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>BMW G20 Coding Report</title>
+                            <script src="https://cdn.tailwindcss.com"><\/script>
+                            <style>${styles}</style>
+                        </head>
+                        <body class="bg-gray-100 p-8">
+                            <h1 class="text-3xl font-bold text-blue-800 mb-6">AI-Generated Coding Report</h1>
+                            <div class="prose max-w-none">${responseContainer.innerHTML}</div>
+                        </body>
+                        </html>`;
                     const blob = new Blob([htmlContent], { type: 'text/html' });
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     link.download = 'coding-report.html';
                     link.click();
+                    URL.revokeObjectURL(link.href);
                     document.title = originalTitle;
                     return;
                 }
 
-                html2canvas(responseContainer, { scale: 2, useCORS: true, backgroundColor: '#f8fafc' }).then(canvas => {
+                // --- PNG/PDF Export ---
+                // Temporarily modify styles to capture full scrollable content
+                const originalHeight = responseContainer.style.height;
+                const originalOverflow = responseContainer.style.overflowY;
+                responseContainer.style.height = 'auto';
+                responseContainer.style.overflowY = 'visible';
+
+                html2canvas(responseContainer, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#f8fafc',
+                    windowHeight: responseContainer.scrollHeight, // Ensure canvas is tall enough
+                    scrollY: -window.scrollY
+                }).then(canvas => {
+                    // Restore original styles
+                    responseContainer.style.height = originalHeight;
+                    responseContainer.style.overflowY = originalOverflow;
+
                     if (format === 'png') {
                         const link = document.createElement('a');
                         link.href = canvas.toDataURL('image/png');
@@ -465,6 +536,9 @@
                     }
                     document.title = originalTitle;
                 }).catch(err => {
+                    // Restore styles even if export fails
+                    responseContainer.style.height = originalHeight;
+                    responseContainer.style.overflowY = originalOverflow;
                     console.error('Export failed:', err);
                     alert('Could not export the report. Please see the console for details.');
                     document.title = originalTitle;
