@@ -29,15 +29,16 @@
         #ai-response .ai-card-body strong { color: #1e3a8a; }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-200 text-gray-800">
 
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="bg-gray-800 text-white w-64 md:w-72 flex-shrink-0 absolute md:relative inset-y-0 left-0 transform -translate-x-full md:translate-x-0 z-30 sidebar">
-            <div class="p-4">
-                <h2 class="text-2xl font-bold">BMW G20 Guide</h2>
-            </div>
-            <nav class="flex-grow p-4 space-y-4 overflow-y-auto">
+    <div class="min-h-screen flex items-center justify-center p-0 md:p-4">
+        <div class="max-w-7xl w-full h-screen md:h-[calc(100vh-4rem)] bg-white md:rounded-2xl shadow-2xl flex overflow-hidden">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="bg-gray-900 text-white w-72 flex-shrink-0 absolute md:relative inset-y-0 left-0 transform -translate-x-full md:translate-x-0 z-40 sidebar">
+                <div class="p-5">
+                    <h2 class="text-2xl font-bold">BMW G20 Guide</h2>
+                </div>
+                <nav class="flex-grow p-4 space-y-2 overflow-y-auto">
                 <div>
                     <h3 class="sidebar-header text-sm px-2 mb-2">Tools</h3>
                     <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="welcome">Welcome</a>
@@ -78,53 +79,83 @@
 
         <!-- Main Content -->
         <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="bg-white shadow-md p-4 flex justify-between items-center">
-                <h1 id="content-title" class="text-2xl font-semibold text-gray-700">Welcome</h1>
-                <button id="menu-toggle" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-200">
+            <header class="bg-white shadow-md p-4 flex items-center z-10">
+                <button id="menu-toggle" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-200 mr-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 12h-8" />
                     </svg>
                 </button>
+                <h1 id="content-title" class="text-xl md:text-2xl font-semibold text-gray-700 truncate">Welcome</h1>
             </header>
-            <div id="content-area" class="flex-1 overflow-y-auto p-6 md:p-8">
+            <div id="content-area" class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50">
                 <!-- Dynamic Content Loads Here -->
             </div>
-             <div id="ai-assistant-container" class="p-6 md:p-8 bg-gray-100">
-                <div id="ai-assistant" class="bg-blue-50 border-2 border-blue-200 p-6 rounded-lg">
-                    <h3 class="text-2xl font-bold text-blue-700 mb-3">AI Coding Assistant</h3>
-                    <p class="text-gray-600 mb-4">Describe the feature you want to code (e.g., "Enable Sport+ mode" or "Disable auto start/stop"), and the AI will generate the required steps for BimmerCode and/or BimmerUtility.</p>
-                    <div class="mb-4">
-                        <textarea id="ai-prompt" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" rows="3" placeholder="e.g., Enable Bowers & Wilkins sound settings..."></textarea>
-                    </div>
-                    <button id="ai-submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center w-full sm:w-auto">
-                        <span id="ai-submit-text">Generate Steps</span>
-                        <div id="ai-spinner" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2 hidden"></div>
+        </main>
+    </div>
+</div>
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+
+    <!-- Floating AI Button and Modal -->
+    <button id="ai-fab" class="fixed bottom-8 right-8 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110 z-30 hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+    </button>
+
+    <div id="ai-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden"></div>
+    <div id="ai-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl bg-gray-50 rounded-2xl shadow-2xl p-6 md:p-8 z-50 hidden transform transition-all">
+        <!-- AI Assistant content will be injected here -->
+    </div>
+    <!-- End Floating AI Button and Modal -->
+
+    <!-- AI Assistant Staging Area -->
+    <div id="ai-assistant-staging" class="hidden">
+        <div id="ai-assistant-container" class="bg-white p-8 rounded-2xl shadow-lg">
+             <div id="ai-assistant">
+                <h3 class="text-2xl font-bold text-blue-700 mb-3">AI Coding Assistant</h3>
+                <p class="text-gray-600 mb-4">Describe the feature you want to code (e.g., "Enable Sport+ mode" or "Disable auto start/stop"), and the AI will generate the required steps.</p>
+                <div class="mb-4">
+                    <textarea id="ai-prompt" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" rows="3" placeholder="e.g., Enable Bowers & Wilkins sound settings..."></textarea>
+                </div>
+                <button id="ai-submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center w-full sm:w-auto">
+                    <span id="ai-submit-text">Generate Steps</span>
+                    <div id="ai-spinner" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2 hidden"></div>
+                </button>
+                <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+                    <strong>Disclaimer:</strong> Expert mode modifications can be complex. Always back up your vehicle's data before making changes. The generated steps are for informational purposes. Proceed at your own risk.
+                </div>
+                <div id="ai-response" class="mt-6 prose max-w-none"></div>
+                <div id="export-controls" class="relative hidden mt-4 text-right">
+                    <button id="export-button" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center ml-auto">
+                        Export As
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-                        <strong>Disclaimer:</strong> Expert mode modifications can be complex. Always back up your vehicle's data before making changes. The generated steps are for informational purposes. Proceed at your own risk.
-                    </div>
-                    <div id="ai-response" class="mt-6 prose max-w-none"></div>
-                    <div id="export-controls" class="relative hidden mt-4 text-right">
-                        <button id="export-button" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center ml-auto">
-                            Export As
-                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div id="export-dropdown" class="absolute right-0 bottom-10 w-48 bg-white rounded-md shadow-lg z-10 hidden">
-                            <a href="#" id="export-png" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as PNG</a>
-                            <a href="#" id="export-pdf" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as PDF</a>
-                            <a href="#" id="export-html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as HTML</a>
-                        </div>
+                    <div id="export-dropdown" class="absolute right-0 bottom-10 w-48 bg-white rounded-md shadow-lg z-10 hidden">
+                        <a href="#" id="export-png" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as PNG</a>
+                        <a href="#" id="export-pdf" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as PDF</a>
+                        <a href="#" id="export-html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as HTML</a>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
 
     <!-- Content Templates -->
     <template id="template-welcome">
-        <div class="bg-white p-8 rounded-lg shadow-lg">
-            <h2 class="text-3xl font-bold text-blue-800 mb-4">Welcome to the BMW G20 Advanced Guide</h2>
-            <p class="text-lg text-gray-600 mb-6">This guide provides detailed explanations for Expert Mode coding and diagnostic functions available through BimmerCode, BimmerLink, and BimmerUtility for the BMW G20 series.</p>
+        <div class="space-y-8">
+            <div class="bg-white p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to the Interactive G20 Guide</h2>
+                <p class="text-lg text-gray-600 mb-3">
+                    Your one-stop resource for BMW G20 coding. This guide provides detailed, step-by-step instructions for popular modifications using <strong>BimmerCode</strong>, <strong>BimmerLink</strong>, and <strong>BimmerUtility</strong>.
+                </p>
+                <p class="text-lg text-gray-600">
+                    Use the menu to navigate through different modules, or use the AI Assistant below to get instructions for a specific feature.
+                </p>
+            </div>
+
+            <div id="welcome-ai-placeholder"></div>
         </div>
     </template>
     
@@ -237,97 +268,100 @@
     
 
     <script>
+        function toggleAIModal(forceOpen = false) {
+            const aiModal = document.getElementById('ai-modal');
+            const aiModalBackdrop = document.getElementById('ai-modal-backdrop');
+            if (!aiModal || !aiModalBackdrop) return;
+
+            const isHidden = aiModal.classList.contains('hidden');
+            if (forceOpen) {
+                if (isHidden) {
+                    aiModal.classList.remove('hidden');
+                    aiModalBackdrop.classList.remove('hidden');
+                }
+            } else {
+                aiModal.classList.toggle('hidden');
+                aiModalBackdrop.classList.toggle('hidden');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.getElementById('sidebar');
             const menuToggle = document.getElementById('menu-toggle');
             const contentArea = document.getElementById('content-area');
             const contentTitle = document.getElementById('content-title');
             const sidebarItems = document.querySelectorAll('.sidebar-item');
-            
-            // --- Sidebar Toggle ---
-            menuToggle.addEventListener('click', () => {
+            const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+            const aiFab = document.getElementById('ai-fab');
+            const aiModalBackdrop = document.getElementById('ai-modal-backdrop');
+            const aiAssistantContainer = document.getElementById('ai-assistant-staging').querySelector('#ai-assistant-container');
+            const aiModal = document.getElementById('ai-modal');
+
+            function toggleSidebar() {
                 sidebar.classList.toggle('-translate-x-full');
+                sidebarBackdrop.classList.toggle('hidden');
+                document.body.classList.toggle('overflow-hidden');
+            }
+
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSidebar();
             });
             
-            // --- Content Loading ---
+            sidebarBackdrop.addEventListener('click', toggleSidebar);
+
             function loadContent(id) {
                 const template = document.getElementById(`template-${id}`);
-                if (template) {
-                    contentArea.innerHTML = template.innerHTML;
-                    const selectedItem = document.querySelector(`.sidebar-item[data-content="${id}"]`);
-                    contentTitle.textContent = selectedItem ? selectedItem.textContent : 'Guide';
+                if (!template) return;
+
+                contentArea.innerHTML = template.innerHTML;
+                const selectedItem = document.querySelector(`.sidebar-item[data-content="${id}"]`);
+                contentTitle.textContent = selectedItem ? selectedItem.textContent : 'Guide';
+
+                if (id === 'welcome') {
+                    const placeholder = contentArea.querySelector('#welcome-ai-placeholder');
+                    if (placeholder) {
+                        placeholder.appendChild(aiAssistantContainer);
+                    }
+                    aiFab.classList.add('hidden');
+                } else {
+                    aiModal.appendChild(aiAssistantContainer);
+                    aiFab.classList.remove('hidden');
                 }
+
+                setupAIListeners();
+                setupExportListeners();
             }
 
             sidebarItems.forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
                     const contentId = e.currentTarget.dataset.content;
-                    
                     sidebarItems.forEach(i => i.classList.remove('active'));
                     e.currentTarget.classList.add('active');
-
                     loadContent(contentId);
-
-                    if (window.innerWidth < 768) {
-                        sidebar.classList.add('-translate-x-full');
+                    if (window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) {
+                        toggleSidebar();
                     }
                 });
             });
 
-            // --- AI Assistant Logic ---
-            async function callGeminiAPI(prompt) {
-                const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2iJG2TF-ZQC6llieCC8JJHdVNKEQ3SpsjlbyA9gpgWQmdNInS6_hewUDsi0ilSW4F/exec';
+            aiFab.addEventListener('click', () => toggleAIModal(true));
+            aiModalBackdrop.addEventListener('click', () => toggleAIModal());
 
-                const systemPrompt = `You are an expert on BMW G20 coding. Your task is to provide clear, step-by-step instructions for coding features using BimmerCode or BimmerUtility Expert Mode.
-
-                **RESPONSE FORMATTING RULES:**
-                1.  **Main Container:** Enclose the entire response within a single \`<div>\` element.
-                2.  **Tool Sections:** For each tool (BimmerCode, BimmerUtility), create a self-contained card: \`<div class="ai-card">\`.
-                3.  **Card Header:**
-                    * The header must be a \`<div>\` with the class \`"ai-card-header"\`.
-                    * For BimmerCode, add a background color style: \`style="background-color: #2563eb;"\`.
-                    * For BimmerUtility, add a background color style: \`style="background-color: #dc2626;"\`.
-                    * The header must contain the tool name (e.g., "BimmerCode Steps").
-                4.  **Card Body:**
-                    * The body must be a \`<div>\` with the class \`"ai-card-body"\`.
-                5.  **ECU Sections:**
-                    * Inside the card body, start each new ECU with an \`<h3>\` tag containing the ECU's common name and official name (e.g., \`<h3>Headunit (HU_MGU)</h3>\`).
-                6.  **Instructions List:**
-                    * Use an unordered list \`<ul>\` for the steps.
-                    * Each step must be a list item \`<li>\`.
-                    * Use \`<strong>\` for the feature name (e.g., \`<strong>Video in Motion:</strong>\`).
-                    * Use \`<code>\` tags for parameter names and values (e.g., \`Set <code>SPEEDLOCK_X_KMH_MAX</code> to <code>FF</code>\`).
-                7.  **Clarity:** If a feature cannot be coded, state that clearly in a simple paragraph within a card body.
-
-                **CODING KNOWLEDGE RULES:**
-                * Provide the full, official ECU name (e.g., HU_MGU, BDC, DKOMBI) and the common name.
-                * If a feature needs coding in multiple ECUs, create a separate \`<h3>\` section for each ECU within the same tool card.
-                * Do not include any disclaimers or warnings; focus only on the technical steps in the specified format.`;
-                
-                const fullPrompt = `${systemPrompt}\n\nUser request: ${prompt}`;
-
-                try {
-                    const response = await fetch(APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain' }, 
-                        body: JSON.stringify({ prompt: fullPrompt }),
-                        mode: 'cors' 
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Network response was not ok: ${response.statusText}`);
-                    }
-
-                    const text = await response.text();
-                    try {
-                        const parsed = JSON.parse(text);
-                        if (parsed.error) throw new Error(`Apps Script Error: ${parsed.error}`);
-                    } catch(e) { /* Not a JSON error, proceed */ }
-                    return text;
-                } catch (error) {
-                    console.error('Error calling Google Apps Script:', error);
-                    throw error;
+            function setupAIListeners() {
+                const aiSubmitBtn = document.getElementById('ai-submit');
+                const aiPrompt = document.getElementById('ai-prompt');
+                if (aiSubmitBtn) {
+                    aiSubmitBtn.onclick = handleAISubmit;
+                }
+                if (aiPrompt) {
+                    aiPrompt.onkeydown = (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleAISubmit();
+                        }
+                    };
                 }
             }
             
@@ -362,33 +396,40 @@
                 }
             }
 
-            // --- AI Assistant Setup ---
-            document.getElementById('ai-submit').addEventListener('click', handleAISubmit);
-            document.getElementById('ai-prompt').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleAISubmit();
-                }
-            });
+            async function callGeminiAPI(prompt) {
+                const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2iJG2TF-ZQC6llieCC8JJHdVNKEQ3SpsjlbyA9gpgWQmdNInS6_hewUDsi0ilSW4F/exec';
+                const systemPrompt = `You are an expert on BMW G20 coding. Your task is to provide clear, step-by-step instructions for coding features using BimmerCode or BimmerUtility Expert Mode. **RESPONSE FORMATTING RULES:** 1. **Main Container:** Enclose the entire response within a single \`<div>\`. 2. **Tool Sections:** For each tool (BimmerCode, BimmerUtility), create a self-contained card: \`<div class="ai-card">\`. 3. **Card Header:** The header must be a \`<div>\` with class \`"ai-card-header"\`. For BimmerCode, add \`style="background-color: #2563eb;"\`. For BimmerUtility, add \`style="background-color: #dc2626;"\`. It must contain the tool name. 4. **Card Body:** The body must be a \`<div>\` with class \`"ai-card-body"\`. 5. **ECU Sections:** Inside the body, start each ECU with an \`<h3>\` tag (e.g., \`<h3>Headunit (HU_MGU)</h3>\`). 6. **Instructions List:** Use \`<ul>\` for steps, \`<li>\` for each step, \`<strong>\` for feature names, and \`<code>\` for parameters/values. 7. **Clarity:** If a feature cannot be coded, state that clearly in a simple paragraph. **CODING KNOWLEDGE RULES:** Provide full ECU names. If multiple ECUs are needed, create separate \`<h3>\` sections. No disclaimers.`;
+                const fullPrompt = `${systemPrompt}\n\nUser request: ${prompt}`;
+                const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ prompt: fullPrompt }), mode: 'cors' });
+                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+                const text = await response.text();
+                try {
+                    const parsed = JSON.parse(text);
+                    if (parsed.error) throw new Error(`Apps Script Error: ${parsed.error}`);
+                } catch(e) {}
+                return text;
+            }
 
-            // --- Export Logic ---
-            const exportButton = document.getElementById('export-button');
-            const exportDropdown = document.getElementById('export-dropdown');
+            function setupExportListeners() {
+                const exportButton = document.getElementById('export-button');
+                const exportDropdown = document.getElementById('export-dropdown');
+                if (!exportButton) return;
 
-            exportButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                exportDropdown.classList.toggle('hidden');
-            });
+                exportButton.onclick = (e) => {
+                    e.stopPropagation();
+                    exportDropdown.classList.toggle('hidden');
+                };
 
-            document.addEventListener('click', (event) => {
-                if (!exportButton.contains(event.target) && !exportDropdown.contains(event.target)) {
-                    exportDropdown.classList.add('hidden');
-                }
-            });
+                document.onclick = (event) => {
+                    if (!exportButton.contains(event.target) && !exportDropdown.contains(event.target)) {
+                        exportDropdown.classList.add('hidden');
+                    }
+                };
 
-            document.getElementById('export-png').addEventListener('click', () => exportResponse('png'));
-            document.getElementById('export-pdf').addEventListener('click', () => exportResponse('pdf'));
-            document.getElementById('export-html').addEventListener('click', () => exportResponse('html'));
+                document.getElementById('export-png').onclick = () => exportResponse('png');
+                document.getElementById('export-pdf').onclick = () => exportResponse('pdf');
+                document.getElementById('export-html').onclick = () => exportResponse('html');
+            }
 
             function exportResponse(format) {
                 const { jsPDF } = window.jspdf;
@@ -397,30 +438,7 @@
                 document.title = 'BMW G20 Coding Report';
 
                 if (format === 'html') {
-                    const htmlContent = `
-                        <!DOCTYPE html>
-                        <html lang="en">
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <title>BMW G20 Coding Report</title>
-                            <script src="https://cdn.tailwindcss.com"><\/script>
-                            <style>
-                                body { font-family: 'Inter', sans-serif; }
-                                .ai-card { background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 1rem; overflow: hidden; }
-                                .ai-card-header { padding: 0.75rem 1rem; font-weight: bold; color: white; display: flex; align-items: center; }
-                                .ai-card-body { padding: 1rem; }
-                                .ai-card-body strong { color: #1e3a8a; }
-                                h3 { font-size: 1.25rem; font-weight: 700; color: #1e3a8a; }
-                                code { background-color: #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-family: monospace; }
-                            </style>
-                        </head>
-                        <body class="bg-gray-100 p-8">
-                            <h1 class="text-3xl font-bold text-blue-800 mb-6">AI-Generated Coding Report</h1>
-                            ${responseContainer.innerHTML}
-                        </body>
-                        </html>
-                    `;
+                    const htmlContent = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BMW G20 Coding Report</title><script src="https://cdn.tailwindcss.com"><\/script><style>body{font-family:'Inter',sans-serif;}.ai-card{background-color:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);margin-top:1rem;overflow:hidden;}.ai-card-header{padding:0.75rem 1rem;font-weight:bold;color:white;display:flex;align-items:center;}.ai-card-body{padding:1rem;}.ai-card-body strong{color:#1e3a8a;}h3{font-size:1.25rem;font-weight:700;color:#1e3a8a;}code{background-color:#e2e8f0;padding:0.25rem 0.5rem;border-radius:0.25rem;font-family:monospace;}</style></head><body class="bg-gray-100 p-8"><h1 class="text-3xl font-bold text-blue-800 mb-6">AI-Generated Coding Report</h1>${responseContainer.innerHTML}</body></html>`;
                     const blob = new Blob([htmlContent], { type: 'text/html' });
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
@@ -430,11 +448,7 @@
                     return;
                 }
 
-                html2canvas(responseContainer, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#f8fafc'
-                }).then(canvas => {
+                html2canvas(responseContainer, { scale: 2, useCORS: true, backgroundColor: '#f8fafc' }).then(canvas => {
                     if (format === 'png') {
                         const link = document.createElement('a');
                         link.href = canvas.toDataURL('image/png');
@@ -442,11 +456,7 @@
                         link.click();
                     } else if (format === 'pdf') {
                         const imgData = canvas.toDataURL('image/png');
-                        const pdf = new jsPDF({
-                            orientation: 'p',
-                            unit: 'px',
-                            format: [canvas.width, canvas.height]
-                        });
+                        const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: [canvas.width, canvas.height] });
                         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
                         pdf.save('coding-report.pdf');
                     }
@@ -458,7 +468,6 @@
                 });
             }
 
-            // --- Initial Load ---
             const welcomeItem = document.querySelector('.sidebar-item[data-content="welcome"]');
             welcomeItem.classList.add('active');
             loadContent('welcome');
