@@ -28,28 +28,6 @@
         #ai-response .ai-card-body { padding: 1rem; }
         #ai-response .ai-card-body strong { color: #1e3a8a; }
 
-        /* Styles for scrollable AI modal */
-        #ai-modal {
-            display: flex;
-            flex-direction: column;
-            max-height: 85vh;
-        }
-        #ai-modal #ai-assistant-container {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            height: 100%;
-        }
-        #ai-modal #ai-assistant {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            height: 100%;
-        }
-        #ai-modal #ai-response {
-            overflow-y: auto;
-            flex-grow: 1;
-        }
     </style>
 </head>
 <body class="bg-gray-200 text-gray-800">
@@ -130,15 +108,15 @@
 
     <!-- AI Modal -->
     <div id="ai-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden"></div>
-    <div id="ai-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl bg-gray-50 rounded-2xl shadow-2xl p-6 md:p-8 z-50 hidden transform transition-all">
+    <div id="ai-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl bg-gray-50 rounded-2xl shadow-2xl z-50 hidden transform transition-all flex flex-col max-h-[85vh] p-6 md:p-8">
         <!-- AI Assistant content will be injected here -->
     </div>
     <!-- End Floating AI Button and Modal -->
 
     <!-- AI Assistant Staging Area -->
     <div id="ai-assistant-staging" class="hidden">
-        <div id="ai-assistant-container" class="bg-white p-4 md:p-8 rounded-2xl shadow-lg">
-             <div id="ai-assistant">
+        <div id="ai-assistant-container" class="bg-white p-4 md:p-8 rounded-2xl shadow-lg h-full flex flex-col overflow-hidden">
+             <div id="ai-assistant" class="h-full flex flex-col overflow-hidden">
                 <h3 class="text-2xl font-bold text-blue-700 mb-3">AI Coding Assistant</h3>
                 <p class="text-gray-600 mb-4">Describe the feature you want to code (e.g., "Enable Sport+ mode" or "Disable auto start/stop"), and the AI will generate the required steps.</p>
                 <div class="mb-4">
@@ -151,8 +129,8 @@
                 <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
                     <strong>Disclaimer:</strong> Expert mode modifications can be complex. Always back up your vehicle's data before making changes. The generated steps are for informational purposes. Proceed at your own risk.
                 </div>
-                <div id="ai-response" class="mt-6 prose max-w-none"></div>
-                <div id="export-controls" class="relative hidden mt-4 text-right">
+                <div id="ai-response" class="mt-6 prose max-w-none flex-grow overflow-y-auto"></div>
+                <div id="export-controls" class="relative hidden mt-4 text-right pt-4 border-t">
                     <button id="export-button" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center ml-auto">
                         Export As
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
