@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMW G20 Coding Guide - BimmerUtility & BimmerCode</title>
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #0d47a1;
+      --secondary: #00bcd4;
+      --bg-light: #f8f9fa;
+      --bg-white: #ffffff;
+      --text-dark: #212529;
+      --text-gray: #495057;
+      --border: #dee2e6;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --shadow-hover: rgba(26, 115, 232, 0.15);
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: var(--text-dark);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+    
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.95;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    
+    .platform-tabs {
+      background: var(--bg-white);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    
+    .platform-tabs h2 {
+      margin-bottom: 1rem;
+      color: var(--primary-dark);
+      font-size: 1.5rem;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+      padding: 0.75rem 1.5rem;
+      background: var(--bg-light);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    
+    .tab-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+    
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .platform-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    
+    .platform-box h3 {
+      margin-bottom: 0.75rem;
+      font-size: 1.3rem;
+    }
+    
+    .platform-box ul {
+      margin-left: 1.5rem;
+      line-height: 1.8;
+    }
+    
+    .platform-box strong {
+      color: #ffd700;
+    }
+    
+    .platform-box ol {
+      margin-left: 1.5rem;
+      margin-top: 0.5rem;
+      line-height: 1.8;
+    }
+    
+    .platform-box a {
+      color: #ffd700;
+      text-decoration: underline;
+    }
+    
+    main {
+      background: var(--bg-white);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+    
+    .category {
+      margin-bottom: 2rem;
+    }
+    
+    .category-title {
+      font-size: 1.8rem;
+      color: var(--primary-dark);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 3px solid var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .category-icon {
+      width: 32px;
+      height: 32px;
+    }
+    
+    details {
+      margin-bottom: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-white);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    details:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px var(--shadow-hover);
+    }
+    
+    details[open] {
+      border-color: var(--primary);
+      box-shadow: 0 6px 16px var(--shadow-hover);
+    }
+    
+    summary {
+      padding: 1.25rem 1.5rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      background: linear-gradient(to right, var(--bg-light), var(--bg-white));
+      color: var(--text-dark);
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    
+    summary:hover {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: white;
+    }
+    
+    summary::after {
+      content: '▼';
+      transition: transform 0.3s ease;
+      font-size: 0.9rem;
+    }
+    
+    details[open] summary::after {
+      transform: rotate(180deg);
+    }
+    
+    details[open] summary {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: white;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .content-wrapper {
+      padding: 1.5rem;
+    }
+    
+    .module {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .codes, .steps {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+      color: var(--text-gray);
+    }
+    
+    .codes li, .steps li {
+      margin: 0.5rem 0;
+      line-height: 1.7;
+    }
+    
+    code {
+      background: var(--bg-light);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: var(--primary-dark);
+      border: 1px solid var(--border);
+    }
+    
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4px solid;
+    }
+    
+    .alert-info {
+      background: #e3f2fd;
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+    
+    .alert-warning {
+      background: #fff3cd;
+      border-color: var(--warning);
+      color: #856404;
+    }
+    
+    .alert-success {
+      background: #d4edda;
+      border-color: var(--success);
+      color: #155724;
+    }
+    
+    .alert-danger {
+      background: #f8d7da;
+      border-color: var(--danger);
+      color: #721c24;
+    }
+    
+    .step-number {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 28px;
+      font-weight: bold;
+      margin-right: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    footer {
+      background: var(--bg-white);
+      padding: 2rem;
+      border-radius: 12px;
+      margin-top: 2rem;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    
+    footer h2 {
+      color: var(--primary-dark);
+      margin-bottom: 1rem;
+    }
+    
+    footer h3 {
+      color: var(--primary-dark);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    footer ul {
+      padding-left: 1.5rem;
+    }
+    
+    footer li {
+      margin: 0.5rem 0;
+    }
+    
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    
+    footer a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+      
+      header p {
+        font-size: 1rem;
+      }
+      
+      main {
+        padding: 1rem;
+      }
+      
+      .category-title {
+        font-size: 1.4rem;
+      }
+      
+      summary {
+        font-size: 1rem;
+        padding: 1rem;
+      }
+      
+      .tabs {
+        flex-direction: column;
+      }
+      
+      .tab-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🚗 BMW G20 Coding Guide</h1>
+    <p>Complete step-by-step guide for BimmerUtility & BimmerCode</p>
+  </header>
+
+  <div class="container">
+    <!-- Platform Setup Section -->
+    <div class="platform-tabs">
+      <h2>📱 Choose Your Platform</h2>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('windows')">Windows PC</button>
+        <button class="tab-btn" onclick="switchTab('android')">Android</button>
+        <button class="tab-btn" onclick="switchTab('ios')">iOS</button>
+      </div>
+      
+      <div id="windows" class="tab-content active">
+        <div class="platform-box">
+          <h3>🖥️ Windows Setup (BimmerUtility + ESys)</h3>
+          <ul>
+            <li><strong>Requirements:</strong> 64-bit Windows 10/11, ESys 3.38.2</li>
+            <li><strong>Hardware:</strong> ENET cable (Ethernet to OBD) or ENET WiFi adapter</li>
+            <li><strong>Setup:</strong>
+              <ol>
+                <li>Install ESys 3.38.2 on your Windows PC</li>
+                <li>Install BimmerUtility from <a href="https://www.bimmerutility.com" target="_blank">bimmerutility.com</a></li>
+                <li>Connect ENET cable to car's OBD port and PC's Ethernet port</li>
+                <li>Enable diagnostic mode (press start button 3x rapidly, foot off brake)</li>
+                <li>Open ESys, read NCD files from vehicle</li>
+                <li>BimmerUtility detects ESys read and opens for editing</li>
+                <li>Make changes in BimmerUtility, save, and code using ESys</li>
+              </ol>
+            </li>
+            <li><strong>Best For:</strong> Advanced coding, VO/FA coding, Launch Control, complex retrofits</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div id="android" class="tab-content">
+        <div class="platform-box">
+          <h3>📱 Android Setup (BimmerCode/BimmerUtility App)</h3>
+          <ul>
+            <li><strong>Requirements:</strong> Android 5.0 or higher</li>
+            <li><strong>Hardware Options:</strong>
+              <ul>
+                <li><strong>WiFi OBD Adapter</strong> (easiest) - connects wirelessly</li>
+                <li><strong>ENET Cable + Ethernet-to-USB adapter</strong> for Android</li>
+              </ul>
+            </li>
+            <li><strong>Apps Available:</strong>
+              <ol>
+                <li><strong>BimmerCode</strong> (Play Store) - Standard coding, user-friendly</li>
+                <li><strong>BimmerUtility</strong> (Play Store) - Expert mode, cheat codes</li>
+                <li><strong>Carly</strong> (alternative option)</li>
+              </ol>
+            </li>
+            <li><strong>Setup:</strong>
+              <ol>
+                <li>Install BimmerCode or BimmerUtility app from Play Store</li>
+                <li>Connect WiFi OBD adapter to car's OBD port</li>
+                <li>Enable diagnostic mode in car (press start 3x rapidly)</li>
+                <li>Connect Android device to OBD adapter's WiFi network</li>
+                <li>Open app and connect to vehicle</li>
+                <li>Select modules and make coding changes</li>
+              </ol>
+            </li>
+            <li><strong>Best For:</strong> Standard coding, quick changes, cheat codes</li>
+            <li><strong>Limitation:</strong> Cannot perform VO/FA coding (requires Windows + ESys)</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div id="ios" class="tab-content">
+        <div class="platform-box">
+          <h3>📱 iOS Setup (BimmerCode/BimmerUtility App)</h3>
+          <ul>
+            <li><strong>Requirements:</strong> iOS 12 or higher (iPhone/iPad)</li>
+            <li><strong>Hardware Options:</strong>
+              <ul>
+                <li><strong>WiFi OBD Adapter</strong> (recommended) - connects wirelessly</li>
+                <li><strong>ENET Cable + Lightning-to-Ethernet adapter</strong> for iOS</li>
+              </ul>
+            </li>
+            <li><strong>Apps Available:</strong>
+              <ol>
+                <li><strong>BimmerCode</strong> (App Store) - Standard coding interface</li>
+                <li><strong>BimmerUtility</strong> (App Store) - Advanced features</li>
+                <li><strong>BimmerLink</strong> (diagnostics companion)</li>
+              </ol>
+            </li>
+            <li><strong>Setup:</strong>
+              <ol>
+                <li>Download BimmerCode or BimmerUtility from App Store</li>
+                <li>Plug WiFi OBD adapter into car's OBD port</li>
+                <li>Enable diagnostic mode (press start button 3x rapidly)</li>
+                <li>Connect iPhone/iPad to OBD WiFi network in Settings</li>
+                <li>Open app, tap "Connect" and select your vehicle</li>
+                <li>Browse modules and apply coding changes</li>
+              </ol>
+            </li>
+            <li><strong>Best For:</strong> Standard coding, convenience, mobile coding</li>
+            <li><strong>Limitation:</strong> Cannot perform VO/FA coding (requires Windows + ESys)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <!-- Driving Dynamics -->
+      <div class="category">
+        <h2 class="category-title">⚡ Driving Dynamics</h2>
+        
+        <details>
+          <summary>Sport Plus Mode</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-info">
+              <strong>Info:</strong> Enables more aggressive driving profile beyond standard Sport mode.
+            </div>
+            <span class="module">BDC_BODY3</span>
+            <ul class="codes">
+              <li>Navigate to <code>3221-PfFesMaster</code></li>
+              <li>Set <code>FesSportWorldMode1</code> to <strong>SportExpert</strong></li>
+            </ul>
+            <span class="module">HU_MGU / HU_NBT_EVO</span>
+            <ul class="codes">
+              <li>Set <code>FES_SPORT_EXPERT</code> to <strong>Aktiv</strong></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Comfort Plus Mode</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-info">
+              <strong>Info:</strong> Enhanced comfort settings beyond standard Comfort mode.
+            </div>
+            <span class="module">BDC_BODY3</span>
+            <ul class="codes">
+              <li>Navigate to <code>3221-PfFesMaster</code></li>
+              <li>Set <code>FesComfortWorldMode1</code> to <strong>ComfortPlus</strong></li>
+            </ul>
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Set <code>FES_COMFORT_PLUS</code> to <strong>Aktiv</strong></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Sport Automatic Transmission (2TB) - Complete VO Coding</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-success">
+              <strong>Popular Feature:</strong> Faster, more aggressive gear shifts with enhanced throttle response. This is the FULL retrofit including Vehicle Order modification.
+            </div>
+            
+            <div class="alert alert-warning">
+              <strong>⚠️ IMPORTANT:</strong> This procedure requires <strong>Windows PC with ESys</strong>. Mobile apps (Android/iOS) cannot perform VO/FA coding. Standard automatic transmission code is <strong>205</strong>. Sport Automatic Transmission code is <strong>2TB</strong>.
+            </div>
+
+            <h4 style="margin: 1.5rem 0 1rem 0; color: var(--primary-dark);">📋 Prerequisites</h4>
+            <ul class="steps">
+              <li>Windows PC with ESys 3.38.2 or BimmerUtility</li>
+              <li>ENET cable connection</li>
+              <li>Paddle shifters on steering wheel (M Sport wheel or retrofit paddles)</li>
+              <li>Full battery charge or battery maintainer connected</li>
+            </ul>
+
+            <h4 style="margin: 1.5rem 0 1rem 0; color: var(--primary-dark);">🔧 Step-by-Step VO Coding Procedure</h4>
+            
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+              <p><span class="step-number">1</span><strong>Connect to Vehicle</strong></p>
+              <ul class="codes">
+                <li>Enable diagnostic mode (press start button 3x, foot off brake)</li>
+                <li>Open ESys and click the Connect icon at top</li>
+                <li>Select correct TargetSelector for G20 (e.g., G20, not G20_DIRECT)</li>
+                <li>Select "Connection via VIN" and press "Connect"</li>
+                <li>Click OK when connection is established</li>
+              </ul>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+              <p><span class="step-number">2</span><strong>Read Current Vehicle Order (FA)</strong></p>
+              <ul class="codes">
+                <li>Select "Expert Mode" in ESys</li>
+                <li>Click on the "Coding" tab</li>
+                <li>In Vehicle Order box, click "Read" button to display car's FA</li>
+                <li>Click "Save" button and save the original FA (e.g., "G20_FA_Original.xml")</li>
+                <li><strong>IMPORTANT:</strong> Keep this backup file safe for restoration</li>
+              </ul>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+              <p><span class="step-number">3</span><strong>Edit Vehicle Order</strong></p>
+              <ul class="codes">
+                <li>Click "Edit" button - view changes to FA-editor automatically</li>
+                <li>Expand FAList folder system on left until SALAPA-Element is visible</li>
+                <li>Click on SALAPA-Element to select it</li>
+                <li>View SALAPA-Elements in bottom window</li>
+                <li><strong>Delete option code 205</strong> (Standard Automatic Transmission)</li>
+                <li><strong>Add option code 2TB</strong> (Sport Automatic Transmission)</li>
+                <li>Syntax: alpha-numeric with commas only, no spaces, in alphabetical order</li>
+                <li>Click "Save Changes" icon at upper right corner of lower window</li>
+              </ul>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+              <p><span class="step-number">4</span><strong>Calculate & Verify FA</strong></p>
+              <ul class="codes">
+                <li>Right-click on FA and select "Calculate FP"</li>
+                <li>If FA has errors, an error popup will appear - fix before continuing</li>
+                <li>After FP is calculated WITHOUT ERRORS, save the new FA</li>
+                <li>Save file with descriptive name (e.g., "G20_FA_2TB_Modified.xml")</li>
+              </ul>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+              <p><span class="step-number">5</span><strong>Write FA to Vehicle</strong></p>
+              <ul class="codes">
+                <li>Select "Expert Mode" (if not already selected)</li>
+                <li>Click on "VCM" tab</li>
+                <li>Select "VCM Master" tab</li>
+                <li>Click "Write FA FP" button to write new FA to car</li>
+                <li>Wait for process to complete</li>
+              </ul>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+              <p><span class="step-number">6</span><strong>Activate FA & Code Modules</strong></p>
+              <ul class="codes">
+                <li>Return to "Coding" tab in Expert Mode</li>
+                <li>Click "Read" to read the modified FA/VO from vehicle</li>
+                <li>Click "Activate FA (VO)" button - this is critical!</li>
+                <li>Read SVT from vehicle</li>
+                <li><strong>VO Code the following modules:</strong>
+                  <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li><strong>BDC_BODY2</strong> (or BDC2_Body)</li>
+                    <li><strong>EGS</strong> (Electronic Gearbox System)</li>
+                    <li><strong>DSC3</strong> (Dynamic Stability Control)</li>
+                    <li><strong>DKOMBI2</strong> (Instrument Cluster)</li>
+                  </ul>
+                </li>
+                <li>For each module: Right-click on ECU → Select "CODE"</li>
+                <li>Wait for each module to complete coding</li>
+              </ul>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+              <p><span class="step-number">7</span><strong>FDL Coding (Module Parameters)</strong></p>
+              <span class="module">BDC_BODY (or BDC2_Body)</span>
+              <ul class="codes">
+                <li>Navigate to <code>PADDLES_VERBAUT</code></li>
+                <li>Change from <strong>"nicht_aktiv"</strong> to <strong>"aktiv"</strong></li>
+                <li>Note: If you don't have paddle shifters, set to <strong>"nicht_aktiv"</strong> (feature works without paddles)</li>
+              </ul>
+              
+              <span class="module">EGS (Electronic Gearbox System)</span>
+              <ul class="codes">
+                <li>Navigate to <code>Sport T/M</code> or <code>Sportschalter</code></li>
+                <li>Change from <strong>"disabled"</strong> to <strong>"enabled"</strong></li>
+                <li>Or change to <strong>"aktiv [01]"</strong> depending on your software version</li>
+              </ul>
+            </div>
+
+            <div class="alert alert-success">
+              <strong>✅ Results After Coding:</strong>
+              <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li>Instrument cluster displays S1, S2, S3 gears in Sport mode</li>
+                <li>Faster, more aggressive gear shifts at higher RPMs</li>
+                <li>Enhanced throttle response</li>
+                <li>More pronounced downshifts</li>
+                <li>Paddle shifters become functional (if equipped)</li>
+                <li>Launch Control compatibility enabled (requires separate LC coding)</li>
+              </ul>
+            </div>
+
+            <div class="alert alert-info">
+              <strong>💡 Alternative: Simple Coding (Without VO Modification)</strong><br>
+              If you already have paddle shifters and just want to enable sport transmission behavior without modifying the VO:
+              <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li>Use BimmerCode app (any platform) → Transmission module → Enable "Sport Automatic Transmission"</li>
+                <li>Or use BimmerUtility/ESys FDL coding in BDC_BODY and EGS modules as described in Step 7</li>
+                <li>This method doesn't add 2TB to your vehicle order but provides similar functionality</li>
+              </ul>
+            </div>
+
+            <div class="alert alert-danger">
+              <strong>⚠️ Critical Warnings:</strong>
+              <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li><strong>DO NOT</strong> right-click and select CODE on all ECUs at once - this will recode your entire car</li>
+                <li>Only code the specific modules listed (BDC_BODY2, EGS, DSC3, DKOMBI2)</li>
+                <li>Always save original FA backup before modification</li>
+                <li>Modifying VO/FA alone does nothing - you MUST code affected modules</li>
+                <li>Ensure battery is fully charged throughout the process</li>
+                <li>Do not disconnect power during coding process</li>
+              </ul>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Launch Control (Advanced - ESys Required)</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-warning">
+              <strong>Advanced Feature:</strong> Requires ESys/BimmerUtility on Windows. Cannot be coded with BimmerCode mobile apps.
+            </div>
+            <p style="margin: 1rem 0;"><strong>Prerequisites:</strong></p>
+            <ul class="steps">
+              <li>Sport Automatic Transmission (2TB) must be coded first</li>
+              <li>Vehicle must have appropriate hardware support</li>
+              <li>Check iDrive help menu for "Launch" keyword to verify compatibility</li>
+            </ul>
+            <span class="module">ESys / BimmerUtility (Windows Only)</span>
+            <ul class="codes">
+              <li>Complete the 2TB VO coding procedure above</li>
+              <li>Ensure option code <strong>2TB</strong> is in vehicle FA</li>
+              <li>Code <strong>EGS</strong> (Electronic Gearbox System) module</li>
+              <li>Drive vehicle for <strong>6 miles (10km)</strong> to initialize system</li>
+            </ul>
+            <div class="alert alert-info">
+              <strong>How to Use Launch Control:</strong>
+              <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li>Put car in Sport mode (NOT Sport+)</li>
+                <li>Shift to Manual mode (push shifter left)</li>
+                <li>Enable DSC Sport or MDM mode</li>
+                <li>Press brake pedal fully to floor</li>
+                <li>Press accelerator pedal fully to floor</li>
+                <li>Launch control flags appear on instrument cluster</li>
+                <li>Release brake to launch</li>
+              </ol>
+            </div>
+            <div class="alert alert-warning">
+              <strong>Note:</strong> May require 6 miles of driving between launches. Puts significant strain on drivetrain.
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Auto Start-Stop Memory</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-info">
+              <strong>Info:</strong> Vehicle remembers your last Auto Start-Stop setting.
+            </div>
+            <span class="module">DME_BACK2 (DME)</span>
+            <ul class="codes">
+              <li>Set <code>TCM_MSA_Memory</code> to <strong>Verbaut</strong></li>
+            </ul>
+            <div class="alert alert-warning">
+              <strong>Warning:</strong> Do not code while engine is running.
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Adaptive Mode as Default</summary>
+          <div class="content-wrapper">
+            <span class="module">BDC_BODY3</span>
+            <ul class="codes">
+              <li>Use standard coding to set Adaptive mode as default startup mode</li>
+              <li>Check "Driving Modes" section in iDrive menu coding</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <!-- Dashboard & Display -->
+      <div class="category">
+        <h2 class="category-title">📊 Dashboard & Display</h2>
+        
+        <details>
+          <summary>Instrument Cluster Layouts</summary>
+          <div class="content-wrapper">
+            <span class="module">DKOMBI4</span>
+            <ul class="codes">
+              <li>Access <code>GLOBAL_LAYOUT_VARIANTE</code></li>
+              <li>Choose from: <strong>Standard, ALPINA, M, M Performance (160/200 mph), M Sport</strong></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Dashboard Logos</summary>
+          <div class="content-wrapper">
+            <span class="module">DKOMBI4</span>
+            <ul class="codes">
+              <li>Access <code>LOGO_SCHRIFTZUG</code></li>
+              <li>Options: <strong>135i, 140i, 235i, 240i, 340i, 50d, 550d, PHEV, X2 M40i</strong></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>M Startup Animation</summary>
+          <div class="content-wrapper">
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Enable M startup animation in iDrive display through standard mode</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Assisted Driving View</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-info">
+              <strong>Note:</strong> For vehicles manufactured before July 2019.
+            </div>
+            <span class="module">DKOMBI4</span>
+            <ul class="codes">
+              <li>Activate <code>CB_FZG_UMGEBUNG_FAS</code></li>
+              <li>Activate <code>CB_PRESELECT_NAVI_ANSICHT_FZG_UMGEBUNG</code></li>
+              <li>Activate <code>PIA_FZG_UMGEBUNG_FAS</code></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Digital Speed Refresh Rate</summary>
+          <div class="content-wrapper">
+            <ul class="codes">
+              <li>Increase digital speedometer refresh rate from 2fps to 5fps</li>
+              <li>Use standard coding</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <!-- Lighting & Visibility -->
+      <div class="category">
+        <h2 class="category-title">💡 Lighting & Visibility</h2>
+        
+        <details>
+          <summary>Daytime Running Lights (DRL) - Rear Activation</summary>
+          <div class="content-wrapper">
+            <span class="module">BDC_BODY3</span>
+            <ul class="codes">
+              <li>Navigate to <code>3702-LicFeatures</code></li>
+              <li>Set <code>Feature_4</code> to <strong>Aktiv</strong></li>
+            </ul>
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Activate <code>DAYDRIVING_LIGHT_REAR</code></li>
+              <li>Activate <code>DAYDRIVING_LIGHT_FRONT</code></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Cornering Lights Enhancement</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-info">
+              <strong>Info:</strong> Enable cornering lights even when high beams are active.
+            </div>
+            <span class="module">FEM</span>
+            <ul class="codes">
+              <li>Change <code>C_CLC_HIGHBEAM_DIS</code> from "disable (0x01)" to <strong>ENABLE (0x00)</strong></li>
+              <li>Adjust <code>C_CLC_BLINK_V0</code> from 0x30 to <strong>0x40</strong> (activates at 40 mph)</li>
+              <li>Adjust <code>C_CLC_BLINK_V1</code> from 0x38 to <strong>0x48</strong> (45 mph)</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Ambient Lighting Custom Colors</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-warning">
+              <strong>Advanced:</strong> Requires byte-level hex editing. Proceed with caution.
+            </div>
+            <span class="module">BDC_BODY3</span>
+            <ul class="codes">
+              <li>Navigate to <code>360A LicLciColorLibrary</code></li>
+              <li>Modify <code>LIC_LCI_COLOR_LIBRARY_DATA</code> hex values</li>
+              <li>Can add custom colors like red and blue</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Side Marker Delete</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-info">
+              <strong>Popular Mod:</strong> Remove amber side marker lights. Different process for Pre-LCI vs LCI models.
+            </div>
+            <span class="module">FLM2, FRM2 (Pre-LCI 2019-2022)</span>
+            <ul class="codes">
+              <li>Set <code>LM03_DUTY_CYCLE_BINNING_CLASS 0-4</code> to <strong>Wert_2 (00)</strong></li>
+              <li>Apply to both FLM2 (Front Left) and FRM2 (Front Right)</li>
+            </ul>
+            <span class="module">FLM, FRM (LCI 2023+)</span>
+            <ul class="codes">
+              <li>Set <code>LM11_DUTY_CYCLE_BINNING_CLASS 0-4</code> to <strong>Wert_2 (00)</strong></li>
+              <li>Apply to both FLM and FRM modules</li>
+            </ul>
+            <div class="alert alert-warning">
+              <strong>Alternative VO Coding:</strong> Change body code from 5U93 (US) to 5U91 (EU), activate FA, and code FLM modules. May affect headlight pattern.
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Anti-Dazzle / High Beam Assistant</summary>
+          <div class="content-wrapper">
+            <span class="module">FLM</span>
+            <ul class="codes">
+              <li>Enable automatic high beam control with selective dimming</li>
+              <li>Code through FLM modules in expert mode</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Display Dimming Fix for Tinted Windows</summary>
+          <div class="content-wrapper">
+            <span class="module">HU (Head Unit) - APIX_CID_UND_ZIN</span>
+            <ul class="codes">
+              <li>In section <code>3005</code>, change <code>DIM_CURVE_X2</code> values to <strong>0x00, 0x00</strong> (from 0x1F, 0xC0)</li>
+            </ul>
+            <span class="module">DKOMBI4 (Instrument Cluster)</span>
+            <ul class="codes">
+              <li>Enable <code>DIM_TAG_NACHT_LICHT_EIN_ENABLE</code></li>
+              <li>Adjust <code>DIM_DTN</code> to <strong>0x5F</strong></li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <!-- Interior Comfort -->
+      <div class="category">
+        <h2 class="category-title">🛋️ Interior Comfort</h2>
+        
+        <details>
+          <summary>Auto Steering Wheel Heating</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-success">
+              <strong>Popular:</strong> Automatic steering wheel heating based on ambient temperature.
+            </div>
+            <span class="module">HU_MGU / HU_NBT_EVO</span>
+            <ul class="codes">
+              <li>Set <code>AKT_Auto_Lenkrad</code> to <strong>Aktiv</strong></li>
+            </ul>
+            <span class="module">BDC_BODY3</span>
+            <ul class="codes">
+              <li>Activate <code>LHZ_CCM_IKF</code></li>
+              <li>Set <code>IKF_ENABLE</code> to <strong>IKF_ALLE_SIZE</strong></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Seat Heating/Cooling Memory Extension</summary>
+          <div class="content-wrapper">
+            <ul class="codes">
+              <li>Extend seat heating/cooling memory from 15 minutes to 24 hours</li>
+              <li>Use standard coding</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Wireless Charging Activation</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-info">
+              <strong>Note:</strong> Only works if wireless charging hardware is installed.
+            </div>
+            <span class="module">BDC_BODY3</span>
+            <ul class="codes">
+              <li>Navigate to <code>WcaWirelessChargingAblage</code></li>
+              <li>Set <code>WCA_ENABLE</code> to <strong>Aktiv</strong></li>
+            </ul>
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Activate <code>WCA</code> in section <code>3000 HMI_SPEECH</code></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Climate Control Memory</summary>
+          <div class="content-wrapper">
+            <span class="module">DME</span>
+            <ul class="codes">
+              <li>Enable AC to remember last settings</li>
+              <li>Enable auto settings to function in manual mode</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Seatbelt Reminder Disable</summary>
+          <div class="content-wrapper">
+            <span class="module">ACSM (Advanced Crash Module)</span>
+            <ul class="codes">
+              <li>Disable initial seatbelt reminder chimes for driver and/or passenger</li>
+              <li>Use standard mode</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <!-- Convenience Features -->
+      <div class="category">
+        <h2 class="category-title">🔧 Convenience Features</h2>
+        
+        <details>
+          <summary>5-Blink Turn Signal</summary>
+          <div class="content-wrapper">
+            <ul class="codes">
+              <li>Change turn signal from 3 blinks to 5 blinks</li>
+              <li>Use standard coding</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Window Lifter Interruption Disable</summary>
+          <div class="content-wrapper">
+            <span class="module">BDC</span>
+            <ul class="codes">
+              <li>Disable feature that stops window operation when doors open</li>
+              <li>Use standard coding</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Mirror Tilt in Reverse</summary>
+          <div class="content-wrapper">
+            <ul class="codes">
+              <li>Adjust passenger mirror auto-tilt angle from 70° to 50° when in reverse</li>
+              <li>Or disable the feature entirely</li>
+              <li>Use standard coding</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Trunk Opening Delay Reduction</summary>
+          <div class="content-wrapper">
+            <span class="module">BDC</span>
+            <ul class="codes">
+              <li>Reduce trunk/boot opening delay to 1 second</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Horn When Locking Disable</summary>
+          <div class="content-wrapper">
+            <span class="module">BDC</span>
+            <ul class="codes">
+              <li>Disable horn sound when locking car with engine running</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Moonroof Rain Auto-Close</summary>
+          <div class="content-wrapper">
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Change <code>HU_MGU_REGEN_SCHKIESSEN</code> to <strong>AKTIV</strong></li>
+            </ul>
+            <span class="module">Sunroof ECU</span>
+            <ul class="codes">
+              <li>Activate <code>REGENAKTIV</code></li>
+              <li>Activate <code>REGENAKTIV_ROBUST</code></li>
+              <li>Set <code>REGENPOSITION</code> to <strong>GESCHLOSSEN</strong></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Tailgate Remote Control</summary>
+          <div class="content-wrapper">
+            <span class="module">HKFM (Powertailgate Module)</span>
+            <ul class="codes">
+              <li>Enable trunk closing without long press on remote</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <!-- Camera & Safety -->
+      <div class="category">
+        <h2 class="category-title">📹 Camera & Safety</h2>
+        
+        <details>
+          <summary>Video in Motion</summary>
+          <div class="content-wrapper">
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Enable video playback while vehicle is in motion</li>
+              <li>Use standard coding</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Rear Camera Zoom (Towbar Mode)</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-info">
+              <strong>Useful for:</strong> Trailer coupling and towing.
+            </div>
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Navigate to <code>300B PARKEN</code></li>
+              <li>Set <code>MACRO_TRAILER_COUPLING</code> to <strong>Aktiv</strong></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Camera Legal Disclaimers Removal</summary>
+          <div class="content-wrapper">
+            <span class="module">HU</span>
+            <ul class="codes">
+              <li>Change <code>MACRO_CAM_LEGALDISCLAIMER</code> from "ID_MIT_TIMEOUT" to <strong>KEIN_ID</strong></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Rear View Camera Settings</summary>
+          <div class="content-wrapper">
+            <span class="module">ACSM</span>
+            <ul class="codes">
+              <li>Adjust rear camera activation speed to 50km/h</li>
+              <li>Adjust activation distance to 50m</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Hazard Braking</summary>
+          <div class="content-wrapper">
+            <span class="module">Standard Coding</span>
+            <ul class="codes">
+              <li>Set hazard light activation during emergency braking to <strong>Active</strong></li>
+            </ul>
+            <span class="module">Expert Mode</span>
+            <ul class="codes">
+              <li>Change <code>GEFAHRENBREMSLICHT_TYP</code> from "NICHT_AKTIV" to <strong>BREMSLICHT_BLINKEND</strong></li>
+              <li>Enables blinking tail lights during hard braking</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Brake Force Display</summary>
+          <div class="content-wrapper">
+            <ul class="codes">
+              <li>Adjust activation speed from 5km/h to 40km/h</li>
+              <li>Use standard coding</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <!-- Audio System -->
+      <div class="category">
+        <h2 class="category-title">🔊 Audio System</h2>
+        
+        <details>
+          <summary>Bowers & Wilkins Enhancement</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-success">
+              <strong>Popular Mod:</strong> Unlock advanced B&W audio settings and equalizer.
+            </div>
+            <div class="alert alert-warning">
+              <strong>Note:</strong> Effective only if you have Harman Kardon or B&W sound systems installed.
+            </div>
+            <span class="module">HU_MGU / HU_NBT_EVO</span>
+            <ul class="codes">
+              <li>Navigate to <code>3002 Audio Broadcast</code></li>
+              <li>Change <strong>Audio System</strong> from <strong>Alev3-Ram</strong> to <strong>Alev4-Ram</strong></li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Radio Startup Volume</summary>
+          <div class="content-wrapper">
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Set radio to start at 50% volume through standard coding</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Engine Sound Configuration</summary>
+          <div class="content-wrapper">
+            <span class="module">HU</span>
+            <ul class="codes">
+              <li>Change <code>Display_Configurability_Engine_sound</code> to <strong>AKTIV</strong></li>
+              <li>Change <code>Display_Menu_Configuration_Sound</code> to <strong>AKTIV</strong></li>
+              <li>Opens exhaust flap position configuration in iDrive menu</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <!-- Advanced Driver Assistance -->
+      <div class="category">
+        <h2 class="category-title">🤖 Advanced Driver Assistance</h2>
+        
+        <details>
+          <summary>Lane Change Assistant</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-warning">
+              <strong>Advanced:</strong> Requires coding across multiple modules.
+            </div>
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Set <code>SPURWECHSELASSISTENT</code> to <strong>Aktiv</strong></li>
+            </ul>
+            <span class="module">BDC_BODY3</span>
+            <ul class="codes">
+              <li>Set <code>SPURWECHSEL_ASSISTENT</code> to <strong>gen_1</strong></li>
+            </ul>
+            <span class="module">SAS2</span>
+            <ul class="codes">
+              <li>Change <code>C_SWA_VORHANDEN</code> from "initwert" to <strong>NR001_VORHANDEN</strong></li>
+            </ul>
+            <div class="alert alert-info">
+              <strong>Troubleshooting:</strong> VIP module may require multiple coding attempts (3-4 tries).
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Traffic Light Assistant (TLA)</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-warning">
+              <strong>Region Specific:</strong> Primarily works in EU regions. Requires navigation map data with traffic light information.
+            </div>
+            <span class="module">SAS3, DSC_VIP, HU_MGU, KAFAS_VO</span>
+            <ul class="codes">
+              <li>Coding required in all four modules</li>
+              <li>Verify "Land Mask" values are set to <strong>FF,FF,FF,FF</strong></li>
+              <li>Ensure navigation maps contain traffic light data</li>
+            </ul>
+            <div class="alert alert-info">
+              <strong>Features:</strong> Consider traffic lights, consider stop signs, resume at green light, display traffic light phases.
+            </div>
+            <div class="alert alert-warning">
+              <strong>Note:</strong> May not work reliably in North America due to different traffic light placement standards.
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Auto Speed Limit Assist (aSLA)</summary>
+          <div class="content-wrapper">
+            <span class="module">SAS3, HU_MGU</span>
+            <ul class="codes">
+              <li>Enable automatic or manual speed adjustment based on detected speed limits</li>
+              <li>Configure speed anticipation display</li>
+              <li>Add Speed Limit Information (SLI) for additional countries</li>
+            </ul>
+            <div class="alert alert-info">
+              <strong>Works with:</strong> ACC (Adaptive Cruise Control) for automatic speed adjustments.
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Highway Exit Assistant</summary>
+          <div class="content-wrapper">
+            <span class="module">HU, Assistance Modules</span>
+            <ul class="codes">
+              <li>Enable highway exit assistance through multi-module coding</li>
+              <li>May require specific hardware and software versions</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Emergency Corridor Function</summary>
+          <div class="content-wrapper">
+            <div class="alert alert-info">
+              <strong>Region Dependent:</strong> Works in some European countries. Functionality varies by location.
+            </div>
+            <ul class="codes">
+              <li>Activate emergency corridor creation assistance</li>
+              <li>Helps create space for emergency vehicles on highways</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Speed Limit Cushion</summary>
+          <div class="content-wrapper">
+            <span class="module">HU, BDC</span>
+            <ul class="codes">
+              <li>Enable configurable speed limit offset (+/- 5 mph cushion)</li>
+              <li>Change <code>VOFFSET</code> from "nicht_aktiv" to <strong>GEN_2</strong></li>
+              <li>Change <code>VOFFSET_LANGSAM</code> from "nicht_aktiv" to <strong>GEN_2</strong></li>
+              <li>Apply in both HU and BDC modules</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Light/Rain Sensor Sensitivity</summary>
+          <div class="content-wrapper">
+            <span class="module">BDC</span>
+            <ul class="codes">
+              <li>Adjust light and rain sensor sensitivity settings</li>
+              <li>Use standard mode</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <!-- Display Settings -->
+      <div class="category">
+        <h2 class="category-title">🖥️ Display Settings</h2>
+        
+        <details>
+          <summary>Legal Disclaimers Removal</summary>
+          <div class="content-wrapper">
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Change <code>LEGAL_DISCLAIMER_TIME</code> from "Ld_mit_timeout" to <strong>KEIN_LD</strong></li>
+              <li>Removes startup legal disclaimer messages</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Tire Pressure & Temperature Display</summary>
+          <div class="content-wrapper">
+            <span class="module">HU_MGU</span>
+            <ul class="codes">
+              <li>Enable both tire pressure and temperature to display simultaneously</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Front DRL Checkbox</summary>
+          <div class="content-wrapper">
+            <span class="module">HU</span>
+            <ul class="codes">
+              <li>Add front DRL activation checkbox in iDrive settings</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer>
+      <h2>📚 Important Information & Resources</h2>
+      
+      <div class="alert alert-warning">
+        <strong>⚠️ Backup & Restore:</strong> BimmerUtility/BimmerCode automatically creates backups before coding. Keep external backups of NCD files and FA/VO files, especially before BMW software updates. All coding is performed at your own risk.
+      </div>
+
+      <div class="alert alert-info">
+        <strong>🔄 After BMW Updates:</strong> Software updates (OTA or dealer) may reset coded features. Keep a list of applied codes and recode after updates. VO/FA modifications typically persist through updates but FDL coding may reset.
+      </div>
+
+      <h3>Compatibility Notes</h3>
+      <ul class="steps">
+        <li><strong>Hardware Required:</strong> Features only work if necessary hardware modules are installed in your vehicle</li>
+        <li><strong>Software Version:</strong> Some features require specific iStep/software versions</li>
+        <li><strong>Regional Restrictions:</strong> ADAS features may have region locks. Functionality depends on local infrastructure and navigation map data</li>
+        <li><strong>VIP Module:</strong> May require vehicle in diagnostic mode, engine OFF, and multiple coding attempts (3-4 tries)</li>
+        <li><strong>Module Limitations:</strong> Secure Coding 2.0 control units cannot be accessed by any current FDL coding tools</li>
+        <li><strong>Paddle Shifters:</strong> M Sport steering wheel recommended for 2TB coding. Standard sport wheel doesn't support clean paddle retrofit</li>
+      </ul>
+
+      <h3>Support & Community</h3>
+      <ul class="steps">
+        <li><strong>Official Website:</strong> <a href="https://www.bimmerutility.com" target="_blank">www.bimmerutility.com</a></li>
+        <li><strong>BimmerCode:</strong> <a href="https://bimmercode.app" target="_blank">bimmercode.app</a></li>
+        <li><strong>Facebook Group:</strong> <a href="https://www.facebook.com/groups/339844241982359/" target="_blank">BimmerUtility Owner Coding Group</a></li>
+        <li><strong>Pricing:</strong> BimmerUtility - $100 lifetime license with free updates | BimmerCode - Check App Store/Play Store</li>
+        <li><strong>Community Resources:</strong> Download XML cheat codes from Facebook group for complex multi-module operations</li>
+      </ul>
+
+      <h3>Supported Vehicles</h3>
+      <ul class="steps">
+        <li><strong>BimmerUtility:</strong> F, G, and I series BMW/MINI, motorcycles, Toyota Supra</li>
+        <li><strong>Platforms:</strong> Windows (64-bit, no VMs), iOS 12+, Android 5.0+</li>
+        <li><strong>Connection:</strong> ENET cable or ENET WiFi adapter required (no Bluetooth for coding)</li>
+        <li><strong>VO/FA Coding:</strong> Only available on Windows with ESys or BimmerUtility. Mobile apps cannot perform VO coding</li>
+      </ul>
+
+      <div class="alert alert-success">
+        <strong>✅ Pro Tips:</strong>
+        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+          <li>Always enable diagnostic mode before coding (press start button 3x rapidly, foot off brake)</li>
+          <li>Ensure battery is fully charged or use battery maintainer during coding</li>
+          <li>Start with simple mods before attempting complex multi-module or VO/FA coding</li>
+          <li>Join community forums to learn from others' experiences</li>
+          <li>Document all your coding changes for easy restoration</li>
+          <li>For 2TB coding: Save original FA backup with clear naming convention</li>
+          <li>Test drive after coding 2TB - transmission may need 6 miles to fully adapt</li>
+          <li>Never code all ECUs at once - only code modules relevant to your changes</li>
+        </ul>
+      </div>
+
+      <div class="alert alert-danger">
+        <strong>⚠️ Critical Safety Warnings:</strong>
+        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+          <li>Always keep original FA/VO backup files in multiple locations</li>
+          <li>Do not interrupt power during coding operations</li>
+          <li>VO/FA modifications without module coding have NO effect</li>
+          <li>Some coding changes may affect vehicle warranty - check with dealer</li>
+          <li>Incorrect VO coding can brick modules - use verified procedures only</li>
+        </ul>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function switchTab(platform) {
+      // Hide all tabs
+      const tabs = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      
+      // Remove active class from all buttons
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      
+      // Show selected tab
+      document.getElementById(platform).classList.add('active');
+      
+      // Add active class to clicked button
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>
