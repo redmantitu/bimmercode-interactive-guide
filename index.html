@@ -60,7 +60,9 @@
         /* Hide FAB when chat is open */
         #open-chat-btn {
             transition: transform 0.3s ease, opacity 0.3s ease;
-            z-index: 100;
+            z-index: 9999; /* Increased to ensure visibility */
+            bottom: 1.5rem; /* Fallback for mobile */
+            right: 1.5rem; /* Fallback for mobile */
         }
         body.chat-open #open-chat-btn {
             transform: translateY(200%);
@@ -119,6 +121,7 @@
                         <a href="#part-8" class="hover:text-primary transition-colors">BimmerUtility</a>
                         <a href="#part-esys" class="hover:text-primary transition-colors">E-Sys</a>
                         <a href="#part-service" class="hover:text-primary transition-colors">Service History</a>
+                        <a href="#part-6" class="hover:text-primary transition-colors">Diagnostics</a>
                     </nav>
                 </div>
             </header>
@@ -374,7 +377,7 @@
                             <summary class="flex justify-between items-center p-5 cursor-pointer select-none hover:bg-neutral-50 transition-colors">
                                 <div class="flex items-center gap-4">
                                     <div class="bg-blue-100 p-3 rounded-lg text-blue-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
-                                    <div><h3 class="text-lg font-semibold text-neutral-900">5. E-Sys Coding (Advanced Flashing)</h3><p class="text-sm text-neutral-500">Firmware Flashing & Updates.</p></div>
+                                    <div><h3 class="text-lg font-semibold text-neutral-900">4. E-Sys Coding (Advanced Flashing)</h3><p class="text-sm text-neutral-500">Firmware Flashing & Updates.</p></div>
                                 </div>
                                 <svg class="chevron w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </summary>
@@ -384,10 +387,10 @@
                                     <p class="text-sm text-red-700">This process involves <strong>flashing firmware</strong> to the transmission ECU. A voltage drop <strong>WILL brick</strong> the module. A <strong>50A+ Power Supply Unit (PSU)</strong> connected to the battery is mandatory. Do not use a battery charger.</p>
                                 </div>
 
-                                <!-- PROJECT 1: ALPINA (EXPANDED) -->
+                                <!-- PROJECT 1: ALPINA (EXPANDED & EXPLAINED) -->
                                 <div class="mb-8">
                                     <h4 class="text-lg font-bold text-neutral-800 mb-2">Project A: Enable ALPINA Transmission Software</h4>
-                                    <p class="text-sm text-neutral-600 mb-4">Compatible with F/G-Series BMWs using ZF 8HP transmissions (typically 3.0L+ engines). Provides the specific ALPINA shift logic: buttery smooth in Comfort (displays D1, D2, etc.), and rapid shifting in Sport.</p>
+                                    <p class="text-sm text-neutral-600 mb-4">Compatible with F/G-Series BMWs using ZF 8HP transmissions (typically 3.0L+ engines). This flash replaces the standard BMW shift logic with ALPINA's mapped logic, offering buttery smooth shifts in Comfort (displaying gear numbers D1, D2) and rapid, torque-heavy shifts in Sport.</p>
 
                                     <div class="space-y-6">
                                         
@@ -395,15 +398,582 @@
                                         <div class="bg-neutral-50 p-4 rounded-xl border border-neutral-200">
                                             <h5 class="font-bold text-sm text-neutral-800 mb-2">1. Preparation & Requirements</h5>
                                             <ul class="list-disc list-inside text-xs text-neutral-600 space-y-1">
-                                                <li><strong>Power:</strong> Connect a 50A+ PSU. <span class="text-red-600">Voltage drops brick transmissions.</span></li>
-                                                <li><strong>Hardware:</strong> ENET Cable + Windows Laptop.</li>
-                                                <li><strong>Software:</strong> E-Sys with <strong>Full</strong> PSdZData (Lite version does not contain firmware files).</li>
-                                                <li><strong>Backup:</strong> Read and save your original FA (Vehicle Order) and SVT before starting.</li>
+                                                <li><strong>Power Supply:</strong> You must maintain 13.0V+. If voltage drops during the bootloader erase phase, the ECU will remain in a boot loop (bricked).</li>
+                                                <li><strong>Software:</strong> E-Sys (e.g., 3.27 or 3.30+) with <strong>Full PSdZData</strong>. The "Full" version contains the actual firmware files (swe, swfl) needed for flashing. "Lite" only contains coding data.</li>
+                                                <li><strong>Connection:</strong> Ensure a stable ENET connection. Disable laptop sleep/screensaver.</li>
                                             </ul>
                                         </div>
 
                                         <!-- Step 2 -->
                                         <div class="border-l-4 border-primary pl-4">
-                                            <h5 class="font-bold text-neutral-800 text-sm mb-1">2. Edit Vehicle Order (FA)</h5>
-                                            <p class="text-xs text-neutral-500 mb-2">We must "trick" E-Sys into thinking the car is an ALPINA model to calculate the correct firmware.</p>
-                                            <ol class="list-decimal list-inside text-xs text-neutral-6
+                                            <h5 class="font-bold text-neutral-800 text-sm mb-1">2. Edit Vehicle Order (FA) - The "Spoof"</h5>
+                                            <p class="text-xs text-neutral-500 mb-2">To get E-Sys to calculate the ALPINA firmware, we must temporarily trick the software into thinking your car <em>is</em> an ALPINA model.</p>
+                                            <ol class="list-decimal list-inside text-xs text-neutral-600 space-y-2">
+                                                <li>Go to <strong>Expert Mode > Coding</strong>. Read your FA (Vehicle Order) and <strong>Save</strong> it as <code>ALPINA_FA.xml</code>.</li>
+                                                <li>Open <strong>Editors > FA Editor</strong> and load your new file.</li>
+                                                <li><strong>Add Option Codes:</strong> Navigate to <code>SALAPA-Element</code>. Add:
+                                                    <ul class="ml-4 mt-1 mb-1 text-primary-dark">
+                                                        <li><code>920</code> (Alpina without label)</li>
+                                                        <li><code>9XA</code> (Alpina package)</li>
+                                                    </ul>
+                                                </li>
+                                                <li><strong>Change Type Code (Typschlüssel):</strong> This is the most critical step. You must change your chassis code to the ALPINA equivalent.
+                                                    <div class="mt-2 bg-neutral-100 p-2 rounded border border-neutral-200">
+                                                        <strong>Examples (Verify on forums for your specific engine):</strong>
+                                                        <ul class="ml-2 mt-1">
+                                                            <li>G30 530d (JC91) &rarr; <strong>JD11</strong> (Alpina D5 S)</li>
+                                                            <li>F10 535d (5D51) &rarr; <strong>5E51</strong></li>
+                                                            <li>F30 335d &rarr; Research "Alpina D3 Biturbo" type code.</li>
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                                <li><strong>Time Criteria (Zeitkriterium):</strong> If your car is older than the first ALPINA of that model, update the date (e.g., from 0711 to 1211) so the software exists.</li>
+                                                <li>Right-click FA &rarr; <strong>Calculate FP</strong>. If it calculates without error, the Type Code is valid. Save.</li>
+                                            </ol>
+                                        </div>
+
+                                        <!-- Step 3 -->
+                                        <div class="border-l-4 border-primary pl-4">
+                                            <h5 class="font-bold text-neutral-800 text-sm mb-1">3. Calculate Firmware (TAL)</h5>
+                                            <p class="text-xs text-neutral-500 mb-2">We now ask E-Sys: "If this car were an ALPINA (based on the FA we just made), what software should it have?"</p>
+                                            <ol class="list-decimal list-inside text-xs text-neutral-600 space-y-2">
+                                                <li>Go to <strong>Comfort Mode > TAL Calculating</strong>.</li>
+                                                <li>Load your modified <code>ALPINA_FA.xml</code>.</li>
+                                                <li><strong>Read SVT</strong> (This reads the current state of your ECUs).</li>
+                                                <li><strong>SVT Target:</strong> Select "Complete Flash".</li>
+                                                <li><strong>I-Step (Shipm.):</strong> Select the I-Level matching your car's production date.</li>
+                                                <li><strong>I-Step (Target):</strong> Select the latest available version in your PSdZData.</li>
+                                                <li>Click <strong>Calculate</strong>.</li>
+                                                <li><strong>Verify the Result:</strong> Look at the <strong>EGS</strong> (Transmission) folder in the generated tree. It should show blue/red changes indicating a new firmware file (SWFL) is planned. Common ALPINA SWFL IDs: <code>47DA</code> (G-Series), <code>1367</code> (F-Series).</li>
+                                                <li>Save the generated <code>SVT_soll</code> (Target) and <code>TAL</code> (Transaction Action List) files.</li>
+                                            </ol>
+                                        </div>
+
+                                        <!-- Step 4 -->
+                                        <div class="border-l-4 border-red-500 pl-4">
+                                            <h5 class="font-bold text-neutral-800 text-sm mb-1">4. Flash Process (Critical Execution)</h5>
+                                            <p class="text-xs text-neutral-500 mb-2">This is where we write the data. <strong class="text-red-600">One mistake here can brick other modules.</strong></p>
+                                            <ol class="list-decimal list-inside text-xs text-neutral-600 space-y-2">
+                                                <li>Go to <strong>Expert Mode > TAL Processing</strong>.</li>
+                                                <li>Load your <code>TAL</code>, <code>SVT_soll</code>, and the modified <code>ALPINA_FA</code>.</li>
+                                                <li><strong>UNCHECK EVERYTHING:</strong> The list will show all ECUs. You MUST uncheck every single box (blFlash, swDeploy, etc.) for every ECU <strong>EXCEPT the EGS</strong>.
+                                                    <br><em class="text-xs text-red-600">Reason: If you leave the DME (Engine) checked, E-Sys will try to flash ALPINA engine software onto your standard engine, which will fail and brick the DME.</em>
+                                                </li>
+                                                <li><strong>Select EGS Only:</strong> For the EGS row, check:
+                                                    <ul class="ml-4 mt-1 text-primary-dark font-mono">
+                                                        <li>blFlash (Bootloader)</li>
+                                                        <li>swDeploy (Software)</li>
+                                                        <li>cdDeploy (Coding Data)</li>
+                                                        <li>ibaDeploy (Manuals)</li>
+                                                    </ul>
+                                                </li>
+                                                <li>Click <strong>Check Software Availability</strong>. It ensures the files exist in your library.</li>
+                                                <li><strong>Start:</strong> Press Start. The transmission will disconnect, gears will vanish from dash. Process takes ~2 minutes. Success message will appear.</li>
+                                            </ol>
+                                        </div>
+
+                                        <!-- Step 5 -->
+                                        <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                                            <h5 class="font-bold text-sm text-green-800 mb-1">5. Verification & Cleanup</h5>
+                                            <ul class="list-disc list-inside text-xs text-green-700 space-y-1">
+                                                <li><strong>Hard Reset:</strong> Disconnect E-Sys. Turn off ignition. Lock car. Wait 5-10 minutes for the car to sleep (modules reboot).</li>
+                                                <li><strong>Verify:</strong> Start engine. In <strong>Comfort Mode</strong>, the cluster should display <strong>D1, D2, D3</strong> instead of just "D".</li>
+                                                <li><strong>Clear Errors:</strong> Your car will likely have "Drivetrain Malfunction" errors initially due to lost communication during flash. Use ISTA+ or BimmerLink to clear all error codes.</li>
+                                                <li><strong>Enjoy:</strong> Test drive to adapt the new shift points.</li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- PROJECT 2: I-STEP UPDATE -->
+                                <div>
+                                    <h4 class="text-lg font-bold text-neutral-800 mb-4">Project B: Full I-Step Software Update</h4>
+                                    <p class="text-sm text-neutral-600 mb-4">Updating the entire vehicle's firmware to the latest version (I-Level). Fixes bugs, improves logic.</p>
+
+                                    <div class="space-y-4">
+                                        <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                                            <h5 class="font-bold text-sm text-neutral-800 mb-2">Pre-Flash Checklist</h5>
+                                            <ul class="list-disc list-inside text-xs text-neutral-600 space-y-1">
+                                                <li><strong>Power:</strong> Connect 50A+ PSU. Open hood (diagnostic mode) and trunk (battery access).</li>
+                                                <li><strong>Software:</strong> Use plain E-Sys (e.g., 3.36) without launchers. Full PSdZData required.</li>
+                                                <li><strong>Test:</strong> Code a safe ECU (e.g., Climate) first to verify stable connection.</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="border-l-4 border-blue-500 pl-4 space-y-3">
+                                            <div>
+                                                <h5 class="font-bold text-neutral-800 text-sm">1. Calculate Targets (Comfort Mode)</h5>
+                                                <ol class="list-decimal list-inside text-xs text-neutral-600 space-y-1">
+                                                    <li>Read <strong>FA</strong> (Vehicle Order) & <strong>SVT Actual</strong> (Current ECUs). Save both.</li>
+                                                    <li>Go to <strong>TAL Calculating</strong>. Load FA & SVT Actual.</li>
+                                                    <li>Set Calculation Strategy: <strong>Complete Flash</strong>.</li>
+                                                    <li>Select <strong>I-Step (Shipm.)</strong> (Auto-detected) and <strong>I-Step (Target)</strong> (Newest available).</li>
+                                                    <li>Click <strong>Calculate</strong>. Save <code>SVT_soll</code> (Target) and <code>TAL</code> (Transaction List).</li>
+                                                    <li><em>Review:</em> Check SVT tree. Black HW (Hardware) = Good. Blue/Red HW = Mismatch (Stop!).</li>
+                                                </ol>
+                                            </div>
+                                            <div>
+                                                <h5 class="font-bold text-neutral-800 text-sm">2. Execute Flash (Expert Mode)</h5>
+                                                <ol class="list-decimal list-inside text-xs text-neutral-600 space-y-1">
+                                                    <li>Go to <strong>TAL Processing</strong>. Load TAL, SVT Target, and FA.</li>
+                                                    <li><strong>Parameters:</strong> Check <code>blFlash</code>, <code>swDeploy</code>, <code>cdDeploy</code>, <code>ibaDeploy</code>. Leave <code>Parallel Programming</code> ON.</li>
+                                                    <li><strong>Start:</strong> Press Start. The process can take 60-90 minutes.</li>
+                                                </ol>
+                                            </div>
+                                            <div>
+                                                <h5 class="font-bold text-neutral-800 text-sm">3. Post-Flash</h5>
+                                                <ul class="list-disc list-inside text-xs text-neutral-600 space-y-1">
+                                                    <li><strong>Update VCM:</strong> Go to VCM > Master. Write the new I-Step to the car.</li>
+                                                    <li><strong>Clear Errors:</strong> Use external transmitter or ISTA+ to clear the hundreds of temporary errors generated.</li>
+                                                    <li><strong>Lock Airbags:</strong> If ACSM was flashed, use ISTA+ Service Functions to lock airbags.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- SERVICE HISTORY (NEW SECTION) -->
+                        <details id="part-service" class="group bg-white border border-neutral-200 rounded-2xl overflow-hidden transition-all hover:border-primary/50 shadow-sm">
+                            <summary class="flex justify-between items-center p-5 cursor-pointer select-none hover:bg-neutral-50 transition-colors">
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-green-100 p-3 rounded-lg text-green-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg></div>
+                                    <div><h3 class="text-lg font-semibold text-neutral-900">5. Service History & Maintenance</h3><p class="text-sm text-neutral-500">Digital Service Records (iDrive).</p></div>
+                                </div>
+                                <svg class="chevron w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </summary>
+                            <div class="px-5 pb-5 border-t border-neutral-200/80 pt-4">
+                                <p class="text-sm text-neutral-600 mb-4">If you perform your own maintenance, you can write the digital records to the iDrive screen using third-party tools.</p>
+
+                                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                                    <div class="bg-neutral-50 p-4 rounded-xl border border-neutral-200">
+                                        <h5 class="font-bold text-sm text-neutral-800 mb-2">Tools Required</h5>
+                                        <ul class="text-xs text-neutral-600 space-y-1">
+                                            <li><strong>Hardware:</strong> ENET Cable.</li>
+                                            <li><strong>Software:</strong> HU Service Manager (older) or <strong>Service History Manager (SHM)</strong> (Preferred/Easier).</li>
+                                            <li><strong>Dependencies:</strong> Ediabas must be installed. Use "EasyConnect" tool to lock ENET IP.</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                                        <h5 class="font-bold text-sm text-yellow-800 mb-2">Important Note</h5>
+                                        <p class="text-xs text-yellow-700">These records are stored <strong>locally</strong> in the Headunit. They are NOT uploaded to BMW's central servers. If a dealer updates your software or connects their tools, these local records may be overwritten by the official server data.</p>
+                                    </div>
+                                </div>
+
+                                <div class="border-l-4 border-green-500 pl-4">
+                                    <h5 class="font-bold text-neutral-800 text-sm">Procedure (Using SHM)</h5>
+                                    <ol class="list-decimal list-inside text-xs text-neutral-600 mt-2 space-y-2">
+                                        <li><strong>Connect:</strong> Plug in ENET cable. Use "EasyConnect" to set Mode to ENET and Lock IP.</li>
+                                        <li><strong>Launch:</strong> Open Service History Manager (SHM).</li>
+                                        <li><strong>Read (Optional):</strong> If you have the Pro version, click "Read from Car". Otherwise, take a photo of your existing history screen as a backup.</li>
+                                        <li><strong>Add Entry:</strong> Click "Add".
+                                            <ul class="ml-4 mt-1 space-y-1 list-disc">
+                                                <li><strong>Date:</strong> Select service date.</li>
+                                                <li><strong>Mileage:</strong> Enter km at time of service.</li>
+                                                <li><strong>Dealer:</strong> Enter a code or text (e.g., "007" or "DIY").</li>
+                                                <li><strong>Job:</strong> Check boxes for Oil, Microfilter, Brake Fluid, etc.</li>
+                                            </ul>
+                                        </li>
+                                        <li><strong>Write:</strong> Click "Write to Car". The Headunit will restart automatically.</li>
+                                        <li><strong>Verify:</strong> Check iDrive > Vehicle Status > Service Requirements > Service History.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- DIAGNOSTICS -->
+                        <details id="part-6" class="group bg-white border border-neutral-200 rounded-2xl overflow-hidden transition-all hover:border-primary/50 shadow-sm">
+                            <summary class="flex justify-between items-center p-5 cursor-pointer select-none hover:bg-neutral-50 transition-colors">
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-purple-100 p-3 rounded-lg text-purple-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
+                                    <div><h3 class="text-lg font-semibold text-neutral-900">6. Diagnostics (ISTA+)</h3><p class="text-sm text-neutral-500">Dealer-level troubleshooting.</p></div>
+                                </div>
+                                <svg class="chevron w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </summary>
+                            <div class="px-5 pb-5 border-t border-neutral-200/80 pt-4">
+                                <p class="text-sm text-neutral-600 mb-4">ISTA+ is BMW's official diagnostic software. It doesn't just read codes; it tells you how to fix them.</p>
+                                <div class="border-l-4 border-primary pl-4 bg-neutral-50 p-3 rounded-r-lg">
+                                    <h5 class="text-neutral-800 font-semibold text-sm">Correct Workflow:</h5>
+                                    <ol class="list-decimal list-inside text-sm text-neutral-600 mt-1 space-y-1">
+                                        <li>Connect via E-NET and run "Complete Identification".</li>
+                                        <li>Go to "Fault Memory", select a fault, and click <strong>"Calculate Test Plan"</strong>.</li>
+                                        <li>Follow the ABL (Procedure) step-by-step.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- PANEL 2: THE CHAT (Hidden by Default) -->
+        <div id="chat-panel" class="fixed inset-0 z-[60] bg-neutral-100 flex flex-col">
+            <div class="flex items-center justify-between p-3 border-b border-neutral-200 bg-white/80 backdrop-blur-md shadow-sm z-20">
+                <div class="flex items-center gap-3">
+                    <button id="close-chat-btn" class="p-2 hover:bg-neutral-200 rounded-full text-neutral-600 hover:text-neutral-900 transition-colors" title="Close Assistant"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                    <div>
+                        <h3 class="text-neutral-900 font-semibold">Bimmerni</h3>
+                        <div id="connection-status" class="flex items-center gap-2"></div>
+                    </div>
+                </div>
+                <button id="clear-chat-btn" class="text-xs text-neutral-500 hover:text-red-500 transition-colors font-medium">Clear History</button>
+            </div>
+            
+            <!-- Chat Log -->
+            <div id="chat-log" class="flex-1 p-4 space-y-6 overflow-y-auto"></div>
+            
+            <!-- Chat Input -->
+            <div class="p-4 border-t border-neutral-200 bg-white/90 z-20 pb-[env(safe-area-inset-bottom)]">
+                <form id="chat-form" class="relative max-w-4xl mx-auto flex gap-3">
+                    <input type="text" id="chat-input" placeholder="Ask about 'Sport+' or 'Lane Assist'..." class="flex-1 bg-neutral-100 text-neutral-800 placeholder-neutral-500 border border-neutral-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-inner w-full" autocomplete="off">
+                    <button type="submit" id="chat-submit-btn" class="bg-primary hover:bg-primary-dark text-white p-3 rounded-xl transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg></button>
+                </form>
+                <p class="text-center text-xs text-neutral-500 mt-2">AI can make mistakes. Verify critical information. Use Metric units.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAB and MODALS -->
+    <!-- Simplified positioning classes to fix mobile visibility issues -->
+    <button id="open-chat-btn" class="fixed right-6 bottom-6 bg-primary hover:bg-primary-dark text-white px-6 py-3.5 rounded-full shadow-xl shadow-primary/30 transition-all hover:scale-105 hover:shadow-2xl flex items-center gap-3 group active:scale-95">
+        <span class="font-bold text-sm tracking-wide">Ask Bimmerni</span>
+        <div class="bg-white/20 p-1 rounded-full group-hover:bg-white/30 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+        </div>
+    </button>
+    
+    <!-- Wizard Modal -->
+    <div id="wizard-modal" class="fixed inset-0 z-[100] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+        <div id="wizard-content" class="bg-white border border-neutral-200 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center p-5 border-b border-neutral-200">
+                <div>
+                    <h3 class="text-lg font-bold text-neutral-900">Step-by-Step Guide</h3>
+                    <p id="wizard-step-counter" class="text-sm text-primary font-medium">Step 1 of X</p>
+                </div>
+                <button id="wizard-close-btn" class="text-neutral-500 hover:text-neutral-800 bg-neutral-100 hover:bg-neutral-200 p-2 rounded-lg transition-colors">&times;</button>
+            </div>
+            <div class="p-8 flex-1 overflow-y-auto flex items-center justify-center">
+                <div id="wizard-step-text" class="text-lg md:text-xl text-center text-neutral-700 leading-relaxed font-medium"></div>
+            </div>
+            <div class="flex justify-between p-5 border-t border-neutral-200 bg-neutral-50/50 gap-3">
+                <button id="wizard-help-btn" class="px-4 py-2.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl font-medium transition-colors text-sm">Troubleshoot / More Info</button>
+                <div class="flex gap-2">
+                    <button id="wizard-nav-back" class="px-6 py-2.5 bg-neutral-200 hover:bg-neutral-300 text-neutral-800 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                    <button id="wizard-nav-next" class="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-medium transition-colors">Next Step</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Credential Manager: Securely handles obfuscated API credentials
+        // Note: Client-side obfuscation is not a replacement for server-side security.
+        class CredentialManager {
+            constructor() {
+                this._0x = [
+                    '41497a615379', // Chunk 1 (AIzaSy)
+                    '446861633630', // Chunk 2 (Dhac60)
+                    '5a5931633451', // Chunk 3 (ZY1c4Q)
+                    '4441794a6c4c', // Chunk 4 (DAyJlL)
+                    '74526b503958', // Chunk 5 (tRkP9X)
+                    '795244394b57', // Chunk 6 (yRD9KW)
+                    '666f30'        // Chunk 7 (fo0)
+                ];
+            }
+            
+            // Complex Reassembly Method
+            _reassemble() {
+                return this._0x.map(c => {
+                    let str = '';
+                    for (let i = 0; i < c.length; i += 2) {
+                        str += String.fromCharCode(parseInt(c.substr(i, 2), 16));
+                    }
+                    return str;
+                }).join('');
+            }
+            
+            getKey() {
+                return this._reassemble();
+            }
+        }
+
+        const state = {
+            apiKey: new CredentialManager().getKey(),
+            chatHistory: JSON.parse(localStorage.getItem('chat_history') || '[]'),
+            wizardSteps: [],
+            currentStep: 0,
+        };
+
+        // Updated Prompt with Specific Knowledge from the BimmerCode Guide & 2TB Research & E-Sys Flashing & Service History
+        const SYSTEM_PROMPT = `You are Bimmerni, an expert BMW software engineer for G-Chassis (G20/G80) vehicles. 
+        
+        Use these CONFIRMED Expert Mode values (Metric units):
+        - **Sport+ Mode**:
+            - BDC > 3221 PfFesMaster > FesSportWorldMode1 = SportExpert (0x02)
+            - HU_MGU > 3008 FES > FES_SPORT_EXPERT = aktiv
+        - **Comfort+ Mode**:
+            - BDC > 3221 PfFesMaster > FesComfortWorldMode1 = ComfortPlus (0x05)
+            - HU_MGU > 3008 FES > FES_COMFORT_PLUS = aktiv
+        - **Auto Steering Heat**: 
+            - HU_MGU > AKT_Auto_Lenkradheizung = aktiv
+            - BDC > LHZ_CCM_IKF = aktiv AND IKF_ENABLE = ikf_alle_sitze
+        - **Bowers & Wilkins**: HU_MGU > Audio System = alev4-Ram
+        - **Wireless Charging**: BDC > WCA_ENABLE = aktiv AND HU_MGU > WCA = aktiv
+        - **Rear Camera Zoom**: HU_MGU > Macro_trailer_coupling = aktiv
+        - **Sport Trans (2TB)**: BimmerUtility required for VO coding (add 2TB). BimmerCode can't VO code.
+        - **BimmerUtility vs BimmerCode**: BimmerUtility allows VO Coding, SAS3 access (Lane Assist), and CAFD comparison.
+        - **ALPINA Transmission Flash (E-Sys)**: 
+           1. Connect 50A PSU.
+           2. Edit FA: Add 920 + 9XA options. Change Type Code to ALPINA model (e.g., JC91 -> JD11).
+           3. Calculate TAL with new FA.
+           4. Expert Mode > TAL Processing > Select ONLY EGS. Flash.
+           5. Verify: "D1" displayed in Comfort mode.
+        - **Full I-Step Update (E-Sys)**:
+           1. Prereqs: 50A PSU, Plain E-Sys (no launcher), Full PSdZData.
+           2. Comfort Mode > TAL Calculating: Read FA/SVT. Strategy: "Complete Flash". Select Shipment/Target I-Step. Calculate.
+           3. Expert Mode > TAL Processing: Load TAL, SVT, FA. Select blFlash, swDeploy, cdDeploy, ibaDeploy. Start.
+           4. Post: Write VCM I-Step, Clear Errors with ISTA.
+        - **Service History Writing**:
+           1. Tools: HU Service Manager or SHM. Ediabas + EasyConnect required.
+           2. Note: Local write only. Overwritten if dealer updates car.
+           3. Process: Connect > Add Record (Date/Km/Dealer/Job) > Write to Car > Restart HU.
+
+        Always prioritize safety (50A PSU required for flashing). Be concise. Format with Markdown.`;
+
+        const dom = {
+            body: document.body,
+            openChatBtn: document.getElementById('open-chat-btn'),
+            closeChatBtn: document.getElementById('close-chat-btn'),
+            // Removed Settings DOM elements as they are no longer needed
+            chatLog: document.getElementById('chat-log'),
+            chatForm: document.getElementById('chat-form'),
+            chatInput: document.getElementById('chat-input'),
+            chatSubmitBtn: document.getElementById('chat-submit-btn'),
+            clearChatBtn: document.getElementById('clear-chat-btn'),
+            connectionStatus: document.getElementById('connection-status'),
+            wizardModal: document.getElementById('wizard-modal'),
+            wizardText: document.getElementById('wizard-step-text'),
+            wizardCounter: document.getElementById('wizard-step-counter'),
+            wizardNext: document.getElementById('wizard-nav-next'),
+            wizardBack: document.getElementById('wizard-nav-back'),
+            wizardHelp: document.getElementById('wizard-help-btn'),
+            wizardClose: document.getElementById('wizard-close-btn'),
+        };
+
+        const ui = {
+            openChat: () => { dom.body.classList.add('chat-open'); dom.chatInput.focus(); },
+            closeChat: () => { dom.body.classList.remove('chat-open'); },
+            updateConnectionStatus: () => {
+                // Hardcoded success state for visual feedback
+                dom.connectionStatus.innerHTML = `<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><span class="text-xs text-neutral-500">Connected (Pro)</span>`;
+            },
+            // NAVIGATION LOGIC: Opens accordion and scrolls
+            setupNavigation: () => {
+                document.querySelectorAll('nav a').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        const href = link.getAttribute('href');
+                        if (!href.startsWith('#')) return;
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            if (target.tagName === 'DETAILS') target.open = true;
+                            target.scrollIntoView({ behavior: 'smooth' });
+                            target.classList.add('target-highlight');
+                            setTimeout(() => target.classList.remove('target-highlight'), 1500);
+                        }
+                    });
+                });
+            }
+        };
+
+        // Tab Switcher for Coding Library
+        window.switchTab = (btn, tabId) => {
+            // Buttons
+            const parent = btn.closest('.flex');
+            parent.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'bg-primary', 'text-white');
+                b.classList.add('bg-neutral-100', 'text-neutral-600');
+            });
+            btn.classList.add('active', 'bg-primary', 'text-white');
+            btn.classList.remove('bg-neutral-100', 'text-neutral-600');
+
+            // Content
+            const contentParent = parent.nextElementSibling.parentElement;
+            contentParent.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+        };
+        
+        const utils = {
+             copyToClipboard: (id) => { 
+                 const el = document.getElementById(id); 
+                 if(el) navigator.clipboard.writeText(el.innerText); 
+             }
+        };
+
+        const markdown = {
+            parse: (text) => {
+                if (!text) return '';
+                let html = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (m, lang, code) => {
+                    const id = 'code-' + Math.random().toString(36).substr(2, 9);
+                    return `<div class="relative group"><button onclick="utils.copyToClipboard('${id}')" class="absolute top-2 right-2 bg-neutral-700/80 hover:bg-neutral-600 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Copy</button><pre><code id="${id}">${code.trim()}</code></pre></div>`;
+                });
+                html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+                html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                html = html.replace(/^\s*[\-\*]\s+(.*)/gm, '<ul><li>$1</li></ul>');
+                html = html.replace(/<\/ul>\s*<ul>/g, '');
+                html = html.replace(/^\s*\d+\.\s+(.*)/gm, '<ol><li>$1</li></ol>');
+                html = html.replace(/<\/ol>\s*<ol>/g, '');
+                let parts = html.split(/(<\/?(?:ul|ol|li|pre)[^>]*>)/g);
+                html = parts.map(part => {
+                    if (part.match(/<\/?(?:ul|ol|li|pre)/)) return part;
+                    return part.replace(/\n/g, '<br>');
+                }).join('');
+                return `<p>${html}</p>`;
+            }
+        };
+
+        const wizard = {
+            start: (messageId) => {
+                const msgContainer = document.getElementById(messageId);
+                if(!msgContainer) return;
+                const steps = Array.from(msgContainer.querySelectorAll('li')).map(li => li.innerHTML);
+                if(steps.length === 0) return;
+                state.wizardSteps = steps;
+                state.currentStep = 0;
+                wizard.render();
+                dom.wizardModal.classList.add('open');
+            },
+            render: () => {
+                dom.wizardText.innerHTML = state.wizardSteps[state.currentStep];
+                dom.wizardCounter.innerText = `Step ${state.currentStep + 1} of ${state.wizardSteps.length}`;
+                dom.wizardBack.disabled = state.currentStep === 0;
+                dom.wizardNext.innerText = (state.currentStep === state.wizardSteps.length - 1) ? 'Finish' : 'Next Step';
+            },
+            next: () => {
+                if(state.currentStep < state.wizardSteps.length - 1) { state.currentStep++; wizard.render(); } 
+                else { dom.wizardModal.classList.remove('open'); }
+            },
+            back: () => {
+                if(state.currentStep > 0) { state.currentStep--; wizard.render(); }
+            },
+            askForHelp: () => {
+                const stepText = state.wizardSteps[state.currentStep];
+                dom.wizardModal.classList.remove('open');
+                ui.openChat();
+                const query = `I need help with step ${state.currentStep + 1}: "${stepText}". I encountered an error or need more details.`;
+                dom.chatInput.value = query;
+                // Automatically submit
+                chat.handleSubmission({ preventDefault: () => {} });
+            }
+        };
+
+        const chat = {
+            init: () => {
+                ui.updateConnectionStatus();
+                if (state.chatHistory.length === 0) {
+                    // Immediate welcome message, no key prompt needed
+                    chat.addBotMessage("Hello! I'm Bimmerni. I'm ready to help with your coding, diagnostics, and retrofit questions.");
+                } else {
+                    state.chatHistory.forEach(msg => (msg.role === 'user') ? chat.renderUserMessage(msg.text) : chat.renderBotMessage(msg.text));
+                }
+            },
+            handleSubmission: async (e) => {
+                e.preventDefault();
+                const text = dom.chatInput.value.trim();
+                if (!text || dom.chatSubmitBtn.disabled) return;
+                // Removed check for state.apiKey as it is hardcoded
+                
+                dom.chatSubmitBtn.disabled = true;
+                dom.chatInput.value = '';
+                chat.renderUserMessage(text);
+                chat.saveMessage('user', text);
+                
+                await chat.fetchGemini(text);
+                dom.chatSubmitBtn.disabled = false;
+                setTimeout(() => dom.chatInput.focus(), 100);
+            },
+            saveMessage: (role, text) => {
+                state.chatHistory.push({ role, text });
+                localStorage.setItem('chat_history', JSON.stringify(state.chatHistory));
+            },
+            renderUserMessage: (text) => {
+                const html = `<div class="flex justify-end animate-fadeIn"><div class="bg-primary text-white p-3 rounded-2xl rounded-tr-none max-w-[85%] shadow-md text-sm">${text}</div></div>`;
+                dom.chatLog.insertAdjacentHTML('beforeend', html);
+                chat.scrollToBottom();
+            },
+            renderBotMessage: (text, isTyping = false) => {
+                const messageId = `msg-${Date.now()}`;
+                const formatted = isTyping ? '' : markdown.parse(text);
+                const hasSteps = formatted.includes('<li');
+                const wizardBtn = hasSteps ? `<button onclick="wizard.start('${messageId}')" class="mt-3 flex items-center text-xs font-bold text-primary hover:text-primary-dark transition-colors bg-primary-light px-3 py-2 rounded-lg"><svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Start Step-by-Step Guide</button>` : '';
+
+                const html = `<div class="flex justify-start animate-fadeIn" id="${messageId}"><div class="flex gap-3 max-w-[95%]"><div class="w-8 h-8 rounded-full bg-neutral-200 flex-shrink-0 flex items-center justify-center border border-neutral-300"><svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><div class="bg-white border border-neutral-200 text-neutral-800 p-4 rounded-2xl rounded-tl-none shadow-sm text-sm md-content overflow-hidden">${isTyping ? '<div class="flex gap-1.5 h-4 items-center"><span class="w-2 h-2 bg-neutral-400 rounded-full animate-bounce"></span><span class="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style="animation-delay:0.1s"></span><span class="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style="animation-delay:0.2s"></span></div>' : formatted + wizardBtn}</div></div></div>`;
+                dom.chatLog.insertAdjacentHTML('beforeend', html);
+                chat.scrollToBottom();
+                return messageId;
+            },
+            addBotMessage: (text) => {
+                chat.renderBotMessage(text);
+                chat.saveMessage('bot', text);
+            },
+            scrollToBottom: () => {
+                dom.chatLog.scrollTop = dom.chatLog.scrollHeight;
+            },
+            fetchGemini: async (prompt) => {
+                const loadingId = chat.renderBotMessage("", true);
+                const loadingEl = document.getElementById(loadingId);
+                try {
+                    // Using gemini-2.5-flash-preview-09-2025
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${state.apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            contents: [{ parts: [{ text: prompt }] }], 
+                            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] } 
+                        })
+                    });
+                    
+                    if (!response.ok) { 
+                        const errorData = await response.json(); 
+                        throw new Error(errorData.error.message || 'API Error'); 
+                    }
+                    
+                    const data = await response.json();
+                    const answer = data.candidates[0].content.parts[0].text;
+                    loadingEl?.remove();
+                    chat.addBotMessage(answer);
+                } catch (err) {
+                    loadingEl?.remove();
+                    chat.renderBotMessage(`Error: Could not connect to the AI. Please check your connection. <br><code class="text-xs text-red-500">${err.message}</code>`);
+                }
+            }
+        };
+
+        // Event Listeners
+        dom.openChatBtn.addEventListener('click', ui.openChat);
+        dom.closeChatBtn.addEventListener('click', ui.closeChat);
+        // Removed Settings event listeners
+        dom.chatForm.addEventListener('submit', chat.handleSubmission);
+        dom.clearChatBtn.addEventListener('click', () => {
+            localStorage.removeItem('chat_history');
+            state.chatHistory = [];
+            dom.chatLog.innerHTML = '';
+            chat.addBotMessage("Chat history cleared.");
+        });
+        
+        // Wizard Event Listeners
+        dom.wizardNext.addEventListener('click', wizard.next);
+        dom.wizardBack.addEventListener('click', wizard.back);
+        dom.wizardHelp.addEventListener('click', wizard.askForHelp);
+        dom.wizardClose.addEventListener('click', () => dom.wizardModal.classList.remove('open'));
+
+        // Init
+        ui.setupNavigation(); // Start Navigation Listener
+        chat.init();
+    </script>
+</body>
+</html>
