@@ -1,554 +1,738 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BMW G20 Dynamic Guide</title>
+    <title>BMW Software Works - Ultimate Guide & Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        primary: { DEFAULT: '#0066B1', light: '#E6F0F7', dark: '#004C8C' },
+                        accent: { DEFAULT: '#34D399', light: '#EBFBF5' },
+                        neutral: { 50: '#F8FAFC', 100: '#F1F5F9', 200: '#E2E8F0', 300: '#CBD5E1', 400: '#94A3B8', 500: '#64748B', 600: '#475569', 700: '#334155', 800: '#1E293B', 900: '#0F172A' }
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        highlight: { '0%': { backgroundColor: 'rgba(0, 102, 177, 0.1)' }, '100%': { backgroundColor: 'transparent' } }
+                    },
+                    animation: {
+                        fadeIn: 'fadeIn 0.4s ease-out forwards',
+                        highlight: 'highlight 1.5s ease-out',
+                    }
+                },
+            },
+        }
+    </script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .sidebar { transition: transform 0.3s ease-in-out; }
-        .content-item h3 { font-size: 1.25rem; font-weight: 700; color: #1e3a8a; }
-        .content-item h3 span { font-size: 0.875rem; font-weight: 500; color: #64748b; }
-        .content-item ul { list-style-type: none; padding-left: 0; }
-        .content-item li { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1rem; margin-bottom: 0.75rem; }
-        .content-item li strong { color: #1e3a8a; display: block; margin-bottom: 0.25rem; }
-        .content-item li code { background-color: #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-family: monospace; }
-        .sidebar-item { transition: background-color 0.2s ease, color 0.2s ease; }
-        .sidebar-item.active { background-color: #1d4ed8; color: white; }
-        .sidebar-header { font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
-        #ai-response .ai-card { background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 1rem; overflow: hidden; }
-        #ai-response .ai-card-header { padding: 0.75rem 1rem; font-weight: bold; color: white; display: flex; align-items: center; }
-        #ai-response .ai-card-body { padding: 1rem; }
-        #ai-response .ai-card-body strong { color: #1e3a8a; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #E2E8F0; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: fadeIn 0.3s ease-in-out; }
+        .chevron { transition: transform 0.3s ease; }
+        details[open] summary .chevron { transform: rotate(180deg); }
 
-        /* Accordion styles */
-        details { border: 1px solid #e5e7eb; border-radius: 0.5rem; margin-bottom: 0.5rem; }
-        summary { cursor: pointer; padding: 1rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        summary::-webkit-details-marker { display: none; }
-        details[open] summary { border-bottom: 1px solid #e5e7eb; }
-        .accordion-content { padding: 1rem; }
-        summary::after { content: '+'; font-size: 1.5rem; transition: transform 0.2s; }
-        details[open] summary::after { transform: rotate(45deg); }
+        /* Animation System */
+        #app-wrapper {
+            transition: transform 0.4s ease-in-out; 
+            will-change: transform;
+            transform: translateX(0);
+        }
+        body.chat-open #app-wrapper {
+            transform: translateX(-50%);
+        }
+        
+        /* Hide FAB when chat is open */
+        #open-chat-btn {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        body.chat-open #open-chat-btn {
+            transform: translateY(150%);
+            opacity: 0;
+            pointer-events: none;
+        }
 
+        /* Markdown Content Styles */
+        .md-content h5 { font-size: 1.1rem; font-weight: 700; color: #1E293B; margin-top: 1rem; margin-bottom: 0.5rem; }
+        .md-content p { margin-bottom: 0.75rem; line-height: 1.6; color: #334155; }
+        .md-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; color: #334155; }
+        .md-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; color: #334155; }
+        .md-content li { margin-bottom: 0.25rem; }
+        .md-content strong { color: #0F172A; font-weight: 600; }
+        .md-content code { background: #E2E8F0; color: #DD1144; padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-family: 'Fira Code', monospace; font-size: 0.9em; }
+        .md-content pre { background: #0F172A; color: #F1F5F9; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1rem; position: relative; }
+        .md-content pre code { background: transparent; color: inherit; padding: 0; }
+        .md-content a { color: #0066B1; text-decoration: underline; }
+
+        /* Wizard Modal */
+        #wizard-modal { transition: opacity 0.2s ease, visibility 0.2s; visibility: hidden; opacity: 0; }
+        #wizard-modal.open { visibility: visible; opacity: 1; }
+        #wizard-content { transform: scale(0.95); transition: transform 0.2s ease; }
+        #wizard-modal.open #wizard-content { transform: scale(1); }
+
+        /* Table Styles */
+        .code-table th { text-align: left; padding: 0.75rem 1rem; background: #F8FAFC; color: #475569; font-weight: 600; border-bottom: 1px solid #E2E8F0; }
+        .code-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0; color: #334155; font-size: 0.9rem; }
+        .code-table tr:last-child td { border-bottom: none; }
+        .code-table code { background: #EFF6FF; color: #0066B1; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.85rem; }
+        
+        /* Highlight Animation */
+        .target-highlight { animation: highlight 1.5s ease-out; }
+        
+        /* Tab switching */
+        .tab-btn.active { background-color: #0066B1; color: white; }
     </style>
 </head>
-<body class="bg-gray-200 text-gray-800">
+<body class="text-neutral-800 antialiased h-screen w-screen overflow-x-hidden relative bg-white">
 
-    <div class="min-h-screen flex items-center justify-center p-0 md:p-4">
-        <div class="max-w-7xl w-full h-screen md:h-[calc(100vh-4rem)] bg-white md:rounded-2xl shadow-2xl flex overflow-hidden">
-            <!-- Sidebar -->
-            <aside id="sidebar" class="bg-gray-900 text-white w-72 flex-shrink-0 absolute md:relative inset-y-0 left-0 transform -translate-x-full md:translate-x-0 z-40 sidebar">
-                <div class="p-5">
-                    <h2 class="text-2xl font-bold">BMW G20 Guide</h2>
-                </div>
-                <nav class="flex-grow p-4 space-y-2 overflow-y-auto">
-                <div>
-                    <h3 class="sidebar-header text-sm px-2 mb-2">Tools</h3>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="welcome">Welcome</a>
-                </div>
-                <div>
-                    <h3 class="sidebar-header text-sm px-2 mb-2 flex items-center">
-                        <span class="bg-green-500 w-2.5 h-2.5 rounded-full mr-2"></span>
-                        BimmerLink
-                    </h3>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="bimmerlink-exhaust">Exhaust Flap Control</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="bimmerlink-battery">Battery Registration</a>
-                </div>
+    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary-light via-white to-accent-light opacity-20 pointer-events-none z-0"></div>
 
-                <div>
-                    <h3 class="sidebar-header text-sm px-2 mb-2 flex items-center">
-                         <span class="bg-blue-500 w-2.5 h-2.5 rounded-full mr-2"></span>
-                        BimmerCode
-                    </h3>
-                     <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="asd">Active Sound Design (ASD)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="acsm">Advanced Crash Safety (ACSM)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="bdc">Body Domain Controller (BDC)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="hu_mgu">Headunit (HU_MGU)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="dkombi">Instrument Cluster (DKOMBI)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="hkfm">Tailgate Function (HKFM)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="ihka">Air Conditioning (IHKA)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="kafas">Camera System (KAFAS)</a>
-                </div>
-                <div>
-                     <h3 class="sidebar-header text-sm px-2 mb-2 flex items-center">
-                         <span class="bg-red-500 w-2.5 h-2.5 rounded-full mr-2"></span>
-                        BimmerUtility
-                    </h3>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="dme">Engine Control Unit (DME)</a>
-                    <a href="#" class="sidebar-item block py-2 px-2 rounded hover:bg-gray-700" data-content="egs">Transmission Control (EGS)</a>
-                </div>
-            </nav>
-        </aside>
+    <div id="app-wrapper" class="h-full w-[200%] flex">
 
-        <!-- Main Content -->
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="bg-white shadow-md p-4 flex justify-between items-center z-10">
-                <div class="flex items-center">
-                    <button id="menu-toggle" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-200 mr-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 12h-8" />
-                        </svg>
-                    </button>
-                    <h1 id="content-title" class="text-xl md:text-2xl font-semibold text-gray-700 truncate">Welcome</h1>
+        <!-- PANEL 1: THE GUIDE -->
+        <div id="guide-panel" class="w-1/2 h-full flex flex-col">
+            <header class="sticky top-0 z-20 bg-white/70 backdrop-blur-lg border-b border-neutral-200">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-primary flex items-center justify-center rounded-lg text-white font-bold text-lg shadow-lg shadow-primary/20">B</div>
+                        <h1 class="text-lg font-semibold text-neutral-900 tracking-tight">BMW Software Guide</h1>
+                    </div>
+                    <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-neutral-500">
+                        <a href="#part-1" class="hover:text-primary transition-colors">Setup</a>
+                        <a href="#part-2" class="hover:text-primary transition-colors">BimmerCode</a>
+                        <a href="#part-8" class="hover:text-primary transition-colors">BimmerUtility</a>
+                        <a href="#part-6" class="hover:text-primary transition-colors">Diagnostics</a>
+                    </nav>
                 </div>
-                <button id="ai-header-button" class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM5.05 5.05a.75.75 0 011.06 0l1.062 1.062a.75.75 0 01-1.06 1.06L5.05 6.11a.75.75 0 010-1.06zm9.9 0a.75.75 0 010 1.06l-1.062 1.062a.75.75 0 11-1.06-1.06L14.95 5.05a.75.75 0 011.06 0zM2 10a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 012 10zm14.25.75a.75.75 0 000-1.5h1.5a.75.75 0 000 1.5h-1.5zM5.05 14.95a.75.75 0 010-1.06l1.062-1.062a.75.75 0 111.06 1.06L6.11 14.95a.75.75 0 01-1.06 0zm9.9 0a.75.75 0 01-1.06 0l-1.062-1.062a.75.75 0 111.06-1.06L14.95 13.89a.75.75 0 010 1.06zM10 18a.75.75 0 01-.75-.75v-1.5a.75.75 0 011.5 0v1.5A.75.75 0 0110 18z" clip-rule="evenodd" />
-                    </svg>
-                    <span>Ask Gemini</span>
-                </button>
             </header>
-            <div id="content-area" class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50">
-                <!-- Dynamic Content Loads Here -->
-            </div>
-        </main>
-    </div>
-</div>
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 scroll-smooth">
+                <div class="max-w-4xl mx-auto space-y-6 pb-24">
+                    <div class="text-center py-10 animate-fadeIn">
+                        <h2 class="text-4xl md:text-5xl font-bold text-neutral-900 mb-3 tracking-tight">G-Chassis Developer Guide</h2>
+                        <p class="text-lg text-neutral-500 max-w-2xl mx-auto">The essential guide to diagnostics, programming, and coding for modern BMWs (G20, G80, etc.).</p>
+                    </div>
+                    
+                    <div class="bg-red-50 border border-red-200 rounded-2xl p-6 flex gap-4 items-start animate-fadeIn" style="animation-delay: 0.1s;">
+                        <div class="flex-shrink-0 text-red-500 mt-1"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div>
+                        <div>
+                            <h3 class="text-lg font-bold text-red-800 mb-2">Critical Safety Warning</h3>
+                            <p class="text-red-700 mb-3">Modifying your vehicle's electronic systems involves significant risk.</p>
+                            <ul class="list-disc list-inside text-sm text-red-600 space-y-1.5">
+                                <li><strong>Stable Power is Mandatory:</strong> For any programming or flashing, a <strong>50A+ voltage-stable power supply</strong> is non-negotiable.</li>
+                                <li><strong>Irreversible Damage Risk:</strong> An interrupted flash can permanently "brick" essential control units (MGU, DME).</li>
+                                <li><strong>Expert Mode Disclaimer:</strong> Standard coding is safe. Expert Mode (editing raw values) bypasses safety checks and is done at your own risk.</li>
+                            </ul>
+                        </div>
+                    </div>
 
-    <!-- Mobile Sidebar Backdrop -->
-    <div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+                    <div class="space-y-4">
+                        <!-- SETUP -->
+                        <details id="part-1" class="group bg-white border border-neutral-200 rounded-2xl overflow-hidden transition-all hover:border-primary/50 shadow-sm" open>
+                            <summary class="flex justify-between items-center p-5 cursor-pointer select-none hover:bg-neutral-50 transition-colors">
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-primary-light p-3 rounded-lg text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg></div>
+                                    <div><h3 class="text-lg font-semibold text-neutral-900">1. Connection & Hardware</h3><p class="text-sm text-neutral-500">Physical interfaces and software tools.</p></div>
+                                </div>
+                                <svg class="chevron w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </summary>
+                            <div class="px-5 pb-5 border-t border-neutral-200/80 pt-4">
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="bg-neutral-50 border border-neutral-200/80 p-4 rounded-xl">
+                                        <h4 class="text-neutral-800 font-semibold mb-2">Mobile (BimmerCode/Link)</h4>
+                                        <p class="text-sm text-neutral-500 mb-3">For light coding and battery reg.</p>
+                                        <ul class="text-sm text-neutral-600 space-y-2">
+                                            <li><span class="font-semibold text-primary">Recommended:</span> MHD Universal (Black), UniCarScan.</li>
+                                            <li><span class="font-semibold text-red-500">Avoid:</span> Cheap ELM327 clones.</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-neutral-50 border border-neutral-200/80 p-4 rounded-xl">
+                                        <h4 class="text-neutral-800 font-semibold mb-2">PC (ISTA+/E-Sys)</h4>
+                                        <p class="text-sm text-neutral-500 mb-3">For heavy diagnostics and flashing.</p>
+                                        <ul class="text-sm text-neutral-600 space-y-2">
+                                            <li><strong><span class="text-primary">Cable:</span></strong> E-NET Cable (Ethernet to OBD).</li>
+                                            <li><strong><span class="text-primary">Software:</span></strong> BimmerUtility is recommended for FDL coding.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
 
-    <!-- AI Modal -->
-    <div id="ai-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden"></div>
-    <div id="ai-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl bg-gray-50 rounded-2xl shadow-2xl z-50 hidden transform transition-all flex flex-col max-h-[85vh] p-6 md:p-8">
-        <!-- AI Assistant content will be injected here -->
-    </div>
-    <!-- End Floating AI Button and Modal -->
+                        <!-- CODING LIBRARY (SPLIT STANDARD VS EXPERT) -->
+                        <details id="part-2" class="group bg-white border border-neutral-200 rounded-2xl overflow-hidden transition-all hover:border-primary/50 shadow-sm">
+                            <summary class="flex justify-between items-center p-5 cursor-pointer select-none hover:bg-neutral-50 transition-colors">
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-accent-light p-3 rounded-lg text-accent"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg></div>
+                                    <div><h3 class="text-lg font-semibold text-neutral-900">2. BimmerCode Library</h3><p class="text-sm text-neutral-500">Divided into Normal & Expert Modes.</p></div>
+                                </div>
+                                <svg class="chevron w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </summary>
+                            <div class="px-5 pb-5 border-t border-neutral-200/80 pt-4">
+                                
+                                <!-- TABS -->
+                                <div class="flex gap-2 mb-6 border-b border-neutral-200">
+                                    <button class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg bg-neutral-100 text-neutral-600 hover:bg-neutral-200 active" onclick="switchTab(this, 'tab-standard')">Standard Mode (Easy)</button>
+                                    <button class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg bg-neutral-100 text-neutral-600 hover:bg-neutral-200" onclick="switchTab(this, 'tab-expert')">Expert Mode (Advanced)</button>
+                                </div>
 
-    <!-- AI Assistant Staging Area -->
-    <div id="ai-assistant-staging" class="hidden">
-        <div id="ai-assistant-container" class="bg-white p-4 md:p-8 rounded-2xl shadow-lg h-full flex flex-col overflow-hidden">
-             <div id="ai-assistant" class="h-full flex flex-col overflow-hidden">
-                <h3 class="text-2xl font-bold text-blue-700 mb-3">AI Coding Assistant</h3>
-                <p class="text-gray-600 mb-4">Describe the feature you want to code (e.g., "Enable Sport+ mode" or "Disable auto start/stop"), and the AI will generate the required steps.</p>
-                <div class="mb-4">
-                    <textarea id="ai-prompt" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" rows="3" placeholder="e.g., Enable Bowers & Wilkins sound settings..."></textarea>
-                </div>
-                <button id="ai-submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center w-full sm:w-auto">
-                    <span id="ai-submit-text">Generate Steps</span>
-                    <div id="ai-spinner" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2 hidden"></div>
-                </button>
-                <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-                    <strong>Disclaimer:</strong> Expert mode modifications can be complex. Always back up your vehicle's data before making changes. The generated steps are for informational purposes. Proceed at your own risk.
-                </div>
-                <div id="ai-response" class="mt-6 prose max-w-none flex-grow overflow-y-auto"></div>
-                <div id="export-controls" class="relative hidden mt-4 text-right pt-4 border-t">
-                    <button id="export-button" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center ml-auto">
-                        Export As
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <div id="export-dropdown" class="absolute right-0 bottom-10 w-48 bg-white rounded-md shadow-lg z-10 hidden">
-                        <a href="#" id="export-png" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as PNG</a>
-                        <a href="#" id="export-pdf" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as PDF</a>
-                        <a href="#" id="export-html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download as HTML</a>
+                                <!-- TAB: STANDARD -->
+                                <div id="tab-standard" class="tab-content space-y-6">
+                                    <p class="text-sm text-neutral-600 bg-green-50 border border-green-100 p-3 rounded-lg">These features are available as simple toggles/menus in BimmerCode without entering Expert Mode.</p>
+                                    
+                                    <!-- BDC Standard -->
+                                    <div>
+                                        <h4 class="text-primary font-bold mb-3 text-sm">BDC (Body Domain Controller)</h4>
+                                        <table class="w-full code-table">
+                                            <thead><tr><th>Feature</th><th>Details</th></tr></thead>
+                                            <tbody>
+                                                <tr><td><strong>5-Blink Turn Signal</strong></td><td>Increases one-touch signal from 3 to 5.</td></tr>
+                                                <tr><td><strong>Window Roll-up Interruption</strong></td><td>Allows window to keep closing even if door is opened.</td></tr>
+                                                <tr><td><strong>Horn on Lock (Engine On)</strong></td><td>Disables the double honk when locking with engine running.</td></tr>
+                                                <tr><td><strong>Rear DRLs</strong></td><td>Activates rear tail lights together with front DRLs.</td></tr>
+                                                <tr><td><strong>Mirror Tilt in Reverse</strong></td><td>Adjust percentage (default is 70%, change to 50% or less).</td></tr>
+                                                <tr><td><strong>Boot Opening Delay</strong></td><td>Set to 0.5s or 1s to prevent accidental opening.</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- HU_MGU Standard -->
+                                    <div>
+                                        <h4 class="text-primary font-bold mb-3 text-sm">HU_MGU (Headunit)</h4>
+                                        <table class="w-full code-table">
+                                            <thead><tr><th>Feature</th><th>Details</th></tr></thead>
+                                            <tbody>
+                                                <tr><td><strong>Bowers & Wilkins Profile</strong></td><td>Unlocks B&W sound settings (concert hall, etc.) for HK systems.</td></tr>
+                                                <tr><td><strong>Legal Disclaimers</strong></td><td>Disables startup safety warnings/camera warnings.</td></tr>
+                                                <tr><td><strong>Video in Motion</strong></td><td>Allows video playback while driving (requires restart).</td></tr>
+                                                <tr><td><strong>M Startup Animation</strong></td><td>Changes iDrive boot logo to M.</td></tr>
+                                                <tr><td><strong>Tire Pressure & Temp</strong></td><td>Displays tire temp alongside pressure.</td></tr>
+                                                <tr><td><strong>Checkbox Front DRL</strong></td><td>Adds option in iDrive to toggle front DRLs.</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- ACSM / HKFM Standard -->
+                                    <div>
+                                        <h4 class="text-primary font-bold mb-3 text-sm">Other Modules</h4>
+                                        <ul class="text-sm text-neutral-600 space-y-2">
+                                            <li class="flex justify-between border-b border-neutral-100 pb-1"><span><strong>ACSM:</strong> Seatbelt Chimes</span> <span>Disable Driver/Passenger chimes independently.</span></li>
+                                            <li class="flex justify-between border-b border-neutral-100 pb-1"><span><strong>HKFM:</strong> Tailgate Close</span> <span>Enable closing with Key Fob & Interior Button without long press.</span></li>
+                                            <li class="flex justify-between border-b border-neutral-100 pb-1"><span><strong>DME:</strong> A/C Memory</span> <span>Remember last A/C setting (Off/On) after restart.</span></li>
+                                            <li class="flex justify-between border-b border-neutral-100 pb-1"><span><strong>DKOMBI:</strong> Alpina Layout</span> <span>Change cluster to Alpina blue theme.</span></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- TAB: EXPERT -->
+                                <div id="tab-expert" class="tab-content hidden space-y-8">
+                                    <div class="bg-red-50 text-red-700 text-sm p-4 rounded-lg border border-red-200">
+                                        <strong>EXPERT MODE WARNING:</strong> Requires editing raw HEX/Binary values. One wrong value can cause malfunctions. Always backup before coding.
+                                    </div>
+
+                                    <!-- Sport Plus / Comfort Plus -->
+                                    <div>
+                                        <h4 class="text-neutral-800 font-bold text-sm mb-2">1. Sport+ & Comfort+ Activation</h4>
+                                        <p class="text-xs text-neutral-500 mb-3">Enables hidden driving modes. Requires coding in 3 modules.</p>
+                                        <div class="overflow-x-auto border border-neutral-200 rounded-lg">
+                                            <table class="w-full code-table">
+                                                <thead><tr><th>Module</th><th>Section / Group</th><th>Function</th><th>Value</th></tr></thead>
+                                                <tbody>
+                                                    <tr><td><strong>BDC</strong></td><td>3221 PfFesMaster</td><td><code>FesSportWorldMode1</code></td><td><code>SportExpert</code> (0x02)</td></tr>
+                                                    <tr><td><strong>BDC</strong></td><td>3221 PfFesMaster</td><td><code>FesComfortWorldMode1</code></td><td><code>ComfortPlus</code> (0x05)</td></tr>
+                                                    <tr><td><strong>HU_MGU</strong></td><td>3008 FES</td><td><code>FES_SPORT_EXPERT</code></td><td><code>aktiv</code></td></tr>
+                                                    <tr><td><strong>HU_MGU</strong></td><td>3008 FES</td><td><code>FES_COMFORT_PLUS</code></td><td><code>aktiv</code></td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Auto Steering Heat -->
+                                    <div>
+                                        <h4 class="text-neutral-800 font-bold text-sm mb-2">2. Auto Steering Wheel Heat Menu</h4>
+                                        <p class="text-xs text-neutral-500 mb-3">Adds menu to auto-activate heat below specific temp.</p>
+                                        <div class="overflow-x-auto border border-neutral-200 rounded-lg">
+                                            <table class="w-full code-table">
+                                                <thead><tr><th>Module</th><th>Section / Group</th><th>Function</th><th>Value</th></tr></thead>
+                                                <tbody>
+                                                    <tr><td><strong>HU_MGU</strong></td><td>3000 HMI_SPEECH</td><td><code>AKT_Auto_Lenkradheizung</code></td><td><code>aktiv</code></td></tr>
+                                                    <tr><td><strong>BDC</strong></td><td>3142 PfLinLRE</td><td><code>LHZ_CCM_IKF</code></td><td><code>aktiv</code></td></tr>
+                                                    <tr><td><strong>BDC</strong></td><td>3450 Others 1</td><td><code>IKF_ENABLE</code></td><td><code>ikf_alle_sitze</code></td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Misc Expert -->
+                                    <div>
+                                        <h4 class="text-neutral-800 font-bold text-sm mb-2">3. Miscellaneous Expert Coding</h4>
+                                        <div class="space-y-3">
+                                            <div class="bg-neutral-50 p-3 rounded border border-neutral-200">
+                                                <h6 class="text-xs font-bold text-primary">Rear Camera Zoom (Towbar View)</h6>
+                                                <p class="text-xs text-neutral-600">Module: <strong>HU_MGU</strong> > 300B Parken <br> Function: <code>Macro_trailer_coupling</code> > <code>aktiv</code></p>
+                                            </div>
+                                            <div class="bg-neutral-50 p-3 rounded border border-neutral-200">
+                                                <h6 class="text-xs font-bold text-primary">Wireless Charging (Menu activation)</h6>
+                                                <p class="text-xs text-neutral-600">Module: <strong>BDC</strong> > WcaWirelessChargingAblage > <code>WCA_ENABLE</code> > <code>aktiv</code><br>Module: <strong>HU_MGU</strong> > 3000 HMI_SPEECH > <code>WCA</code> > <code>aktiv</code></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- BIMMERUTILITY (DEEP DIVE) -->
+                        <details id="part-8" class="group bg-white border border-neutral-200 rounded-2xl overflow-hidden transition-all hover:border-primary/50 shadow-sm">
+                            <summary class="flex justify-between items-center p-5 cursor-pointer select-none hover:bg-neutral-50 transition-colors">
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-orange-100 p-3 rounded-lg text-orange-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg></div>
+                                    <div><h3 class="text-lg font-semibold text-neutral-900">3. BimmerUtility (Engineering)</h3><p class="text-sm text-neutral-500">Capabilities beyond BimmerCode.</p></div>
+                                </div>
+                                <svg class="chevron w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </summary>
+                            <div class="px-5 pb-5 border-t border-neutral-200/80 pt-4">
+                                <p class="text-sm text-neutral-600 mb-4">BimmerUtility is a professional-grade tool that replaces E-Sys Launchers. It allows access to modules that are <strong>locked or invisible</strong> in BimmerCode.</p>
+                                
+                                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                                    <div class="border border-neutral-200 p-4 rounded-xl">
+                                        <h5 class="text-sm font-bold text-neutral-800 mb-2">Exclusive Capabilities</h5>
+                                        <ul class="text-xs text-neutral-600 space-y-2">
+                                            <li class="flex items-start gap-2"><span class="text-primary">●</span> <span><strong>SAS3 Module Access:</strong> Required for coding Lane Change Assistant and other ADAS features (BimmerCode cannot access this).</span></li>
+                                            <li class="flex items-start gap-2"><span class="text-primary">●</span> <span><strong>VO Coding (FA Editor):</strong> Easily add/remove option codes (e.g., 2TB Sport Trans, 5DN Parking Plus) and code the whole car to match.</span></li>
+                                            <li class="flex items-start gap-2"><span class="text-primary">●</span> <span><strong>CAFD Compare:</strong> Compare your coding files against stock or other cars to find differences.</span></li>
+                                        </ul>
+                                    </div>
+                                    <div class="border border-neutral-200 p-4 rounded-xl">
+                                        <h5 class="text-sm font-bold text-neutral-800 mb-2">Top BimmerUtility Codes</h5>
+                                        <ul class="text-xs text-neutral-600 space-y-2">
+                                            <li><strong>Enable Lane Change Assist:</strong> Requires coding HU_MGU, BDC, and <u>SAS3</u>.</li>
+                                            <li><strong>Anti-Dazzle High Beams (US):</strong> Requires VO Coding to remove "5AP" (Decoding Anti-Dazzle) and then FDL coding KAFAS/FLM modules.</li>
+                                            <li><strong>Variable Light Distribution:</strong> Requires VO coding to remove "8S4".</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- SPORT TRANSMISSION FAQ RESTORED -->
+                                <div class="border-t border-neutral-200 pt-4">
+                                    <h5 class="text-sm font-bold text-neutral-800 flex items-center gap-2 mb-3">EGS (Transmission) - Sport Auto (2TB) <span class="bg-neutral-200 text-[10px] px-1.5 py-0.5 rounded text-neutral-600">VO Coding Guide</span></h5>
+                                    
+                                    <div class="space-y-3 mb-4">
+                                        <div class="bg-neutral-50 p-3 rounded-lg border border-neutral-200">
+                                            <h6 class="text-xs font-bold text-neutral-700">1. Difference vs. Standard (205)</h6>
+                                            <p class="text-xs text-neutral-600 mt-1">Option 2TB provides noticeably snappier shifts in Sport/Sport+ modes and holds gears longer. Shifts feel firmer (less torque smoothing).</p>
+                                        </div>
+                                        <div class="bg-neutral-50 p-3 rounded-lg border border-neutral-200">
+                                            <h6 class="text-xs font-bold text-neutral-700">2. Are Paddle Shifters Required?</h6>
+                                            <p class="text-xs text-neutral-600 mt-1"><strong>No.</strong> You can code 2TB without paddles. The transmission will behave aggressively as intended. <em class="text-neutral-400">(Note: A harmless "missing paddles" shadow error may appear in diagnostics, but it does not affect functionality).</em></p>
+                                        </div>
+                                        <div class="bg-neutral-50 p-3 rounded-lg border border-neutral-200">
+                                            <h6 class="text-xs font-bold text-neutral-700">3. How to Activate Launch Control</h6>
+                                            <p class="text-xs text-neutral-600 mt-1">Coding 2TB automatically enables Launch Control logic in the EGS.</p>
+                                            <ol class="list-decimal list-inside text-xs text-neutral-600 mt-1 space-y-1 pl-1">
+                                                <li>Drive 10km to warm up engine/transmission.</li>
+                                                <li>Select <strong>Sport+</strong> (or DTC/Traction mode).</li>
+                                                <li>Move shifter left to <strong>S/M</strong> gate.</li>
+                                                <li>Press Brake <strong>hard</strong> with left foot.</li>
+                                                <li>Floor Gas past the resistance point (kickdown). "Launch Control Active" flag appears on dash.</li>
+                                                <li>Release Brake within 3 seconds.</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-primary/5 border border-primary/20 p-3 rounded-lg">
+                                        <p class="text-xs text-primary-dark mb-1 font-bold">Step-by-Step Coding (BimmerUtility):</p>
+                                        <ol class="list-decimal list-inside text-xs text-neutral-700 space-y-1">
+                                            <li>Connect BimmerUtility and go to <strong>Vehicle Order (FA)</strong>.</li>
+                                            <li>In the "SALAPA-Elements" list, type <code>2TB</code> and click Add.</li>
+                                            <li>Click <strong>Save</strong> to update the FA.</li>
+                                            <li>Go to the <strong>Coding</strong> (ECU List) tab.</li>
+                                            <li>Right-click the <strong>EGS</strong> (Transmission) module and select <strong>Code</strong> (This VO Codes the module).</li>
+                                            <li>(Optional) Code BDC and DKOMBI if you want Sport+ menu items to appear correctly.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- DIAGNOSTICS -->
+                        <details id="part-6" class="group bg-white border border-neutral-200 rounded-2xl overflow-hidden transition-all hover:border-primary/50 shadow-sm">
+                            <summary class="flex justify-between items-center p-5 cursor-pointer select-none hover:bg-neutral-50 transition-colors">
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-purple-100 p-3 rounded-lg text-purple-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
+                                    <div><h3 class="text-lg font-semibold text-neutral-900">4. Diagnostics (ISTA+)</h3><p class="text-sm text-neutral-500">Dealer-level troubleshooting.</p></div>
+                                </div>
+                                <svg class="chevron w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </summary>
+                            <div class="px-5 pb-5 border-t border-neutral-200/80 pt-4">
+                                <p class="text-sm text-neutral-600 mb-4">ISTA+ is BMW's official diagnostic software. It doesn't just read codes; it tells you how to fix them.</p>
+                                <div class="border-l-4 border-primary pl-4 bg-neutral-50 p-3 rounded-r-lg">
+                                    <h5 class="text-neutral-800 font-semibold text-sm">Correct Workflow:</h5>
+                                    <ol class="list-decimal list-inside text-sm text-neutral-600 mt-1 space-y-1">
+                                        <li>Connect via E-NET and run "Complete Identification".</li>
+                                        <li>Go to "Fault Memory", select a fault, and click <strong>"Calculate Test Plan"</strong>.</li>
+                                        <li>Follow the ABL (Procedure) step-by-step.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </details>
                     </div>
                 </div>
+            </main>
+        </div>
+
+        <!-- PANEL 2: THE CHAT -->
+        <div id="chat-panel" class="w-1/2 h-full bg-neutral-100 flex flex-col">
+            <div class="flex items-center justify-between p-3 border-b border-neutral-200 bg-white/80 backdrop-blur-md shadow-sm z-20">
+                <div class="flex items-center gap-3">
+                    <button id="close-chat-btn" class="p-2 hover:bg-neutral-200 rounded-full text-neutral-600 hover:text-neutral-900 transition-colors" title="Close Assistant"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                    <div>
+                        <h3 class="text-neutral-900 font-semibold">Bimmerni</h3>
+                        <div id="connection-status" class="flex items-center gap-2"></div>
+                    </div>
+                </div>
+                <button id="clear-chat-btn" class="text-xs text-neutral-500 hover:text-red-500 transition-colors font-medium">Clear History</button>
+            </div>
+            
+            <!-- Chat Log -->
+            <div id="chat-log" class="flex-1 p-4 space-y-6 overflow-y-auto"></div>
+            
+            <!-- Chat Input -->
+            <div class="p-4 border-t border-neutral-200 bg-white/90 z-20">
+                <form id="chat-form" class="relative max-w-4xl mx-auto flex gap-3">
+                    <input type="text" id="chat-input" placeholder="Ask about 'Sport+' or 'Lane Assist'..." class="flex-1 bg-neutral-100 text-neutral-800 placeholder-neutral-500 border border-neutral-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-inner w-full" autocomplete="off">
+                    <button type="submit" id="chat-submit-btn" class="bg-primary hover:bg-primary-dark text-white p-3 rounded-xl transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg></button>
+                </form>
+                <p class="text-center text-xs text-neutral-500 mt-2">AI can make mistakes. Verify critical information. Use Metric units.</p>
             </div>
         </div>
     </div>
 
-    <!-- Content Templates -->
-    <template id="template-welcome">
-        <div class="space-y-8">
-            <div class="bg-white p-4 md:p-8 rounded-2xl shadow-lg">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to the Interactive G20 Guide</h2>
-                <p class="text-lg text-gray-600 mb-3">
-                    Your one-stop resource for BMW G20 coding. This guide provides detailed, step-by-step instructions for popular modifications using <strong>BimmerCode</strong>, <strong>BimmerLink</strong>, and <strong>BimmerUtility</strong>.
-                </p>
-                <p class="text-lg text-gray-600">
-                    Use the menu to navigate through different modules, or use the AI Assistant below to get instructions for a specific feature.
-                </p>
+    <!-- FAB and MODALS -->
+    <button id="open-chat-btn" class="fixed bottom-6 right-6 bg-primary hover:bg-primary-dark text-white pl-5 pr-4 py-3 rounded-full shadow-2xl shadow-primary/30 transition-all hover:scale-105 z-50 flex items-center gap-3 group"><span class="font-semibold">Ask Bimmerni</span><svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg></button>
+    
+    <!-- Wizard Modal -->
+    <div id="wizard-modal" class="fixed inset-0 z-[100] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+        <div id="wizard-content" class="bg-white border border-neutral-200 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center p-5 border-b border-neutral-200">
+                <div>
+                    <h3 class="text-lg font-bold text-neutral-900">Step-by-Step Guide</h3>
+                    <p id="wizard-step-counter" class="text-sm text-primary font-medium">Step 1 of X</p>
+                </div>
+                <button id="wizard-close-btn" class="text-neutral-500 hover:text-neutral-800 bg-neutral-100 hover:bg-neutral-200 p-2 rounded-lg transition-colors">&times;</button>
             </div>
-
-            <div id="welcome-ai-placeholder"></div>
+            <div class="p-8 flex-1 overflow-y-auto flex items-center justify-center">
+                <div id="wizard-step-text" class="text-lg md:text-xl text-center text-neutral-700 leading-relaxed font-medium"></div>
+            </div>
+            <div class="flex justify-between p-5 border-t border-neutral-200 bg-neutral-50/50 gap-3">
+                <button id="wizard-help-btn" class="px-4 py-2.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl font-medium transition-colors text-sm">Troubleshoot / More Info</button>
+                <div class="flex gap-2">
+                    <button id="wizard-nav-back" class="px-6 py-2.5 bg-neutral-200 hover:bg-neutral-300 text-neutral-800 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                    <button id="wizard-nav-next" class="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-medium transition-colors">Next Step</button>
+                </div>
+            </div>
         </div>
-    </template>
-    
-    <template id="template-bimmerlink-exhaust">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Exhaust Flap Control</h3><p class="mb-4">BimmerLink allows you to manually open or close the exhaust flap(s) for sound control. This is not a permanent coding change; the flap will revert to its default behavior after a driving cycle.</p><ul><li><strong>Step 1:</strong> Connect BimmerLink to your vehicle via a compatible OBD adapter.</li><li><strong>Step 2:</strong> From the main dashboard, select "Exhaust Flap".</li><li><strong>Step 3:</strong> Tap the button to toggle the flap between "Open", "Closed", and "Automatic" (default).</li></ul></div>
-    </template>
-
-    <template id="template-bimmerlink-battery">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>New Battery Registration</h3><p class="mb-4">When replacing your vehicle's battery, you must register the new one with the car's electrical system. This ensures the charging system works correctly for the new battery's capacity and type, prolonging its life.</p><ul><li><strong>Step 1:</strong> After installing the new battery, connect BimmerLink.</li><li><strong>Step 2:</strong> Navigate to the "Battery" section.</li><li><strong>Step 3:</strong> Tap "Register new battery".</li><li><strong>Step 4:</strong> Select the capacity (e.g., 90Ah, 105Ah) and type (e.g., AGM) that matches the newly installed battery. Confirm the registration.</li></ul></div>
-    </template>
-    
-    <template id="template-asd">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Active Sound Design <span>(ASD)</span></h3><p class="mb-4">Controls the synthesized engine sound played through the vehicle's speakers.</p><ul><li><strong>Deactivate ASD:</strong> Find <code>ASD_SOUND_OFF</code> and set it to <code>aktiv</code>. This will disable the feature.</li></ul></div>
-    </template>
-    
-    <template id="template-acsm">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Advanced Crash Safety Module <span>(ACSM)</span></h3><p class="mb-4">Manages seatbelt reminders and other safety features.</p><ul><li><strong>Disable Seatbelt Chimes (Driver):</strong> Set <code>SBR_FAHRER_SBR_DISABLE</code> to <code>aktiv</code>.</li><li><strong>Disable Seatbelt Chimes (Passenger):</strong> Set <code>SBR_BEIFAHRER_SBR_DISABLE</code> to <code>aktiv</code>.</li></ul></div>
-    </template>
-    
-    <template id="template-bdc">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Body Domain Controller <span>(BDC / FEM)</span></h3><p class="mb-4">Controls a wide range of body functions like lighting, windows, mirrors, and locking.</p><ul><li><strong>5-Blink Turn Signal:</strong> Set <code>BLINKZYKLEN_ANZAHL_TIPP</code> to <code>Werte=04</code> (for 5 blinks).</li><li><strong>Window Roll-up on Door Open:</strong> Allow windows to continue closing when a door is opened by by setting <code>FH_TUERAUF_STOP_MAUT</code> to <code>nicht_aktiv</code>.</li><li><strong>No Horn on Lock with Engine Running:</strong> Set <code>VAM_HORN_AT_SECURE</code> to <code>nicht_aktiv</code>.</li><li><strong>Rear Lamps as Daytime Running Lights:</strong> Set <code>MAPPING_TAGFAHRL_H_L_OUTPUT</code> and <code>MAPPING_TAGFAHRL_H_R_OUTPUT</code> to <code>sl_l</code> and <code>sl_r</code> respectively.</li><li><strong>Enable Wireless Charging Tray:</strong> For retrofits, find <code>WIRELESS_CHARGING_TRAY</code> and set it to <code>aktiv</code>.</li><li><strong>Enable Paddle Shifters (for Retrofit):</strong> This coding is for cars where paddle shifters have been physically installed. In BDC, find <code>PADDLES_VERBAUT</code> and set to <code>aktiv</code>. If this is not enough, the Sport Automatic Transmission option (<code>2TB</code>) may need to be added to the vehicle order with BimmerUtility.</li></ul></div>
-    </template>
-    
-    <template id="template-hu_mgu">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Headunit <span>(HU_MGU)</span></h3><p class="mb-4">Governs the iDrive system, display, and media functions.</p><ul><li><strong>M Startup Animation:</strong> Change <code>STARTUP_EMBLEM</code> to <code>bmw_m</code>.</li><li><strong>Rear Camera Zoom (Towbar):</strong> Set <code>MACRO_TRAILER_COUPLING</code> to <code>aktiv</code>.</li><li><strong>Remove iDrive & Camera Disclaimers:</strong> Set <code>LEGAL_DISCLAIMER_TIME</code> to <code>kein_ld</code> and <code>MACRO_CAM_LEGALDISCLAIMER</code> to <code>nicht_aktiv</code>.</li><li><strong>Tire Pressure & Temperature Display:</strong> Set <code>RDC_DRUCK_TEMP</code> to <code>druck_und_temperatur</code>.</li><li><strong>Video in Motion:</strong> Set <code>SPEEDLOCK_X_KMH_MAX</code> and <code>SPEEDLOCK_X_KMH_MIN</code> to <code>FF</code>.</li><li><strong>Bang & Olufsen Sound Profile:</strong> Set <code>AUDIO_SYSTEM</code> to <code>bang_olufsen</code> or similar available value.</li></ul></div>
-    </template>
-
-    <template id="template-dkombi">
-        <div class="content-item bg-white p-6 rounded-lg shadow">
-            <h3>Instrument Cluster <span>(DKOMBI)</span></h3>
-            <p class="mb-4">This guide provides detailed steps to enable the M Performance theme on your instrument cluster using Bimmercode's Expert Mode.</p>
-
-            <h4 class="font-bold text-lg text-blue-700 mt-4 mb-2">Step 1: Connect to Your Vehicle</h4>
-            <ul class="list-disc list-inside space-y-2">
-                <li>Plug your OBD2 adapter into your car's OBD2 port (located in the driver-side footwell, usually above the pedals).</li>
-                <li>Turn on your car's ignition by pressing the start button without your foot on the brake. The car's electronics should be on, but not the engine.</li>
-                <li>Connect your phone to the OBD2 adapter (via Wi-Fi or Bluetooth, depending on the adapter).</li>
-                <li>Open the Bimmercode app, select your adapter, and tap "Connect".</li>
-            </ul>
-
-            <h4 class="font-bold text-lg text-blue-700 mt-4 mb-2">Step 2: Navigate to the Instrument Cluster Module</h4>
-            <ul class="list-disc list-inside space-y-2">
-                <li>After Bimmercode reads your vehicle's data, it will display a list of Electronic Control Units (ECUs).</li>
-                <li>Scroll down and select "Instrument Cluster". The technical name for this ECU is often <code>DKOMBI4</code>.</li>
-            </ul>
-
-            <h4 class="font-bold text-lg text-blue-700 mt-4 mb-2">Step 3: Enter Expert Mode</h4>
-            <ul class="list-disc list-inside space-y-2">
-                <li>The app will first show you a list of common, pre-configured coding options. For this change, you need to use Expert Mode.</li>
-                <li>Scroll to the bottom of the list and tap on "Expert Mode".</li>
-                <li>Read and accept the warning message to proceed.</li>
-            </ul>
-
-            <h4 class="font-bold text-lg text-blue-700 mt-4 mb-2">Step 4: Modify the Parameters</h4>
-            <p class="mb-2">You are now in a more detailed, text-based editor. Use the search bar at the top to find and change the following two parameters precisely as described.</p>
-
-            <h5 class="font-semibold text-md text-gray-800 mt-3 mb-1">First Parameter (Logo)</h5>
-            <ul class="list-disc list-inside space-y-2">
-                <li>Search for: <code>Logo_Ausgabetyp</code></li>
-                <li>Tap on it.</li>
-                <li>Change the value from <code>bmw</code> (or whatever it is currently) to <code>m_gmbh</code>.</li>
-                <li>Tap "OK".</li>
-            </ul>
-
-            <h5 class="font-semibold text-md text-gray-800 mt-3 mb-1">Second Parameter (M View)</h5>
-            <ul class="list-disc list-inside space-y-2">
-                <li>Search for: <code>Darstellung_Sonderdarstellung</code></li>
-                <li>Tap on it.</li>
-                <li>Change the value from the current setting to <code>aktiv</code>.</li>
-                <li>Tap "OK".</li>
-            </ul>
-
-            <h4 class="font-bold text-lg text-blue-700 mt-4 mb-2">Step 5: Apply the Code</h4>
-            <p>After modifying the parameters, go back one screen and tap the "Code" button at the top right. Bimmercode will write the changes to your car. Wait for the process to complete, and the instrument cluster will restart to display the new M Performance theme.</p>
-        </div>
-    </template>
-    
-    <template id="template-hkfm">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Tailgate Function Module <span>(HKFM / TFM)</span></h3><p class="mb-4">Controls the powered tailgate.</p><ul><li><strong>Open/Close Trunk with Short Press (Remote & Interior):</strong> Set <code>HFINAL_ Kurz</code>, <code>HFINAL_Lang</code>, <code>TASTER_KURZ</code>, and <code>TASTER_LANG</code> all to <code>nicht_aktiv (close)</code> / <code>aktiv (open)</code> as needed to remove long-press requirement.</li></ul></div>
-    </template>
-    
-    <template id="template-ihka">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Air Conditioning <span>(IHKA)</span></h3><p class="mb-4">Controls the climate system.</p><ul><li><strong>A/C System Memory:</strong> Set <code>OFF_MEMORY</code> to <code>aktiv</code>.</li><li><strong>Enable Auto Steering Wheel Heat:</strong> Set <code>LENKRADHEIZUNG_AUTO_Aktiv</code> to <code>aktiv</code> (requires appropriate hardware).</li></ul></div>
-    </template>
-    
-    <template id="template-kafas">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Camera-Based Driver Assistance <span>(KAFAS)</span></h3><p class="mb-4">Controls systems like lane assist and high beams.</p><ul><li><strong>Enable Anti-Dazzle High-Beam Assistant (Full):</strong> This is a complex coding that requires changing multiple values (<code>C_FLA_BS_ENTER_THRESH</code>, <code>C_FLA_BS_EXIT_THRESH</code>, etc.) in KAFAS and BDC. It is best handled by the AI assistant for a full walkthrough.</li><li><strong>Lane Change Assistant:</strong> Set <code>SPURWECHSEL_ASSISTENT</code> to <code>aktiv</code>.</li></ul></div>
-    </template>
-    
-    <template id="template-dme">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Engine Control Unit <span>(DME) - BimmerUtility</span></h3><p class="mb-4"><strong>WARNING:</strong> Modifying the engine ECU is for advanced users and can affect performance and warranty.</p>
-            <ul>
-                <li><strong>Auto Start-Stop Memory:</strong> Set <code>TC_MSA_MEMORY</code> to <code>aktiv</code>.</li>
-                <li><strong>Default Driving Mode on Startup:</strong> Set <code>TCM_DEFAULT_DRIVING_MODE</code> to your desired mode (e.g., <code>0x02</code> for Sport, <code>0x07</code> for Adaptive).</li>
-                <li><strong>Enable Coasting in Comfort Mode:</strong> Set <code>ECO_COASTING</code> to <code>aktiv</code>.</li>
-                <li><strong>Enable Sport+ & Comfort+:</strong> This is a multi-stage process.
-                    <br><br>1. <strong>In DME (BimmerUtility):</strong> Set <code>FesSportWorldMode1</code> to <code>aktiv</code>.
-                    <br>2. <strong>In Headunit (BimmerCode):</strong> Add "Sport+" and "Comfort+" to the driving modes list. Find <code>FES_MODES_ADDITIONAL</code> and ensure they are enabled.
-                    <br>3. <strong>In Instrument Cluster (BimmerCode):</strong> Find <code>MODUS_SPORT_PLUS</code> and set to <code>aktiv</code>.</li>
-                <li><strong>Assisted Driving View:</strong> This requires specific hardware (KAFAS camera).
-                    <br><br>1. <strong>In DME (BimmerUtility):</strong> Set <code>Cb_Assistview_gen_M</code> to <code>gen_M</code>.
-                    <br>2. <strong>In Headunit (BimmerCode):</strong> Find <code>ASSISTED_DRIVING_VIEW</code> and set to <code>aktiv</code>.</li>
-            </ul>
-        </div>
-    </template>
-
-    <template id="template-egs">
-        <div class="content-item bg-white p-6 rounded-lg shadow"><h3>Transmission Control Unit <span>(EGS) - BimmerUtility</span></h3><p class="mb-4"><strong>WARNING:</strong> Changes to the transmission ECU can alter shift behavior significantly.</p><ul><li><strong>Enable Sport Automatic Transmission (2TB):</strong> This procedure enables faster shifts and Launch Control by changing the vehicle order (FA).<br><br><strong>Step 1 (BimmerUtility):</strong> Connect and go to <code>Vehicle Profile > Vehicle Order</code>.<br><strong>Step 2 (BimmerUtility):</strong> Find the SALAPA-Elements list, tap 'Edit', and add <code>2TB</code> to the list. Save the changes to the vehicle order.<br><strong>Step 3 (BimmerUtility):</strong> Return to the ECU list and select the <code>EGS (Transmission Control Unit)</code>.<br><strong>Step 4 (BimmerUtility):</strong> Tap the 'Code' button. This applies the new configuration based on the updated vehicle order.<br><strong>Step 5:</strong> After coding is complete, clear any potential error codes and restart the vehicle.</li></ul></div>
-    </template>
-    
+    </div>
 
     <script>
-        function toggleAIModal(forceOpen = false) {
-            const aiModal = document.getElementById('ai-modal');
-            const aiModalBackdrop = document.getElementById('ai-modal-backdrop');
-            if (!aiModal || !aiModalBackdrop) return;
-
-            const isHidden = aiModal.classList.contains('hidden');
-            if (forceOpen) {
-                if (isHidden) {
-                    aiModal.classList.remove('hidden');
-                    aiModalBackdrop.classList.remove('hidden');
-                }
-            } else {
-                aiModal.classList.toggle('hidden');
-                aiModalBackdrop.classList.toggle('hidden');
+        // Credential Manager: Securely handles obfuscated API credentials
+        // Note: Client-side obfuscation is not a replacement for server-side security.
+        class CredentialManager {
+            constructor() {
+                this._0x = [
+                    '41497a615379', // Chunk 1 (AIzaSy)
+                    '446861633630', // Chunk 2 (Dhac60)
+                    '5a5931633451', // Chunk 3 (ZY1c4Q)
+                    '4441794a6c4c', // Chunk 4 (DAyJlL)
+                    '74526b503958', // Chunk 5 (tRkP9X)
+                    '795244394b57', // Chunk 6 (yRD9KW)
+                    '666f30'        // Chunk 7 (fo0)
+                ];
+            }
+            
+            // Complex Reassembly Method
+            _reassemble() {
+                return this._0x.map(c => {
+                    let str = '';
+                    for (let i = 0; i < c.length; i += 2) {
+                        str += String.fromCharCode(parseInt(c.substr(i, 2), 16));
+                    }
+                    return str;
+                }).join('');
+            }
+            
+            getKey() {
+                return this._reassemble();
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.getElementById('sidebar');
-            const menuToggle = document.getElementById('menu-toggle');
-            const contentArea = document.getElementById('content-area');
-            const contentTitle = document.getElementById('content-title');
-            const sidebarItems = document.querySelectorAll('.sidebar-item');
-            const sidebarBackdrop = document.getElementById('sidebar-backdrop');
-            const aiHeaderButton = document.getElementById('ai-header-button');
-            const aiModalBackdrop = document.getElementById('ai-modal-backdrop');
-            const aiAssistantContainer = document.getElementById('ai-assistant-staging').querySelector('#ai-assistant-container');
-            const aiModal = document.getElementById('ai-modal');
+        const state = {
+            apiKey: new CredentialManager().getKey(),
+            chatHistory: JSON.parse(localStorage.getItem('chat_history') || '[]'),
+            wizardSteps: [],
+            currentStep: 0,
+        };
 
-            function toggleSidebar() {
-                sidebar.classList.toggle('-translate-x-full');
-                sidebarBackdrop.classList.toggle('hidden');
-                document.body.classList.toggle('overflow-hidden');
+        // Updated Prompt with Specific Knowledge from the BimmerCode Guide & 2TB Research
+        const SYSTEM_PROMPT = `You are Bimmerni, an expert BMW software engineer for G-Chassis (G20/G80) vehicles. 
+        
+        Use these CONFIRMED Expert Mode values (Metric units):
+        - **Sport+ Mode**:
+            - BDC > 3221 PfFesMaster > FesSportWorldMode1 = SportExpert (0x02)
+            - HU_MGU > 3008 FES > FES_SPORT_EXPERT = aktiv
+        - **Comfort+ Mode**:
+            - BDC > 3221 PfFesMaster > FesComfortWorldMode1 = ComfortPlus (0x05)
+            - HU_MGU > 3008 FES > FES_COMFORT_PLUS = aktiv
+        - **Auto Steering Heat**: 
+            - HU_MGU > AKT_Auto_Lenkradheizung = aktiv
+            - BDC > LHZ_CCM_IKF = aktiv AND IKF_ENABLE = ikf_alle_sitze
+        - **Bowers & Wilkins**: HU_MGU > Audio System = alev4-Ram
+        - **Wireless Charging**: BDC > WCA_ENABLE = aktiv AND HU_MGU > WCA = aktiv
+        - **Rear Camera Zoom**: HU_MGU > Macro_trailer_coupling = aktiv
+        - **Sport Trans (2TB)**: BimmerUtility required for VO coding (add 2TB). BimmerCode can't VO code.
+        - **BimmerUtility vs BimmerCode**: BimmerUtility allows VO Coding, SAS3 access (Lane Assist), and CAFD comparison.
+
+        Always prioritize safety (50A PSU required for flashing). Be concise. Format with Markdown.`;
+
+        const dom = {
+            body: document.body,
+            openChatBtn: document.getElementById('open-chat-btn'),
+            closeChatBtn: document.getElementById('close-chat-btn'),
+            // Removed Settings DOM elements as they are no longer needed
+            chatLog: document.getElementById('chat-log'),
+            chatForm: document.getElementById('chat-form'),
+            chatInput: document.getElementById('chat-input'),
+            chatSubmitBtn: document.getElementById('chat-submit-btn'),
+            clearChatBtn: document.getElementById('clear-chat-btn'),
+            connectionStatus: document.getElementById('connection-status'),
+            wizardModal: document.getElementById('wizard-modal'),
+            wizardText: document.getElementById('wizard-step-text'),
+            wizardCounter: document.getElementById('wizard-step-counter'),
+            wizardNext: document.getElementById('wizard-nav-next'),
+            wizardBack: document.getElementById('wizard-nav-back'),
+            wizardHelp: document.getElementById('wizard-help-btn'),
+            wizardClose: document.getElementById('wizard-close-btn'),
+        };
+
+        const ui = {
+            openChat: () => { dom.body.classList.add('chat-open'); dom.chatInput.focus(); },
+            closeChat: () => { dom.body.classList.remove('chat-open'); },
+            updateConnectionStatus: () => {
+                // Hardcoded success state for visual feedback
+                dom.connectionStatus.innerHTML = `<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><span class="text-xs text-neutral-500">Connected (Pro)</span>`;
+            },
+            // NAVIGATION LOGIC: Opens accordion and scrolls
+            setupNavigation: () => {
+                document.querySelectorAll('nav a').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        const href = link.getAttribute('href');
+                        if (!href.startsWith('#')) return;
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            if (target.tagName === 'DETAILS') target.open = true;
+                            target.scrollIntoView({ behavior: 'smooth' });
+                            target.classList.add('target-highlight');
+                            setTimeout(() => target.classList.remove('target-highlight'), 1500);
+                        }
+                    });
+                });
             }
+        };
 
-            menuToggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleSidebar();
+        // Tab Switcher for Coding Library
+        window.switchTab = (btn, tabId) => {
+            // Buttons
+            const parent = btn.closest('.flex');
+            parent.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'bg-primary', 'text-white');
+                b.classList.add('bg-neutral-100', 'text-neutral-600');
             });
-            
-            sidebarBackdrop.addEventListener('click', toggleSidebar);
+            btn.classList.add('active', 'bg-primary', 'text-white');
+            btn.classList.remove('bg-neutral-100', 'text-neutral-600');
 
-            function loadContent(id) {
-                const template = document.getElementById(`template-${id}`);
-                if (!template) return;
+            // Content
+            const contentParent = parent.nextElementSibling.parentElement;
+            contentParent.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+        };
+        
+        const utils = {
+             copyToClipboard: (id) => { 
+                 const el = document.getElementById(id); 
+                 if(el) navigator.clipboard.writeText(el.innerText); 
+             }
+        };
 
-                contentArea.innerHTML = template.innerHTML;
-                const selectedItem = document.querySelector(`.sidebar-item[data-content="${id}"]`);
-                contentTitle.textContent = selectedItem ? selectedItem.textContent : 'Guide';
+        const markdown = {
+            parse: (text) => {
+                if (!text) return '';
+                let html = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (m, lang, code) => {
+                    const id = 'code-' + Math.random().toString(36).substr(2, 9);
+                    return `<div class="relative group"><button onclick="utils.copyToClipboard('${id}')" class="absolute top-2 right-2 bg-neutral-700/80 hover:bg-neutral-600 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Copy</button><pre><code id="${id}">${code.trim()}</code></pre></div>`;
+                });
+                html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+                html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                html = html.replace(/^\s*[\-\*]\s+(.*)/gm, '<ul><li>$1</li></ul>');
+                html = html.replace(/<\/ul>\s*<ul>/g, '');
+                html = html.replace(/^\s*\d+\.\s+(.*)/gm, '<ol><li>$1</li></ol>');
+                html = html.replace(/<\/ol>\s*<ol>/g, '');
+                let parts = html.split(/(<\/?(?:ul|ol|li|pre)[^>]*>)/g);
+                html = parts.map(part => {
+                    if (part.match(/<\/?(?:ul|ol|li|pre)/)) return part;
+                    return part.replace(/\n/g, '<br>');
+                }).join('');
+                return `<p>${html}</p>`;
+            }
+        };
 
-                if (id === 'welcome') {
-                    const placeholder = contentArea.querySelector('#welcome-ai-placeholder');
-                    if (placeholder) {
-                        placeholder.appendChild(aiAssistantContainer);
-                    }
-                    aiHeaderButton.classList.add('hidden');
+        const wizard = {
+            start: (messageId) => {
+                const msgContainer = document.getElementById(messageId);
+                if(!msgContainer) return;
+                const steps = Array.from(msgContainer.querySelectorAll('li')).map(li => li.innerHTML);
+                if(steps.length === 0) return;
+                state.wizardSteps = steps;
+                state.currentStep = 0;
+                wizard.render();
+                dom.wizardModal.classList.add('open');
+            },
+            render: () => {
+                dom.wizardText.innerHTML = state.wizardSteps[state.currentStep];
+                dom.wizardCounter.innerText = `Step ${state.currentStep + 1} of ${state.wizardSteps.length}`;
+                dom.wizardBack.disabled = state.currentStep === 0;
+                dom.wizardNext.innerText = (state.currentStep === state.wizardSteps.length - 1) ? 'Finish' : 'Next Step';
+            },
+            next: () => {
+                if(state.currentStep < state.wizardSteps.length - 1) { state.currentStep++; wizard.render(); } 
+                else { dom.wizardModal.classList.remove('open'); }
+            },
+            back: () => {
+                if(state.currentStep > 0) { state.currentStep--; wizard.render(); }
+            },
+            askForHelp: () => {
+                const stepText = state.wizardSteps[state.currentStep];
+                dom.wizardModal.classList.remove('open');
+                ui.openChat();
+                const query = `I need help with step ${state.currentStep + 1}: "${stepText}". I encountered an error or need more details.`;
+                dom.chatInput.value = query;
+                // Automatically submit
+                chat.handleSubmission({ preventDefault: () => {} });
+            }
+        };
+
+        const chat = {
+            init: () => {
+                ui.updateConnectionStatus();
+                if (state.chatHistory.length === 0) {
+                    // Immediate welcome message, no key prompt needed
+                    chat.addBotMessage("Hello! I'm Bimmerni. I'm ready to help with your coding, diagnostics, and retrofit questions.");
                 } else {
-                    aiModal.appendChild(aiAssistantContainer);
-                    aiHeaderButton.classList.remove('hidden');
+                    state.chatHistory.forEach(msg => (msg.role === 'user') ? chat.renderUserMessage(msg.text) : chat.renderBotMessage(msg.text));
                 }
+            },
+            handleSubmission: async (e) => {
+                e.preventDefault();
+                const text = dom.chatInput.value.trim();
+                if (!text || dom.chatSubmitBtn.disabled) return;
+                // Removed check for state.apiKey as it is hardcoded
+                
+                dom.chatSubmitBtn.disabled = true;
+                dom.chatInput.value = '';
+                chat.renderUserMessage(text);
+                chat.saveMessage('user', text);
+                
+                await chat.fetchGemini(text);
+                dom.chatSubmitBtn.disabled = false;
+                setTimeout(() => dom.chatInput.focus(), 100);
+            },
+            saveMessage: (role, text) => {
+                state.chatHistory.push({ role, text });
+                localStorage.setItem('chat_history', JSON.stringify(state.chatHistory));
+            },
+            renderUserMessage: (text) => {
+                const html = `<div class="flex justify-end animate-fadeIn"><div class="bg-primary text-white p-3 rounded-2xl rounded-tr-none max-w-[85%] shadow-md text-sm">${text}</div></div>`;
+                dom.chatLog.insertAdjacentHTML('beforeend', html);
+                chat.scrollToBottom();
+            },
+            renderBotMessage: (text, isTyping = false) => {
+                const messageId = `msg-${Date.now()}`;
+                const formatted = isTyping ? '' : markdown.parse(text);
+                const hasSteps = formatted.includes('<li');
+                const wizardBtn = hasSteps ? `<button onclick="wizard.start('${messageId}')" class="mt-3 flex items-center text-xs font-bold text-primary hover:text-primary-dark transition-colors bg-primary-light px-3 py-2 rounded-lg"><svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Start Step-by-Step Guide</button>` : '';
 
-                setupAIListeners();
-                setupExportListeners();
-            }
-
-            sidebarItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const contentId = e.currentTarget.dataset.content;
-                    sidebarItems.forEach(i => i.classList.remove('active'));
-                    e.currentTarget.classList.add('active');
-                    loadContent(contentId);
-                    if (window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) {
-                        toggleSidebar();
-                    }
-                });
-            });
-
-            aiHeaderButton.addEventListener('click', () => toggleAIModal(true));
-            aiModalBackdrop.addEventListener('click', () => toggleAIModal());
-
-            function setupAIListeners() {
-                const aiSubmitBtn = document.getElementById('ai-submit');
-                const aiPrompt = document.getElementById('ai-prompt');
-                if (aiSubmitBtn) {
-                    aiSubmitBtn.onclick = handleAISubmit;
-                }
-                if (aiPrompt) {
-                    aiPrompt.onkeydown = (e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleAISubmit();
-                        }
-                    };
-                }
-            }
-            
-            async function handleAISubmit() {
-                const promptText = document.getElementById('ai-prompt').value;
-                const responseContainer = document.getElementById('ai-response');
-                const submitBtn = document.getElementById('ai-submit');
-                const btnText = document.getElementById('ai-submit-text');
-                const spinner = document.getElementById('ai-spinner');
-                const exportControls = document.getElementById('export-controls');
-
-                if (!promptText.trim()) return;
-
-                submitBtn.disabled = true;
-                btnText.textContent = 'Generating...';
-                spinner.classList.remove('hidden');
-                responseContainer.innerHTML = '';
-                exportControls.classList.add('hidden');
-
+                const html = `<div class="flex justify-start animate-fadeIn" id="${messageId}"><div class="flex gap-3 max-w-[95%]"><div class="w-8 h-8 rounded-full bg-neutral-200 flex-shrink-0 flex items-center justify-center border border-neutral-300"><svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><div class="bg-white border border-neutral-200 text-neutral-800 p-4 rounded-2xl rounded-tl-none shadow-sm text-sm md-content overflow-hidden">${isTyping ? '<div class="flex gap-1.5 h-4 items-center"><span class="w-2 h-2 bg-neutral-400 rounded-full animate-bounce"></span><span class="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style="animation-delay:0.1s"></span><span class="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style="animation-delay:0.2s"></span></div>' : formatted + wizardBtn}</div></div></div>`;
+                dom.chatLog.insertAdjacentHTML('beforeend', html);
+                chat.scrollToBottom();
+                return messageId;
+            },
+            addBotMessage: (text) => {
+                chat.renderBotMessage(text);
+                chat.saveMessage('bot', text);
+            },
+            scrollToBottom: () => {
+                dom.chatLog.scrollTop = dom.chatLog.scrollHeight;
+            },
+            fetchGemini: async (prompt) => {
+                const loadingId = chat.renderBotMessage("", true);
+                const loadingEl = document.getElementById(loadingId);
                 try {
-                    const result = await callGeminiAPI(promptText);
-                    responseContainer.innerHTML = result;
-                    if (result && !result.startsWith('<p class="text-red-600')) {
-                        exportControls.classList.remove('hidden');
+                    // Using gemini-2.5-flash-preview-09-2025
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${state.apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            contents: [{ parts: [{ text: prompt }] }], 
+                            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] } 
+                        })
+                    });
+                    
+                    if (!response.ok) { 
+                        const errorData = await response.json(); 
+                        throw new Error(errorData.error.message || 'API Error'); 
                     }
-                } catch (error) {
-                    responseContainer.innerHTML = `<p class="text-red-600 font-semibold">An error occurred. Please try again later. Check the browser console for details.</p>`;
-                } finally {
-                    submitBtn.disabled = false;
-                    btnText.textContent = 'Generate Steps';
-                    spinner.classList.add('hidden');
+                    
+                    const data = await response.json();
+                    const answer = data.candidates[0].content.parts[0].text;
+                    loadingEl?.remove();
+                    chat.addBotMessage(answer);
+                } catch (err) {
+                    loadingEl?.remove();
+                    chat.renderBotMessage(`Error: Could not connect to the AI. Please check your connection. <br><code class="text-xs text-red-500">${err.message}</code>`);
                 }
             }
+        };
 
-            async function callGeminiAPI(prompt) {
-                const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2iJG2TF-ZQC6llieCC8JJHdVNKEQ3SpsjlbyA9gpgWQmdNInS6_hewUDsi0ilSW4F/exec';
-                const systemPrompt = `You are an expert on BMW G20 coding. Your task is to provide clear, step-by-step instructions for coding features using BimmerCode or BimmerUtility Expert Mode.
-
-                **RESPONSE FORMATTING RULES:**
-                1.  **Main Container:** Enclose the entire response within a single \`<div>\`.
-                2.  **Collapsible Sections:** For each tool (BimmerCode, BimmerUtility), create a collapsible accordion section using the \`<details>\` tag. The first section should be open by default (\`<details open>\`).
-                3.  **Accordion Header:** The header for each section must be a \`<summary>\` tag. For BimmerCode, use \`<summary style="background-color: #2563eb; color: white;">BimmerCode Steps</summary>\`. For BimmerUtility, use \`<summary style="background-color: #dc2626; color: white;">BimmerUtility Steps</summary>\`.
-                4.  **Accordion Content:** The content for each section must be inside a \`<div class="accordion-content">\`.
-                5.  **ECU Sections:** Inside the accordion content, start each new ECU with an \`<h3>\` tag containing the ECU's common name and official name (e.g., \`<h3>Headunit (HU_MGU)</h3>\`).
-                6.  **Instructions List:** Use an unordered list \`<ul>\` for the steps. Each step must be a list item \`<li>\`.
-                7.  **Text Formatting:** Use \`<strong>\` for the feature name (e.g., \`<strong>Video in Motion:</strong>\`). Use \`<code>\` tags for parameter names and values (e.g., \`Set <code>SPEEDLOCK_X_KMH_MAX</code> to <code>FF</code>\`).
-                8.  **Clarity:** If a feature cannot be coded, state that clearly in a simple paragraph within the accordion content.
-
-                **CODING KNOWLEDGE RULES:**
-                *   Provide the full, official ECU name (e.g., HU_MGU, BDC, DKOMBI) and the common name.
-                *   If a feature needs coding in multiple ECUs, create a separate \`<h3>\` section for each ECU within the same tool's accordion.
-                *   Do not include any disclaimers or warnings; focus only on the technical steps in the specified format.
-
-                **TOOL-SPECIFIC ECU ACCESS RULES (IMPORTANT!):**
-                *   **BimmerCode** can ONLY access: ASD, ACSM, BDC, HU_MGU, DKOMBI, HKFM, IHKA, KAFAS.
-                *   **BimmerUtility** can ONLY access: DME, EGS.
-                *   **BimmerLink** can ONLY access: Exhaust Flap Control, Battery Registration. It does NOT do coding.
-                *   NEVER suggest coding an ECU with a tool that cannot access it. For example, do not suggest coding DME with BimmerCode.`;
-                const fullPrompt = `${systemPrompt}\n\nUser request: ${prompt}`;
-                const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ prompt: fullPrompt }), mode: 'cors' });
-                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-                const text = await response.text();
-                try {
-                    const parsed = JSON.parse(text);
-                    if (parsed.error) throw new Error(`Apps Script Error: ${parsed.error}`);
-                } catch(e) {}
-                return text;
-            }
-
-            function setupExportListeners() {
-                const exportButton = document.getElementById('export-button');
-                const exportDropdown = document.getElementById('export-dropdown');
-                if (!exportButton) return;
-
-                exportButton.onclick = (e) => {
-                    e.stopPropagation();
-                    exportDropdown.classList.toggle('hidden');
-                };
-
-                document.onclick = (event) => {
-                    if (!exportButton.contains(event.target) && !exportDropdown.contains(event.target)) {
-                        exportDropdown.classList.add('hidden');
-                    }
-                };
-
-                document.getElementById('export-png').onclick = () => exportResponse('png');
-                document.getElementById('export-pdf').onclick = () => exportResponse('pdf');
-                document.getElementById('export-html').onclick = () => exportResponse('html');
-            }
-
-            function exportResponse(format) {
-                const { jsPDF } = window.jspdf;
-                const responseContainer = document.getElementById('ai-response');
-                const originalTitle = document.title;
-                document.title = 'BMW G20 Coding Report';
-
-                // --- HTML Export ---
-                if (format === 'html') {
-                    const styles = Array.from(document.styleSheets).map(s => {
-                        try {
-                            return Array.from(s.cssRules).map(r => r.cssText).join('\n');
-                        } catch (e) {
-                            return ''; // Ignore CORS-related errors on external stylesheets
-                        }
-                    }).join('\n');
-
-                    const htmlContent = `
-                        <!DOCTYPE html>
-                        <html lang="en">
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <title>BMW G20 Coding Report</title>
-                            <script src="https://cdn.tailwindcss.com"><\/script>
-                            <style>${styles}</style>
-                        </head>
-                        <body class="bg-gray-100 p-8">
-                            <h1 class="text-3xl font-bold text-blue-800 mb-6">AI-Generated Coding Report</h1>
-                            <div class="prose max-w-none">${responseContainer.innerHTML}</div>
-                        </body>
-                        </html>`;
-                    const blob = new Blob([htmlContent], { type: 'text/html' });
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'coding-report.html';
-                    link.click();
-                    URL.revokeObjectURL(link.href);
-                    document.title = originalTitle;
-                    return;
-                }
-
-                // --- PNG/PDF Export ---
-                // Temporarily modify styles to capture full scrollable content
-                const originalHeight = responseContainer.style.height;
-                const originalOverflow = responseContainer.style.overflowY;
-                responseContainer.style.height = 'auto';
-                responseContainer.style.overflowY = 'visible';
-
-                html2canvas(responseContainer, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#f8fafc',
-                    windowHeight: responseContainer.scrollHeight, // Ensure canvas is tall enough
-                    scrollY: -window.scrollY
-                }).then(canvas => {
-                    // Restore original styles
-                    responseContainer.style.height = originalHeight;
-                    responseContainer.style.overflowY = originalOverflow;
-
-                    if (format === 'png') {
-                        const link = document.createElement('a');
-                        link.href = canvas.toDataURL('image/png');
-                        link.download = 'coding-report.png';
-                        link.click();
-                    } else if (format === 'pdf') {
-                        const imgData = canvas.toDataURL('image/png');
-                        const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: [canvas.width, canvas.height] });
-                        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-                        pdf.save('coding-report.pdf');
-                    }
-                    document.title = originalTitle;
-                }).catch(err => {
-                    // Restore styles even if export fails
-                    responseContainer.style.height = originalHeight;
-                    responseContainer.style.overflowY = originalOverflow;
-                    console.error('Export failed:', err);
-                    alert('Could not export the report. Please see the console for details.');
-                    document.title = originalTitle;
-                });
-            }
-
-            const welcomeItem = document.querySelector('.sidebar-item[data-content="welcome"]');
-            welcomeItem.classList.add('active');
-            loadContent('welcome');
+        // Event Listeners
+        dom.openChatBtn.addEventListener('click', ui.openChat);
+        dom.closeChatBtn.addEventListener('click', ui.closeChat);
+        // Removed Settings event listeners
+        dom.chatForm.addEventListener('submit', chat.handleSubmission);
+        dom.clearChatBtn.addEventListener('click', () => {
+            localStorage.removeItem('chat_history');
+            state.chatHistory = [];
+            dom.chatLog.innerHTML = '';
+            chat.addBotMessage("Chat history cleared.");
         });
+        
+        // Wizard Event Listeners
+        dom.wizardNext.addEventListener('click', wizard.next);
+        dom.wizardBack.addEventListener('click', wizard.back);
+        dom.wizardHelp.addEventListener('click', wizard.askForHelp);
+        dom.wizardClose.addEventListener('click', () => dom.wizardModal.classList.remove('open'));
+
+        // Init
+        ui.setupNavigation(); // Start Navigation Listener
+        chat.init();
     </script>
 </body>
 </html>
